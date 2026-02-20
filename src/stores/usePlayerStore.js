@@ -164,6 +164,16 @@ function createPlayerSlice(set, get) {
       }));
     },
 
+    // Buff all friendly minions' defense
+    buffAllMinionsDefense: (amount) => {
+      set((state) => ({
+        board: state.board.map((m) => ({
+          ...m,
+          currentDefense: m.currentDefense + amount,
+        })),
+      }));
+    },
+
     // Apply damage to a specific minion
     damageMinion: (instanceId, amount) => {
       const { board } = get();

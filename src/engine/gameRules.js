@@ -1,6 +1,7 @@
 import useGameStore from '../stores/useGameStore';
 import usePlayerStore from '../stores/usePlayerStore';
 import useOpponentStore from '../stores/useOpponentStore';
+import { MAX_BOARD_SIZE } from '../data/constants';
 
 /**
  * Check if the game is over (either player HP <= 0)
@@ -22,7 +23,7 @@ export function canPlayCard(card, playerStore) {
   if (state.mana < card.manaCost) return { canPlay: false, reason: 'Not enough mana' };
 
   // Check board space for minions
-  if (card.type === 'minion' && state.board.length >= 5) {
+  if (card.type === 'minion' && state.board.length >= MAX_BOARD_SIZE) {
     return { canPlay: false, reason: 'Board is full' };
   }
 

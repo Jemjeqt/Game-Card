@@ -1,5 +1,5 @@
-import { CARD_TYPES } from '../data/constants';
-import { EFFECT_TYPES } from '../data/effects';
+import { CARD_TYPES, MAX_BOARD_SIZE } from '../data/constants';
+import { EFFECT_TYPES, COMBO_BONUS } from '../data/effects';
 
 /**
  * Score a card for AI decision making.
@@ -100,6 +100,58 @@ function scoreEffect(effect, card, aiState, enemyState) {
     case EFFECT_TYPES.MANA_GAIN:
       effectScore = effect.value * 2;
       break;
+
+    case EFFECT_TYPES.FREEZE:
+      effectScore = 2;
+      break;
+
+    case EFFECT_TYPES.POISON:
+      effectScore = effect.value * 1.5;
+      break;
+
+    case EFFECT_TYPES.BUFF_ALL_ATTACK:
+      effectScore = effect.value * aiState.board.length * 2;
+      break;
+
+    case EFFECT_TYPES.BUFF_ALL_DEFENSE:
+      effectScore = effect.value * aiState.board.length * 1.5;
+      break;
+
+    case EFFECT_TYPES.DAMAGE_PER_MINION:
+      effectScore = effect.value * aiState.board.length * 1.5;
+      break;
+
+    case EFFECT_TYPES.HEAL_PER_MINION:
+      effectScore = effect.value * aiState.board.length * 1.2;
+      if (aiState.hp <= 15) effectScore *= 1.5;
+      break;
+
+    case EFFECT_TYPES.COPY_MINION:
+      if (aiState.board.length > 0) {
+        const avgATK = aiState.board.reduce((s, m) => s + m.currentAttack, 0) / aiState.board.length;
+        effectScore = avgATK * 2 + 3;
+      }
+      break;
+
+    case EFFECT_TYPES.STEAL_ATTACK:
+      effectScore = effect.value * 2;
+      break;
+
+    case EFFECT_TYPES.DOUBLE_ATTACK:
+      effectScore = 5;
+      if (aiState.board.length > 0) {
+        const maxATK = Math.max(...aiState.board.map((m) => m.currentAttack));
+        effectScore += maxATK;
+      }
+      break;
+
+    case EFFECT_TYPES.COMBO:
+      // Combo value depends on bonus type and whether combo will activate
+      if (effect.bonusType === COMBO_BONUS.EXTRA_DAMAGE) effectScore += effect.value * 1.5;
+      else if (effect.bonusType === COMBO_BONUS.EXTRA_DRAW) effectScore += effect.value * 2;
+      else if (effect.bonusType === COMBO_BONUS.EXTRA_STATS) effectScore += effect.value * 2;
+      else if (effect.bonusType === COMBO_BONUS.EXTRA_HEAL) effectScore += effect.value;
+      break;
   }
 
   return effectScore;
@@ -169,7 +221,7 @@ export function selectCardsToPlay(hand, mana, aiState, enemyState) {
 
   const toPlay = [];
   let remainingMana = mana;
-  let boardSpace = 5 - aiState.board.length;
+  let boardSpace = MAX_BOARD_SIZE - aiState.board.length;
 
   for (const { card, score } of playableCards) {
     if (card.manaCost > remainingMana) continue;

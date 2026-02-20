@@ -146,6 +146,15 @@ const useOpponentStore = create((set, get) => ({
     }));
   },
 
+  buffAllMinionsDefense: (amount) => {
+    set((state) => ({
+      board: state.board.map((m) => ({
+        ...m,
+        currentDefense: m.currentDefense + amount,
+      })),
+    }));
+  },
+
   damageMinion: (instanceId, amount) => {
     const { board } = get();
     const minion = board.find((m) => m.instanceId === instanceId);

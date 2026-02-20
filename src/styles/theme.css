@@ -45,10 +45,10 @@
   --selected-glow: rgba(6, 182, 212, 0.5);
 
   /* Spacing */
-  --card-width-hand: 130px;
-  --card-height-hand: 185px;
-  --card-width-board: 110px;
-  --card-height-board: 155px;
+  --card-width-hand: 110px;
+  --card-height-hand: 155px;
+  --card-width-board: 85px;
+  --card-height-board: 120px;
   --card-width-preview: 260px;
   --card-height-preview: 370px;
 

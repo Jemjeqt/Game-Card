@@ -49,7 +49,7 @@ export default function MainMenu() {
             <div className="guide__content">
               <section className="guide__section">
                 <h3>🎯 Tujuan</h3>
-                <p>Kurangi HP musuh dari <strong>50 menjadi 0</strong> sebelum HP kamu habis duluan.</p>
+                <p>Kurangi HP musuh dari <strong>60 menjadi 0</strong> sebelum HP kamu habis duluan. Gunakan 35 kartu unik dengan efek spesial!</p>
               </section>
 
               <section className="guide__section">
@@ -66,7 +66,7 @@ export default function MainMenu() {
                     <span className="guide__phase-num">2</span>
                     <div>
                       <strong>AMBIL KARTU</strong>
-                      <p>Ambil 1 kartu. Tangan penuh (7)? Kartu hangus. Deck habis? Kena damage fatigue!</p>
+                      <p>Ambil 1 kartu. Tangan penuh (9)? Kartu hangus. Deck habis? Kena damage fatigue!</p>
                     </div>
                   </div>
                   <div className="guide__phase">
@@ -116,6 +116,12 @@ export default function MainMenu() {
                   <div className="guide__item"><strong>AoE</strong> — Mengenai semua minion musuh</div>
                   <div className="guide__item"><strong>Summon</strong> — Memanggil minion tambahan</div>
                   <div className="guide__item"><strong>Start of Turn</strong> — Efek aktif setiap awal giliran</div>
+                  <div className="guide__item"><strong>💥 Combo</strong> — Bonus efek jika sudah memainkan kartu lain giliran ini</div>
+                  <div className="guide__item"><strong>💀 Deathrattle</strong> — Efek aktif saat minion mati</div>
+                  <div className="guide__item"><strong>🌙 End of Turn</strong> — Efek aktif setiap akhir giliran</div>
+                  <div className="guide__item"><strong>🪞 Copy</strong> — Membuat salinan minion di arena</div>
+                  <div className="guide__item"><strong>☠️ Poison</strong> — Memberikan damage tambahan</div>
+                  <div className="guide__item"><strong>🛡️ Buff All</strong> — Menguatkan semua minion di arena</div>
                 </div>
               </section>
 
@@ -125,7 +131,8 @@ export default function MainMenu() {
                   <li><strong>Klik kanan</strong> pada kartu untuk melihat preview lebih besar</li>
                   <li>Kartu dengan <span style={{color:'#22c55e'}}>cahaya hijau</span> bisa dimainkan</li>
                   <li>Minion dengan <span style={{color:'#ef4444'}}>border merah saat di-hover</span> bisa menyerang</li>
-                  <li>Mainkan kartu murah di awal, simpan kartu kuat untuk late game</li>
+                  <li>Arena bisa menampung <strong>10 minion</strong> — manfaatkan ruang!</li>
+                  <li>Mainkan beberapa kartu dalam satu giliran untuk aktifkan <strong>Combo</strong></li>
                   <li>Pantau <strong>Battle Log</strong> di kanan untuk melihat semua aksi</li>
                 </ul>
               </section>

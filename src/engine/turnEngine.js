@@ -5,7 +5,7 @@ import usePlayerStore from '../stores/usePlayerStore';
 import useOpponentStore from '../stores/useOpponentStore';
 import useUIStore from '../stores/useUIStore';
 import useMultiplayerStore from '../stores/useMultiplayerStore';
-import { resolveStartOfTurnEffects } from './effectResolver';
+import { resolveStartOfTurnEffects, resolveEndOfTurnEffects, resetCardsPlayedThisTurn } from './effectResolver';
 import { checkGameOver } from './gameRules';
 import { runAITurn } from '../ai/aiController';
 import { createLogEntry } from '../utils/logger';
@@ -80,6 +80,9 @@ export async function executeStartTurn() {
 
   await delay(DELAYS.TURN_BANNER);
   useUIStore.getState().clearTurnBanner();
+
+  // Reset combo counter for new turn
+  resetCardsPlayedThisTurn();
 
   // Add mana crystal
   activeStore.getState().addMaxMana();
@@ -172,6 +175,17 @@ export async function endTurn() {
   useUIStore.getState().clearSelection();
   useGameStore.getState().setProcessing(true);
   useGameStore.getState().setPhase(PHASES.END_TURN);
+
+  // Resolve end-of-turn effects (Void Cultist, etc.)
+  const isPlayer = useGameStore.getState().activePlayer === PLAYERS.PLAYER;
+  const addLogEnd = (text) =>
+    useUIStore.getState().addLogEntry(createLogEntry(text, LOG_TYPES.EFFECT));
+  resolveEndOfTurnEffects({
+    ownerStore: isPlayer ? usePlayerStore : useOpponentStore,
+    enemyStore: isPlayer ? useOpponentStore : usePlayerStore,
+    addLog: addLogEnd,
+  });
+  if (checkGameOver()) return;
 
   await delay(DELAYS.PHASE_TRANSITION);
 

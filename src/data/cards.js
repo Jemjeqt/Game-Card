@@ -1,5 +1,5 @@
 import { CARD_TYPES, RARITY } from './constants';
-import { EFFECT_TYPES, TRIGGERS, TARGETS, createEffect } from './effects';
+import { EFFECT_TYPES, TRIGGERS, TARGETS, COMBO_BONUS, createEffect, createComboEffect } from './effects';
 
 // Card emoji icons as visual placeholders
 const ICONS = {
@@ -24,9 +24,27 @@ const ICONS = {
   archmage_solara: '🌟',
   divine_protector: '👼',
   skeleton_token: '💀',
+  // New card icons
+  frost_mage: '❄️',
+  plague_rat: '🐀',
+  warcry_berserker: '🪓',
+  spirit_walker: '👻',
+  mirror_mage: '🪞',
+  thunder_elemental: '⛈️',
+  blood_knight: '🩸',
+  shadow_dancer: '💃',
+  void_cultist: '🌑',
+  cursed_blade: '⚔️',
+  chain_lightning: '⚡',
+  war_drums: '🥁',
+  soul_exchange: '🔄',
+  phoenix_egg: '🥚',
+  phoenix_token: '🔥',
+  doom_harbinger: '☠️',
+  revenant_token: '👻',
 };
 
-// ===== ALL 20 CARD DEFINITIONS =====
+// ===== ALL 35 CARD DEFINITIONS =====
 const CARD_DEFINITIONS = [
   // ===== LOW COST (1-2 Mana) =====
   {
@@ -302,6 +320,257 @@ const CARD_DEFINITIONS = [
     icon: ICONS.divine_protector,
     keywords: [],
   },
+
+  // ===== NEW CARDS (21-35) =====
+
+  // --- FROST MAGE (2 mana) — Combo: Freeze ---
+  {
+    id: 'frost_mage',
+    name: 'Frost Mage',
+    manaCost: 2,
+    attack: 2,
+    defense: 3,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.RARE,
+    effect: [
+      createEffect(EFFECT_TYPES.DAMAGE, 1, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
+      createComboEffect(COMBO_BONUS.EXTRA_DAMAGE, 2, TARGETS.ENEMY_HERO),
+    ],
+    description: 'Battlecry: Deal 1 damage. Combo: Deal 2 extra damage.',
+    icon: ICONS.frost_mage,
+    keywords: ['combo'],
+  },
+
+  // --- PLAGUE RAT (1 mana) — Poison (damage per turn) ---
+  {
+    id: 'plague_rat',
+    name: 'Plague Rat',
+    manaCost: 1,
+    attack: 1,
+    defense: 1,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.COMMON,
+    effect: createEffect(EFFECT_TYPES.POISON, 1, TARGETS.ENEMY_HERO, TRIGGERS.START_OF_TURN),
+    description: 'Start of Turn: Deal 1 poison damage to enemy hero.',
+    icon: ICONS.plague_rat,
+    keywords: ['poison'],
+  },
+
+  // --- WARCRY BERSERKER (3 mana) — Gets stronger with more minions ---
+  {
+    id: 'warcry_berserker',
+    name: 'Warcry Berserker',
+    manaCost: 3,
+    attack: 2,
+    defense: 4,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.RARE,
+    effect: createEffect(EFFECT_TYPES.BUFF_ATTACK, 1, TARGETS.SELF, TRIGGERS.ON_PLAY),
+    description: 'Battlecry: Gain +1 ATK for each friendly minion on board.',
+    icon: ICONS.warcry_berserker,
+    keywords: ['warcry'],
+    specialEffect: 'perMinion',
+  },
+
+  // --- SPIRIT WALKER (2 mana) — Heals per minion ---
+  {
+    id: 'spirit_walker',
+    name: 'Spirit Walker',
+    manaCost: 2,
+    attack: 1,
+    defense: 4,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.COMMON,
+    effect: createEffect(EFFECT_TYPES.HEAL_PER_MINION, 1, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
+    description: 'Battlecry: Heal 1 HP per friendly minion on board.',
+    icon: ICONS.spirit_walker,
+    keywords: [],
+  },
+
+  // --- MIRROR MAGE (5 mana) — Copy a random friendly minion ---
+  {
+    id: 'mirror_mage',
+    name: 'Mirror Mage',
+    manaCost: 5,
+    attack: 3,
+    defense: 3,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.EPIC,
+    effect: createEffect(EFFECT_TYPES.COPY_MINION, 1, TARGETS.SELF, TRIGGERS.ON_PLAY),
+    description: 'Battlecry: Summon a copy of a random friendly minion.',
+    icon: ICONS.mirror_mage,
+    keywords: [],
+  },
+
+  // --- THUNDER ELEMENTAL (4 mana) — Combo: AoE damage ---
+  {
+    id: 'thunder_elemental',
+    name: 'Thunder Elemental',
+    manaCost: 4,
+    attack: 3,
+    defense: 5,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.RARE,
+    effect: [
+      createEffect(EFFECT_TYPES.DAMAGE, 1, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
+      createComboEffect(COMBO_BONUS.EXTRA_DAMAGE, 2, TARGETS.ALL_ENEMY_MINIONS),
+    ],
+    description: 'Battlecry: Deal 1 damage. Combo: Deal 2 to all enemy minions.',
+    icon: ICONS.thunder_elemental,
+    keywords: ['combo'],
+  },
+
+  // --- BLOOD KNIGHT (4 mana) — Lifesteal + Combo draw ---
+  {
+    id: 'blood_knight',
+    name: 'Blood Knight',
+    manaCost: 4,
+    attack: 4,
+    defense: 3,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.EPIC,
+    effect: [
+      createEffect(EFFECT_TYPES.LIFESTEAL, 0, TARGETS.SELF, TRIGGERS.PASSIVE),
+      createComboEffect(COMBO_BONUS.EXTRA_DRAW, 1, TARGETS.SELF_HERO),
+    ],
+    description: 'Lifesteal. Combo: Draw 1 card.',
+    icon: ICONS.blood_knight,
+    keywords: ['lifesteal', 'combo'],
+  },
+
+  // --- SHADOW DANCER (3 mana) — Combo: get +2/+2 ---
+  {
+    id: 'shadow_dancer',
+    name: 'Shadow Dancer',
+    manaCost: 3,
+    attack: 2,
+    defense: 2,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.RARE,
+    effect: createComboEffect(COMBO_BONUS.EXTRA_STATS, 2, TARGETS.SELF),
+    description: 'Combo: Gain +2/+2.',
+    icon: ICONS.shadow_dancer,
+    keywords: ['combo'],
+  },
+
+  // --- VOID CULTIST (3 mana) — End of Turn: deal 1 damage to ALL ---
+  {
+    id: 'void_cultist',
+    name: 'Void Cultist',
+    manaCost: 3,
+    attack: 2,
+    defense: 5,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.RARE,
+    effect: createEffect(EFFECT_TYPES.DAMAGE, 1, TARGETS.ENEMY_HERO, TRIGGERS.END_OF_TURN),
+    description: 'End of Turn: Deal 1 damage to enemy hero.',
+    icon: ICONS.void_cultist,
+    keywords: [],
+  },
+
+  // --- CURSED BLADE (2 mana, Spell) — Combo: Deal extra damage ---
+  {
+    id: 'cursed_blade',
+    name: 'Cursed Blade',
+    manaCost: 2,
+    attack: 0,
+    defense: 0,
+    type: CARD_TYPES.SPELL,
+    rarity: RARITY.COMMON,
+    effect: [
+      createEffect(EFFECT_TYPES.DAMAGE, 2, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
+      createComboEffect(COMBO_BONUS.EXTRA_DAMAGE, 3, TARGETS.ENEMY_HERO),
+    ],
+    description: 'Deal 2 damage. Combo: Deal 3 extra damage.',
+    icon: ICONS.cursed_blade,
+    keywords: ['combo'],
+  },
+
+  // --- CHAIN LIGHTNING (3 mana, Spell) — AoE + hero damage ---
+  {
+    id: 'chain_lightning',
+    name: 'Chain Lightning',
+    manaCost: 3,
+    attack: 0,
+    defense: 0,
+    type: CARD_TYPES.SPELL,
+    rarity: RARITY.RARE,
+    effect: [
+      createEffect(EFFECT_TYPES.AOE_DAMAGE, 1, TARGETS.ALL_ENEMY_MINIONS, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.DAMAGE, 2, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Deal 1 damage to all enemy minions and 2 to enemy hero.',
+    icon: ICONS.chain_lightning,
+    keywords: [],
+  },
+
+  // --- WAR DRUMS (4 mana, Spell) — Buff all friendly minions ---
+  {
+    id: 'war_drums',
+    name: 'War Drums',
+    manaCost: 4,
+    attack: 0,
+    defense: 0,
+    type: CARD_TYPES.SPELL,
+    rarity: RARITY.EPIC,
+    effect: [
+      createEffect(EFFECT_TYPES.BUFF_ATTACK, 2, TARGETS.ALL_FRIENDLY_MINIONS, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.BUFF_DEFENSE, 1, TARGETS.ALL_FRIENDLY_MINIONS, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Give all friendly minions +2 Attack and +1 Defense.',
+    icon: ICONS.war_drums,
+    keywords: [],
+  },
+
+  // --- SOUL EXCHANGE (5 mana, Spell) — Damage both heroes, draw ---
+  {
+    id: 'soul_exchange',
+    name: 'Soul Exchange',
+    manaCost: 5,
+    attack: 0,
+    defense: 0,
+    type: CARD_TYPES.SPELL,
+    rarity: RARITY.EPIC,
+    effect: [
+      createEffect(EFFECT_TYPES.SELF_DAMAGE, 5, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.DAMAGE, 5, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.DRAW, 2, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Deal 5 damage to BOTH heroes. Draw 2 cards.',
+    icon: ICONS.soul_exchange,
+    keywords: [],
+  },
+
+  // --- PHOENIX EGG (2 mana) — On Death: Summon Phoenix ---
+  {
+    id: 'phoenix_egg',
+    name: 'Phoenix Egg',
+    manaCost: 2,
+    attack: 0,
+    defense: 3,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.EPIC,
+    effect: createEffect(EFFECT_TYPES.SUMMON, 1, TARGETS.SELF, TRIGGERS.ON_DEATH),
+    description: 'Deathrattle: Summon a 3/3 Phoenix.',
+    icon: ICONS.phoenix_egg,
+    keywords: ['deathrattle'],
+    summonId: 'phoenix_token',
+  },
+
+  // --- DOOM HARBINGER (8 mana) — Massive: Destroy ALL enemy minions ---
+  {
+    id: 'doom_harbinger',
+    name: 'Doom Harbinger',
+    manaCost: 8,
+    attack: 6,
+    defense: 6,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.LEGENDARY,
+    effect: createEffect(EFFECT_TYPES.AOE_DAMAGE, 99, TARGETS.ALL_ENEMY_MINIONS, TRIGGERS.ON_PLAY),
+    description: 'Battlecry: Destroy ALL enemy minions.',
+    icon: ICONS.doom_harbinger,
+    keywords: [],
+  },
 ];
 
 // Skeleton token (not in main pool, summoned by Corpse Raiser)
@@ -319,9 +588,41 @@ export const SKELETON_TOKEN = {
   keywords: ['token'],
 };
 
+// Phoenix token (summoned by Phoenix Egg deathrattle)
+export const PHOENIX_TOKEN = {
+  id: 'phoenix_token',
+  name: 'Phoenix',
+  manaCost: 0,
+  attack: 3,
+  defense: 3,
+  type: CARD_TYPES.MINION,
+  rarity: RARITY.RARE,
+  effect: null,
+  description: 'A reborn phoenix from the ashes.',
+  icon: ICONS.phoenix_token,
+  keywords: ['token'],
+};
+
+// Revenant token (summoned by Resurrection spell)
+export const REVENANT_TOKEN = {
+  id: 'revenant_token',
+  name: 'Revenant',
+  manaCost: 0,
+  attack: 3,
+  defense: 3,
+  type: CARD_TYPES.MINION,
+  rarity: RARITY.COMMON,
+  effect: null,
+  description: 'A spirit summoned from beyond.',
+  icon: ICONS.revenant_token,
+  keywords: ['token'],
+};
+
 // Get a card definition by its ID
 export function getCardById(cardId) {
   if (cardId === 'skeleton_token') return SKELETON_TOKEN;
+  if (cardId === 'phoenix_token') return PHOENIX_TOKEN;
+  if (cardId === 'revenant_token') return REVENANT_TOKEN;
   return CARD_DEFINITIONS.find((c) => c.id === cardId) || null;
 }
 

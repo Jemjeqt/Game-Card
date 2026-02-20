@@ -4,9 +4,9 @@ import usePlayerStore from '../../stores/usePlayerStore';
 import useOpponentStore from '../../stores/useOpponentStore';
 import useGameStore from '../../stores/useGameStore';
 import useUIStore from '../../stores/useUIStore';
-import { PHASES, PLAYERS, CARD_TYPES, LOG_TYPES } from '../../data/constants';
+import { PHASES, PLAYERS, CARD_TYPES, LOG_TYPES, MAX_BOARD_SIZE } from '../../data/constants';
 import { EFFECT_TYPES, TRIGGERS, TARGETS } from '../../data/effects';
-import { resolveEffects, applyBuffDefenseToMinion } from '../../engine/effectResolver';
+import { resolveEffects, applyBuffDefenseToMinion, incrementCardsPlayed } from '../../engine/effectResolver';
 import { checkGameOver } from '../../engine/gameRules';
 import { createLogEntry } from '../../utils/logger';
 import useMultiplayerStore from '../../stores/useMultiplayerStore';
@@ -33,7 +33,7 @@ export default function PlayerHand() {
 
     // Check if card is playable
     if (card.manaCost > mana) return;
-    if (card.type === CARD_TYPES.MINION && board.length >= 5) return;
+    if (card.type === CARD_TYPES.MINION && board.length >= MAX_BOARD_SIZE) return;
 
     if (selectedCardId === card.instanceId) {
       // Clicking selected card again = play it
@@ -53,6 +53,9 @@ export default function PlayerHand() {
 
     // Remove from hand
     usePlayerStore.getState().removeFromHand(card.instanceId);
+
+    // Track for combo
+    incrementCardsPlayed();
 
     // Log
     useUIStore.getState().addLogEntry(

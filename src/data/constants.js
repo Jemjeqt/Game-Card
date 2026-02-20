@@ -1,13 +1,13 @@
 // Game constants
-export const STARTING_HP = 50;
-export const MAX_HP = 50;
+export const STARTING_HP = 60;
+export const MAX_HP = 60;
 export const MAX_MANA = 10;
 export const STARTING_MANA = 1;
-export const MAX_HAND_SIZE = 7;
-export const MAX_BOARD_SIZE = 5;
+export const MAX_HAND_SIZE = 9;
+export const MAX_BOARD_SIZE = 10;
 export const CARDS_PER_COPY = 2;
-export const PLAYER_STARTING_HAND = 3;
-export const AI_STARTING_HAND = 4; // AI goes second, gets 1 extra card
+export const PLAYER_STARTING_HAND = 4;
+export const AI_STARTING_HAND = 5; // AI goes second, gets 1 extra card
 
 // Turn phases
 export const PHASES = {
