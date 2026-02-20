@@ -8,7 +8,7 @@
 
 Game kartu strategi berbasis giliran dengan tema dark fantasy. Mainkan kartu minion dan spell untuk mengalahkan lawan — bisa melawan AI atau teman secara online!
 
-🌐 **Live Demo:** [dist-seven-mocha.vercel.app](https://dist-seven-mocha.vercel.app)
+🌐 **Live Demo:** [card-battle-sooty.vercel.app](https://card-battle-sooty.vercel.app)
 
 ---
 
@@ -76,23 +76,23 @@ Game kartu strategi berbasis giliran dengan tema dark fantasy. Mainkan kartu min
 | Doom Harbinger ⭐     |  8   |  6  |  6  | Legendary | Battlecry: Deal 6 AoE ke semua minion musuh     |
 | Shadow Sovereign ⭐   |  8   |  6  |  6  | Legendary | Deathrattle: 5 AoE + 2 hero damage              |
 | Abyss Monarch ⭐      |  8   |  7  |  7  | Legendary | Battlecry: 4 AoE + 5 self damage                |
-| Infernal Titan ⭐     |  9   |  8  | 10  | Legendary | Battlecry: 5 hero dmg + Summon 2 Skeleton        |
+| Infernal Titan ⭐     |  9   |  8  | 10  | Legendary | Battlecry: 5 hero dmg + Summon 2 Skeleton       |
 
 ### Spell (13 Kartu)
 
-| Kartu               | Mana | Rarity | Efek                                            |
-| ------------------- | :--: | ------ | ----------------------------------------------- |
-| Arcane Spark        |  1   | Common | Deal 2 damage ke hero musuh                     |
-| Mystic Shield       |  2   | Common | +3 Defense ke 1 minion                          |
-| Cursed Blade        |  2   | Common | 2 dmg ke hero. Combo: +3 dmg                    |
-| Blood Pact          |  2   | Rare   | 2 self damage, draw 2 kartu                     |
-| Fireball            |  3   | Common | Deal 5 damage ke hero musuh                     |
-| Chain Lightning     |  3   | Rare   | 1 AoE + 2 dmg ke hero musuh                     |
-| Mana Aegis          |  3   | Rare   | Semua minion +2 DEF + Heal hero 3 HP            |
-| Mindbreak           |  4   | Rare   | Deal 2 AoE ke semua minion musuh                |
-| War Drums           |  4   | Epic   | Buff semua minion +2 ATK / +1 DEF               |
-| Soul Exchange       |  5   | Epic   | Kedua hero -5 HP, draw 2 kartu                  |
-| Inferno Wave        |  5   | Epic   | 3 dmg hero + 3 AoE ke semua minion musuh        |
+| Kartu           | Mana | Rarity | Efek                                     |
+| --------------- | :--: | ------ | ---------------------------------------- |
+| Arcane Spark    |  1   | Common | Deal 2 damage ke hero musuh              |
+| Mystic Shield   |  2   | Common | +3 Defense ke 1 minion                   |
+| Cursed Blade    |  2   | Common | 2 dmg ke hero. Combo: +3 dmg             |
+| Blood Pact      |  2   | Rare   | 2 self damage, draw 2 kartu              |
+| Fireball        |  3   | Common | Deal 5 damage ke hero musuh              |
+| Chain Lightning |  3   | Rare   | 1 AoE + 2 dmg ke hero musuh              |
+| Mana Aegis      |  3   | Rare   | Semua minion +2 DEF + Heal hero 3 HP     |
+| Mindbreak       |  4   | Rare   | Deal 2 AoE ke semua minion musuh         |
+| War Drums       |  4   | Epic   | Buff semua minion +2 ATK / +1 DEF        |
+| Soul Exchange   |  5   | Epic   | Kedua hero -5 HP, draw 2 kartu           |
+| Inferno Wave    |  5   | Epic   | 3 dmg hero + 3 AoE ke semua minion musuh |
 
 ---
 
