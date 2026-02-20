@@ -1,5 +1,6 @@
 # ⚔️ Card Battle — Dark Fantasy Duel
 
+![Version](https://img.shields.io/badge/Version-v0.2.0--beta-blueviolet)
 ![React](https://img.shields.io/badge/React-19-blue?logo=react)
 ![Vite](https://img.shields.io/badge/Vite-6-purple?logo=vite)
 ![Firebase](https://img.shields.io/badge/Firebase-Realtime%20DB-orange?logo=firebase)
@@ -295,7 +296,41 @@ src/
 
 ---
 
-## 📝 Scripts
+## � Patch Notes
+
+### v0.2.0-beta — 20 Februari 2026
+
+**Major Expansion Update**
+
+- 🃏 **35 Kartu** — Dari 20 menjadi 35 kartu unik (minion + spell)
+- 🏟️ **Arena 10 Slot** — Board diperbesar dari 5 menjadi 10 slot per pemain
+- ❤️ **HP 60** — HP awal ditingkatkan dari 50 menjadi 60
+- 🖐️ **Hand Size 9** — Maksimal kartu di tangan dari 7 menjadi 9
+- 🔥 **Combo System** — Kartu kedua+ dalam satu turn mendapat bonus efek combo
+- 💀 **Deathrattle** — Efek khusus saat minion mati (damage, summon, heal, dll)
+- 🔄 **End of Turn Effects** — Efek otomatis di akhir turn (regen, poison, buff)
+- 📋 **Copy Minion** — Spell yang menduplikasi minion di arena
+- 💪 **Buff All** — Spell yang meng-buff semua minion sekaligus
+- 👹 **Doom Harbinger** — Minion legendary dengan Deathrattle AoE
+- 📖 **Panduan Lengkap** — Guide in-game dengan tab (Mekanik/Minion/Spell/Strategi) + deskripsi semua kartu
+- 🏷️ **Version Badge** — Badge versi di menu + Patch Notes overlay
+
+### v0.1.0 — Rilis Awal
+
+**Initial Release**
+
+- 🃏 20 kartu unik (minion + spell)
+- 🤖 Mode VS AI dengan strategi scoring
+- 🌐 Mode Multiplayer via Firebase Realtime Database
+- 🎮 5 fase permainan: Draw → Mana → Main → Combat → End
+- ⚡ Efek kartu: Battlecry, Lifesteal, Divine Shield, Taunt, AoE, Summon, Start of Turn
+- 📜 Battle Log dengan fitur minimize
+- 🎨 Dark Fantasy theme
+- 🚀 Deploy ke Vercel
+
+---
+
+## �📝 Scripts
 
 ```bash
 npm run dev      # Jalankan dev server
