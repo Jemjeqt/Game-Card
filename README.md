@@ -8,7 +8,7 @@
 
 Game kartu strategi berbasis giliran dengan tema dark fantasy. Mainkan kartu minion dan spell untuk mengalahkan lawan — bisa melawan AI atau teman secara online!
 
-🌐 **Live Demo:** [card-battle-sooty.vercel.app](https://card-battle-sooty.vercel.app)
+🌐 **Live Demo:** [dist-seven-mocha.vercel.app](https://dist-seven-mocha.vercel.app)
 
 ---
 
