@@ -42,6 +42,15 @@ const ICONS = {
   phoenix_token: '🔥',
   doom_harbinger: '☠️',
   revenant_token: '👻',
+  // v0.3.0 Legendary card icons
+  celestial_arbiter: '⭐',
+  void_empress: '🌌',
+  infernal_titan: '🔱',
+  chrono_weaver: '⏳',
+  shadow_sovereign: '👁️',
+  // v0.3.1 Balance Patch
+  mana_aegis: '🔮',
+  abyss_monarch: '👑',
 };
 
 // ===== ALL 35 CARD DEFINITIONS =====
@@ -221,16 +230,16 @@ const CARD_DEFINITIONS = [
   {
     id: 'blood_pact',
     name: 'Blood Pact',
-    manaCost: 3,
+    manaCost: 2,
     attack: 0,
     defense: 0,
     type: CARD_TYPES.SPELL,
     rarity: RARITY.RARE,
     effect: [
-      createEffect(EFFECT_TYPES.SELF_DAMAGE, 3, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
-      createEffect(EFFECT_TYPES.DRAW, 3, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.SELF_DAMAGE, 2, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.DRAW, 2, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
     ],
-    description: 'Deal 3 damage to your hero. Draw 3 cards.',
+    description: 'Deal 2 damage to your hero. Draw 2 cards.',
     icon: ICONS.blood_pact,
     keywords: [],
   },
@@ -253,7 +262,7 @@ const CARD_DEFINITIONS = [
     id: 'elder_dragon',
     name: 'Elder Dragon',
     manaCost: 7,
-    attack: 7,
+    attack: 8,
     defense: 7,
     type: CARD_TYPES.MINION,
     rarity: RARITY.LEGENDARY,
@@ -309,7 +318,7 @@ const CARD_DEFINITIONS = [
     name: 'Divine Protector',
     manaCost: 5,
     attack: 3,
-    defense: 8,
+    defense: 9,
     type: CARD_TYPES.MINION,
     rarity: RARITY.EPIC,
     effect: [
@@ -412,10 +421,10 @@ const CARD_DEFINITIONS = [
     type: CARD_TYPES.MINION,
     rarity: RARITY.RARE,
     effect: [
-      createEffect(EFFECT_TYPES.DAMAGE, 1, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.DAMAGE, 2, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
       createComboEffect(COMBO_BONUS.EXTRA_DAMAGE, 2, TARGETS.ALL_ENEMY_MINIONS),
     ],
-    description: 'Battlecry: Deal 1 damage. Combo: Deal 2 to all enemy minions.',
+    description: 'Battlecry: Deal 2 damage. Combo: Deal 2 to all enemy minions.',
     icon: ICONS.thunder_elemental,
     keywords: ['combo'],
   },
@@ -566,10 +575,142 @@ const CARD_DEFINITIONS = [
     defense: 6,
     type: CARD_TYPES.MINION,
     rarity: RARITY.LEGENDARY,
-    effect: createEffect(EFFECT_TYPES.AOE_DAMAGE, 99, TARGETS.ALL_ENEMY_MINIONS, TRIGGERS.ON_PLAY),
-    description: 'Battlecry: Destroy ALL enemy minions.',
+    effect: createEffect(EFFECT_TYPES.AOE_DAMAGE, 6, TARGETS.ALL_ENEMY_MINIONS, TRIGGERS.ON_PLAY),
+    description: 'Battlecry: Deal 6 damage to ALL enemy minions.',
     icon: ICONS.doom_harbinger,
     keywords: [],
+  },
+
+  // ===== v0.3.0 — 5 NEW LEGENDARY CARDS =====
+
+  // --- CELESTIAL ARBITER (7 mana) — Battlecry: Deal damage equal to your mana crystals to all enemies ---
+  {
+    id: 'celestial_arbiter',
+    name: 'Celestial Arbiter',
+    manaCost: 7,
+    attack: 4,
+    defense: 8,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.LEGENDARY,
+    effect: [
+      createEffect(EFFECT_TYPES.AOE_DAMAGE, 3, TARGETS.ALL_ENEMY_MINIONS, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.DAMAGE, 3, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.HEAL, 5, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Battlecry: Deal 3 AoE + 3 to hero + Heal 5. The ultimate judge.',
+    icon: ICONS.celestial_arbiter,
+    keywords: ['legendary'],
+  },
+
+  // --- VOID EMPRESS (6 mana) — Passive Lifesteal + Start of Turn: steal 1 ATK from random enemy ---
+  {
+    id: 'void_empress',
+    name: 'Void Empress',
+    manaCost: 6,
+    attack: 4,
+    defense: 7,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.LEGENDARY,
+    effect: [
+      createEffect(EFFECT_TYPES.LIFESTEAL, 0, TARGETS.SELF, TRIGGERS.PASSIVE),
+      createEffect(EFFECT_TYPES.STEAL_ATTACK, 1, TARGETS.RANDOM_ENEMY_MINION, TRIGGERS.START_OF_TURN),
+      createEffect(EFFECT_TYPES.DRAW, 1, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Lifesteal. Start of Turn: Steal 1 ATK from enemy. Battlecry: Draw 1.',
+    icon: ICONS.void_empress,
+    keywords: ['lifesteal', 'legendary'],
+  },
+
+  // --- INFERNAL TITAN (9 mana) — Biggest body, Battlecry: deal 5 to hero + summon 2 skeletons ---
+  {
+    id: 'infernal_titan',
+    name: 'Infernal Titan',
+    manaCost: 9,
+    attack: 8,
+    defense: 10,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.LEGENDARY,
+    effect: [
+      createEffect(EFFECT_TYPES.DAMAGE, 5, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.SUMMON, 2, TARGETS.SELF, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Battlecry: Deal 5 to enemy hero + Summon 2 Skeletons. Unstoppable force.',
+    icon: ICONS.infernal_titan,
+    keywords: ['legendary'],
+  },
+
+  // --- CHRONO WEAVER (5 mana) — Battlecry: Draw 3 + give all friendly minions double attack this turn ---
+  {
+    id: 'chrono_weaver',
+    name: 'Chrono Weaver',
+    manaCost: 6,
+    attack: 3,
+    defense: 4,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.LEGENDARY,
+    effect: [
+      createEffect(EFFECT_TYPES.DRAW, 1, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.BUFF_ALL_ATTACK, 1, TARGETS.ALL_FRIENDLY_MINIONS, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Battlecry: Draw 1 card + All friendly minions gain +1 ATK. Time bender.',
+    icon: ICONS.chrono_weaver,
+    keywords: ['legendary'],
+  },
+
+  // --- SHADOW SOVEREIGN (8 mana) — Deathrattle: Destroy ALL minions + Deal 3 to enemy hero ---
+  {
+    id: 'shadow_sovereign',
+    name: 'Shadow Sovereign',
+    manaCost: 8,
+    attack: 6,
+    defense: 6,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.LEGENDARY,
+    effect: [
+      createEffect(EFFECT_TYPES.AOE_DAMAGE, 5, TARGETS.ALL_ENEMY_MINIONS, TRIGGERS.ON_DEATH),
+      createEffect(EFFECT_TYPES.DAMAGE, 2, TARGETS.ENEMY_HERO, TRIGGERS.ON_DEATH),
+    ],
+    description: 'Deathrattle: Deal 5 to ALL enemy minions + Deal 2 to hero. Prince of shadows.',
+    icon: ICONS.shadow_sovereign,
+    keywords: ['deathrattle', 'legendary'],
+  },
+
+  // ===== v0.3.1 — BALANCE PATCH NEW CARDS =====
+
+  // --- MANA AEGIS (3 mana, Spell) — Protective spell: buff all DEF + heal ---
+  {
+    id: 'mana_aegis',
+    name: 'Mana Aegis',
+    manaCost: 3,
+    attack: 0,
+    defense: 0,
+    type: CARD_TYPES.SPELL,
+    rarity: RARITY.RARE,
+    effect: [
+      createEffect(EFFECT_TYPES.BUFF_DEFENSE, 2, TARGETS.ALL_FRIENDLY_MINIONS, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.HEAL, 3, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Give all friendly minions +2 Defense. Restore 3 HP to your hero.',
+    icon: ICONS.mana_aegis,
+    keywords: [],
+  },
+
+  // --- ABYSS MONARCH (8 mana) — Heavy AoE + self damage ---
+  {
+    id: 'abyss_monarch',
+    name: 'Abyss Monarch',
+    manaCost: 8,
+    attack: 7,
+    defense: 7,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.LEGENDARY,
+    effect: [
+      createEffect(EFFECT_TYPES.AOE_DAMAGE, 4, TARGETS.ALL_ENEMY_MINIONS, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.SELF_DAMAGE, 5, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Battlecry: Deal 4 damage to ALL enemy minions. Deal 5 damage to your hero.',
+    icon: ICONS.abyss_monarch,
+    keywords: ['legendary'],
   },
 ];
 

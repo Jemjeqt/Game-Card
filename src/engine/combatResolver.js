@@ -1,4 +1,5 @@
 import { EFFECT_TYPES, TRIGGERS } from '../data/effects';
+import useQuestStore from '../stores/useQuestStore';
 
 /**
  * Resolve a minion attacking the enemy hero (direct attack model)
@@ -23,6 +24,9 @@ export function resolveAttack({ minion, ownerStore, enemyStore, addLog }) {
   // Deal damage to enemy hero
   enemyStore.getState().takeDamage(damage);
   addLog(`${minion.name} attacks for ${damage} damage!`);
+
+  // Track quest: damage dealt via attack
+  useQuestStore.getState().trackEvent('damage_dealt', damage);
 
   // Mark as exhausted
   ownerStore.getState().updateMinion(minion.instanceId, { exhausted: true });

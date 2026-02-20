@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { initializeGame } from '../../engine/turnEngine';
 import useGameStore from '../../stores/useGameStore';
+import useRankedStore from '../../stores/useRankedStore';
+import useDraftStore from '../../stores/useDraftStore';
+import useQuestStore from '../../stores/useQuestStore';
+import RankedBadge from '../HUD/RankedBadge';
+import QuestPanel from '../HUD/QuestPanel';
 import { GAME_STATUS, GAME_VERSION } from '../../data/constants';
 
 const GUIDE_TABS = ['Mekanik', 'Minion', 'Spell', 'Strategi'];
@@ -23,12 +28,18 @@ const MINION_CARDS = [
   { name: 'Spirit Walker', mana: 4, atk: 2, def: 5, desc: 'Pejalan roh penyembuh. Saat dimainkan, menyembuhkan hero 2 HP per minion di arena. Semakin banyak minion, semakin banyak heal.' },
   { name: 'Blood Knight', mana: 4, atk: 4, def: 3, desc: 'Ksatria darah dengan Lifesteal. Combo: Draw 1 kartu bonus jika sudah main kartu lain giliran ini. Serba bisa.' },
   { name: 'Archmage Solara', mana: 5, atk: 4, def: 4, desc: 'Archmage legendaris. Start of Turn: Deal 2 damage ke hero musuh setiap awal giliranmu. Semakin lama hidup, semakin mematikan!' },
-  { name: 'Divine Protector', mana: 5, atk: 3, def: 6, desc: 'Pelindung suci. Saat dimainkan, heal hero 5 HP DAN memberikan Shield ke semua minion di arena. Defensif ultimate.' },
+  { name: 'Divine Protector', mana: 5, atk: 3, def: 9, desc: 'Pelindung suci. Saat dimainkan, heal hero 5 HP DAN memberikan +1 ATK ke semua minion di arena. Tank defensif.' },
   { name: 'Mirror Mage', mana: 5, atk: 3, def: 3, desc: 'Penyihir cermin. Saat dimainkan, meng-copy minion acak dari arena kamu. Semakin kuat minion yang di-copy, semakin menguntungkan!' },
-  { name: 'Thunder Elemental', mana: 5, atk: 4, def: 4, desc: 'Elemental petir. Saat dimainkan, deal 1 AoE ke semua minion musuh. Combo: +2 AoE tambahan! Total 3 AoE jika combo aktif.' },
+  { name: 'Thunder Elemental', mana: 5, atk: 4, def: 4, desc: 'Elemental petir. Saat dimainkan, deal 2 damage ke hero musuh. Combo: +2 AoE tambahan! Board control + damage.' },
   { name: 'Abyssal Devourer', mana: 6, atk: 5, def: 6, desc: 'Pemangsa abyssal. Saat dimainkan, menghancurkan 1 minion musuh acak langsung. Removal premium.' },
-  { name: 'Elder Dragon', mana: 7, atk: 7, def: 7, desc: 'Naga tua yang perkasa. Stat besar 7/7, saat dimainkan deal 3 damage ke hero musuh. Late game powerhouse.' },
-  { name: 'Doom Harbinger', mana: 8, atk: 6, def: 6, desc: 'Pembawa kehancuran. Saat dimainkan, MENGHANCURKAN SEMUA minion musuh! Board clear ultimate dengan tubuh 6/6.' },
+  { name: 'Elder Dragon', mana: 7, atk: 8, def: 7, desc: 'Naga tua yang perkasa. Stat besar 8/7, saat dimainkan deal 3 damage ke hero musuh. Late game powerhouse.' },
+  { name: 'Doom Harbinger', mana: 8, atk: 6, def: 6, desc: 'Pembawa kehancuran. Saat dimainkan, deal 6 damage ke SEMUA minion musuh! AoE besar dengan tubuh 6/6.' },
+  { name: 'Celestial Arbiter', mana: 7, atk: 4, def: 8, desc: '⭐ LEGENDARY — Hakim langit. Battlecry: 3 AoE + 3 ke hero + Heal 5. Penguasa medan perang.' },
+  { name: 'Void Empress', mana: 6, atk: 4, def: 7, desc: '⭐ LEGENDARY — Ratu kekosongan. Lifesteal + Start of Turn: Curi 1 ATK musuh + Draw 1 kartu.' },
+  { name: 'Infernal Titan', mana: 9, atk: 8, def: 10, desc: '⭐ LEGENDARY — Titan api. Battlecry: 5 damage ke hero + Summon 2 Skeleton. Kekuatan absolut.' },
+  { name: 'Chrono Weaver', mana: 6, atk: 3, def: 4, desc: '⭐ LEGENDARY — Penenun waktu. Battlecry: Draw 1 + Semua minion +1 ATK. Momentum swinger.' },
+  { name: 'Shadow Sovereign', mana: 8, atk: 6, def: 6, desc: '⭐ LEGENDARY — Pangeran bayangan. Deathrattle: Deal 5 ke SEMUA minion musuh + 2 damage ke hero.' },
+  { name: 'Abyss Monarch', mana: 8, atk: 7, def: 7, desc: '⭐ LEGENDARY — Raja jurang. Battlecry: Deal 4 AoE ke semua minion musuh. Bayar 5 HP hero sendiri.' },
 ];
 
 const SPELL_CARDS = [
@@ -36,8 +47,9 @@ const SPELL_CARDS = [
   { name: 'Shadow Strike', mana: 2, desc: 'Serangan bayangan. Deal 3 damage ke hero musuh. Damage efisien untuk biayanya.' },
   { name: 'Holy Light', mana: 2, desc: 'Cahaya suci. Menyembuhkan hero kamu 4 HP. Penyembuhan efisien saat tertekan.' },
   { name: 'Cursed Blade', mana: 2, desc: 'Pedang terkutuk. Deal 3 damage ke hero musuh. Combo: +2 damage (total 5)! Sangat kuat jika combo aktif.' },
-  { name: 'Blood Pact', mana: 3, desc: 'Perjanjian darah berisiko. Deal 3 damage ke hero sendiri, tapi draw 3 kartu! High risk, high reward.' },
+  { name: 'Blood Pact', mana: 2, desc: 'Perjanjian darah. Deal 2 damage ke hero sendiri, tapi draw 2 kartu! Risiko lebih rendah, tetap efisien.' },
   { name: 'Mystic Shield', mana: 3, desc: 'Perisai mistis. Memberikan Shield ke 1 minion pilihanmu. Lindungi minion penting dari 1x serangan.' },
+  { name: 'Mana Aegis', mana: 3, desc: 'Perisai mana. Semua minion +2 DEF dan heal hero 3 HP. Proteksi menyeluruh.' },
   { name: 'Soul Exchange', mana: 3, desc: 'Pertukaran jiwa. Kedua hero -5 HP, lalu draw 2 kartu. Menguntungkan jika HP kamu lebih tinggi.' },
   { name: 'Chain Lightning', mana: 4, desc: 'Petir berantai. Deal 2 AoE ke semua minion musuh DAN 2 damage ke hero musuh. Damage serba guna.' },
   { name: 'Dark Offering', mana: 4, desc: 'Persembahan gelap. Hancurkan 1 minion sendiri acak, tapi draw 3 kartu. Korbankan minion lemah!' },
@@ -50,9 +62,29 @@ export default function MainMenu() {
   const [showGuide, setShowGuide] = useState(false);
   const [guideTab, setGuideTab] = useState(0);
   const [showPatchNotes, setShowPatchNotes] = useState(false);
+  const [showRanked, setShowRanked] = useState(false);
+  const [showQuests, setShowQuests] = useState(false);
+
+  const unclaimedQuests = useQuestStore((s) => s.getUnclaimedCount());
+
+  // Check daily quest reset on menu load
+  React.useEffect(() => {
+    useQuestStore.getState().checkDailyReset();
+  }, []);
 
   const handleStart = () => {
+    useRankedStore.getState().setRankedMode(false);
     initializeGame();
+  };
+
+  const handleRankedStart = () => {
+    useRankedStore.getState().setRankedMode(true);
+    initializeGame();
+  };
+
+  const handleDraft = () => {
+    useDraftStore.getState().startDraft();
+    useGameStore.getState().setGameStatus(GAME_STATUS.DRAFT);
   };
 
   const handleMultiplayer = () => {
@@ -69,6 +101,12 @@ export default function MainMenu() {
         <button className="main-menu__button" onClick={handleStart}>
           ⚔️ VS AI
         </button>
+        <button className="main-menu__button main-menu__button--ranked" onClick={handleRankedStart}>
+          🏆 Ranked
+        </button>
+        <button className="main-menu__button main-menu__button--draft" onClick={handleDraft}>
+          📜 Draft Mode
+        </button>
         <button className="main-menu__button main-menu__button--multi" onClick={handleMultiplayer}>
           🌐 Multiplayer
         </button>
@@ -80,9 +118,41 @@ export default function MainMenu() {
         </button>
       </div>
 
+      {/* Ranked Badge + Quest Button Row */}
+      <div className="main-menu__meta-row">
+        <div className="main-menu__ranked-section" onClick={() => setShowRanked(!showRanked)}>
+          <RankedBadge compact />
+        </div>
+        <button className="main-menu__quest-btn" onClick={() => setShowQuests(!showQuests)}>
+          📋 Quests {unclaimedQuests > 0 && <span className="main-menu__quest-badge">{unclaimedQuests}</span>}
+        </button>
+      </div>
+
+      {/* Ranked Detail Panel */}
+      {showRanked && (
+        <div className="guide-overlay" onClick={() => setShowRanked(false)}>
+          <div className="guide" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <button className="guide__close" onClick={() => setShowRanked(false)}>✕</button>
+            <h2 className="guide__title">🏆 Ranked Profile</h2>
+            <div className="guide__content">
+              <RankedBadge />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quest Panel */}
+      {showQuests && (
+        <div className="guide-overlay" onClick={() => setShowQuests(false)}>
+          <div className="guide" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+            <QuestPanel onClose={() => setShowQuests(false)} />
+          </div>
+        </div>
+      )}
+
       <div className="main-menu__info">
-        <p>35 kartu unik • Arena 10 slot • Combo & Deathrattle</p>
-        <p>Serangan langsung • Tema fantasi gelap</p>
+        <p>40 kartu unik • 7 Legendary • Draft Mode • Ranked</p>
+        <p>Daily Quests • Arena 10 slot • Combo & Deathrattle</p>
       </div>
 
       <div className="main-menu__version" onClick={() => setShowPatchNotes(true)}>
@@ -98,7 +168,40 @@ export default function MainMenu() {
             <div className="guide__content">
 
               <section className="guide__section">
-                <h3 className="patch__version-header">🔥 v0.2.0-beta <span className="patch__date">20 Feb 2026</span></h3>
+                <h3 className="patch__version-header">⚖️ v0.3.1-beta <span className="patch__date">22 Feb 2026</span></h3>
+                <p style={{color:'var(--accent-cyan)', fontSize:'12px', marginBottom:'10px'}}>Balance Patch</p>
+                <ul className="guide__tips">
+                  <li><strong>🔻 NERF Chrono Weaver</strong> — Mana 5→6, Draw 2→1, Buff ATK +2→+1</li>
+                  <li><strong>🔻 NERF Doom Harbinger</strong> — AoE 99→6 (tidak lagi instant kill)</li>
+                  <li><strong>🔻 NERF Celestial Arbiter</strong> — ATK 5→4</li>
+                  <li><strong>🔻 NERF Shadow Sovereign</strong> — AoE 99→5, Hero DMG 3→2</li>
+                  <li><strong>🔺 BUFF Elder Dragon</strong> — ATK 7→8</li>
+                  <li><strong>🔺 BUFF Thunder Elemental</strong> — Base DMG 1→2</li>
+                  <li><strong>🔺 BUFF Divine Protector</strong> — DEF 8→9</li>
+                  <li><strong>🔄 REWORK Blood Pact</strong> — 3 mana→2 mana, 3 self DMG→2, Draw 3→2</li>
+                  <li><strong>✦ NEW Mana Aegis</strong> — 3 mana spell: +2 DEF semua minion + Heal 3</li>
+                  <li><strong>✦ NEW Abyss Monarch</strong> — 8 mana 7/7: AoE 4 + Self DMG 5</li>
+                  <li><strong>42 kartu</strong> — Total kartu bertambah dari 40 ke 42</li>
+                </ul>
+              </section>
+
+              <section className="guide__section">
+                <h3 className="patch__version-header">🏆 v0.3.0-beta <span className="patch__date">21 Feb 2026</span></h3>
+                <p style={{color:'var(--accent-cyan)', fontSize:'12px', marginBottom:'10px'}}>Ranked, Draft & Legendary Update</p>
+                <ul className="guide__tips">
+                  <li><strong>🏆 Ranked Mode</strong> — Sistem tier Bronze → Mythic (+25 menang, -15 kalah)</li>
+                  <li><strong>📜 Draft Mode</strong> — Pilih 1 dari 3 kartu, 15 kali, lalu battle!</li>
+                  <li><strong>⭐ 5 Legendary Baru</strong> — Celestial Arbiter, Void Empress, Infernal Titan, Chrono Weaver, Shadow Sovereign</li>
+                  <li><strong>📋 Daily Quest</strong> — 3 quest harian dengan reward Ranked Points</li>
+                  <li><strong>40 kartu</strong> — Total kartu bertambah dari 35 ke 40</li>
+                  <li><strong>7 Legendary</strong> — Kartu legendary limit 1 per deck</li>
+                  <li><strong>Win Streak</strong> — Tracking streak dan best streak</li>
+                  <li><strong>Ranked Profile</strong> — Lihat rank, tier ladder, dan statistik</li>
+                </ul>
+              </section>
+
+              <section className="guide__section">
+                <h3 className="patch__version-header">�🔥 v0.2.0-beta <span className="patch__date">20 Feb 2026</span></h3>
                 <p style={{color:'var(--accent-cyan)', fontSize:'12px', marginBottom:'10px'}}>Major Expansion Update</p>
                 <ul className="guide__tips">
                   <li><strong>35 kartu</strong> — 15 kartu baru ditambahkan (dari 20)</li>
@@ -159,14 +262,14 @@ export default function MainMenu() {
                 <>
                   <section className="guide__section">
                     <h3>🎯 Tujuan Permainan</h3>
-                    <p>Kurangi HP hero musuh dari <strong>60 menjadi 0</strong> sebelum HP kamu habis duluan. Gunakan 35 kartu unik dengan strategi yang tepat!</p>
+                    <p>Kurangi HP hero musuh dari <strong>60 menjadi 0</strong> sebelum HP kamu habis duluan. Gunakan 40 kartu unik dengan strategi yang tepat!</p>
                     <div className="guide__stats">
                       <div className="guide__stat-item">❤️ HP Awal: <strong>60</strong></div>
                       <div className="guide__stat-item">💎 Mana Maks: <strong>10</strong></div>
                       <div className="guide__stat-item">🃏 Kartu Awal: <strong>4 / 5</strong></div>
                       <div className="guide__stat-item">✋ Maks Tangan: <strong>9</strong></div>
                       <div className="guide__stat-item">🏟️ Maks Arena: <strong>10</strong></div>
-                      <div className="guide__stat-item">📦 Total Kartu: <strong>35</strong></div>
+                      <div className="guide__stat-item">📦 Total Kartu: <strong>40</strong></div>
                     </div>
                   </section>
 

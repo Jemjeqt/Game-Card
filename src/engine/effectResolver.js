@@ -2,6 +2,7 @@ import { EFFECT_TYPES, TRIGGERS, TARGETS, COMBO_BONUS } from '../data/effects';
 import { CARD_TYPES } from '../data/constants';
 import { getCardById } from '../data/cards';
 import { createCardInstance } from '../utils/deckBuilder';
+import useQuestStore from '../stores/useQuestStore';
 
 // Track cards played this turn (for combo detection)
 let _cardsPlayedThisTurn = 0;
@@ -100,6 +101,15 @@ function resolveSingleEffect({ effect, card, ownerStore, enemyStore, addLog }) {
     case EFFECT_TYPES.COMBO:
       return resolveCombo(effect, card, ownerStore, enemyStore, addLog);
 
+    case EFFECT_TYPES.STEAL_ATTACK:
+      return resolveStealAttack(effect, card, ownerStore, enemyStore, addLog);
+
+    case EFFECT_TYPES.BUFF_ALL_ATTACK:
+      return resolveBuffAllAttack(effect, card, ownerStore, addLog);
+
+    case EFFECT_TYPES.MANA_GAIN:
+      return resolveManaGain(effect, card, ownerStore, addLog);
+
     default:
       return null;
   }
@@ -109,6 +119,8 @@ function resolveDamage(effect, card, ownerStore, enemyStore, addLog) {
   if (effect.target === TARGETS.ENEMY_HERO) {
     enemyStore.getState().takeDamage(effect.value);
     addLog(`${card.name} deals ${effect.value} damage to enemy hero!`);
+    // Track quest: damage dealt
+    useQuestStore.getState().trackEvent('damage_dealt', effect.value);
     return { type: 'damage', target: 'enemyHero', value: effect.value };
   }
   return null;
@@ -118,6 +130,7 @@ function resolveHeal(effect, card, ownerStore, addLog) {
   if (effect.target === TARGETS.SELF_HERO) {
     ownerStore.getState().healHP(effect.value);
     addLog(`${card.name} heals hero for ${effect.value} HP`);
+    useQuestStore.getState().trackEvent('healing_done', effect.value);
     return { type: 'heal', target: 'selfHero', value: effect.value };
   }
   return null;
@@ -201,6 +214,7 @@ function resolveAoeDamage(effect, card, ownerStore, enemyStore, addLog) {
   addLog(`${card.name} deals ${effect.value} damage to all enemy minions!`);
   if (deaths.length > 0) {
     addLog(`Destroyed: ${deaths.join(', ')}`);
+    useQuestStore.getState().trackEvent('minions_killed', deaths.length);
   }
 
   // Trigger deathrattle for each dead enemy minion
@@ -236,6 +250,7 @@ function resolveDestroy(effect, card, ownerStore, enemyStore, addLog) {
   const target = enemyBoard[randomIndex];
   enemyStore.getState().removeFromBoard(target.instanceId);
   addLog(`${card.name} destroys ${target.name}!`);
+  useQuestStore.getState().trackEvent('minions_killed', 1);
 
   // Trigger deathrattle of the destroyed minion
   resolveDeathEffects({
@@ -294,6 +309,8 @@ function resolveCombo(effect, card, ownerStore, enemyStore, addLog) {
   if (_cardsPlayedThisTurn < 1) return null;
 
   addLog(`💥 COMBO activated for ${card.name}!`);
+  // Track quest: combo activated
+  useQuestStore.getState().trackEvent('combos', 1);
 
   switch (effect.bonusType) {
     case COMBO_BONUS.EXTRA_DAMAGE: {
@@ -347,6 +364,52 @@ function resolveCombo(effect, card, ownerStore, enemyStore, addLog) {
   }
 }
 
+// === STEAL ATTACK (Void Empress) ===
+function resolveStealAttack(effect, card, ownerStore, enemyStore, addLog) {
+  const enemyBoard = enemyStore.getState().board;
+  if (enemyBoard.length === 0) {
+    addLog(`${card.name}: No enemy minions to steal from`);
+    return null;
+  }
+
+  const randomIdx = Math.floor(Math.random() * enemyBoard.length);
+  const target = enemyBoard[randomIdx];
+  const stealAmount = Math.min(effect.value, target.currentAttack);
+
+  if (stealAmount > 0) {
+    // Reduce enemy minion attack
+    enemyStore.getState().updateMinion(target.instanceId, {
+      currentAttack: Math.max(0, target.currentAttack - stealAmount),
+    });
+    // Buff self
+    const ownerBoard = ownerStore.getState().board;
+    const self = ownerBoard.find((m) => m.instanceId === card.instanceId);
+    if (self) {
+      ownerStore.getState().updateMinion(card.instanceId, {
+        currentAttack: self.currentAttack + stealAmount,
+      });
+    }
+    addLog(`${card.name} steals ${stealAmount} ATK from ${target.name}!`);
+  }
+  return { type: 'stealAttack', value: stealAmount, targetName: target.name };
+}
+
+// === BUFF ALL ATTACK (Chrono Weaver) ===
+function resolveBuffAllAttack(effect, card, ownerStore, addLog) {
+  ownerStore.getState().buffAllMinionsAttack(effect.value);
+  addLog(`${card.name} gives all friendly minions +${effect.value} Attack!`);
+  return { type: 'buffAllAttack', value: effect.value };
+}
+
+// === MANA GAIN ===
+function resolveManaGain(effect, card, ownerStore, addLog) {
+  const state = ownerStore.getState();
+  const newMana = Math.min(state.mana + effect.value, state.maxMana);
+  ownerStore.setState({ mana: newMana });
+  addLog(`${card.name} restores ${effect.value} mana!`);
+  return { type: 'manaGain', value: effect.value };
+}
+
 /**
  * Resolve end-of-turn effects for all minions on a player's board
  */
@@ -385,6 +448,9 @@ export function resolveDeathEffects({ card, ownerStore, enemyStore, addLog }) {
 
   for (const effect of effects) {
     if (effect.trigger === TRIGGERS.ON_DEATH) {
+      // Track quest: deathrattle triggered
+      useQuestStore.getState().trackEvent('deathrattles', 1);
+
       if (effect.type === EFFECT_TYPES.SUMMON) {
         // Check if the card specifies a special summon
         const summonId = card.summonId || 'skeleton_token';

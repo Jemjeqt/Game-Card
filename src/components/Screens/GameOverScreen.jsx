@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import useGameStore from '../../stores/useGameStore';
 import usePlayerStore from '../../stores/usePlayerStore';
 import useOpponentStore from '../../stores/useOpponentStore';
 import useUIStore from '../../stores/useUIStore';
 import useMultiplayerStore from '../../stores/useMultiplayerStore';
+import useRankedStore from '../../stores/useRankedStore';
+import useQuestStore from '../../stores/useQuestStore';
+import useDraftStore from '../../stores/useDraftStore';
+import RankedResult from './RankedResult';
 import { PLAYERS } from '../../data/constants';
 import { initializeGame } from '../../engine/turnEngine';
 import { cleanupMultiplayer } from '../../engine/multiplayerEngine';
@@ -15,15 +19,43 @@ export default function GameOverScreen() {
   const resetOpponent = useOpponentStore((s) => s.resetPlayer);
   const resetUI = useUIStore((s) => s.resetUI);
   const isMultiplayer = useMultiplayerStore((s) => s.isMultiplayer);
+  const isRankedMode = useRankedStore((s) => s.isRankedMode);
+  const isDraftMode = useDraftStore((s) => s.isDraftMode);
+  const lastMatchResult = useRankedStore((s) => s.lastMatchResult);
 
   const playerWon = winner === PLAYERS.PLAYER;
+  const [hasRecorded, setHasRecorded] = useState(false);
+
+  // Record match result for ranked/quests
+  useEffect(() => {
+    if (winner && !hasRecorded) {
+      setHasRecorded(true);
+
+      // Track quests
+      if (playerWon) {
+        useQuestStore.getState().trackEvent('wins', 1);
+        if (isDraftMode) {
+          useQuestStore.getState().trackEvent('draft_wins', 1);
+        }
+      }
+
+      // Record ranked match
+      if (isRankedMode) {
+        useRankedStore.getState().recordMatch(playerWon);
+      }
+    }
+  }, [winner, hasRecorded, playerWon, isRankedMode, isDraftMode]);
 
   const handlePlayAgain = () => {
     resetPlayer();
     resetOpponent();
     resetUI();
+    useRankedStore.getState().clearLastMatch();
     if (isMultiplayer) {
       cleanupMultiplayer();
+      returnToMenu();
+    } else if (isDraftMode) {
+      useDraftStore.getState().resetDraft();
       returnToMenu();
     } else {
       initializeGame();
@@ -34,8 +66,12 @@ export default function GameOverScreen() {
     resetPlayer();
     resetOpponent();
     resetUI();
+    useRankedStore.getState().clearLastMatch();
     if (isMultiplayer) {
       cleanupMultiplayer();
+    }
+    if (isDraftMode) {
+      useDraftStore.getState().resetDraft();
     }
     returnToMenu();
   };
@@ -55,6 +91,16 @@ export default function GameOverScreen() {
           ? 'You have vanquished your opponent!'
           : 'Your forces have been destroyed...'}
       </p>
+
+      {/* Ranked result overlay */}
+      {isRankedMode && lastMatchResult && (
+        <RankedResult onContinue={() => useRankedStore.getState().clearLastMatch()} />
+      )}
+
+      {isDraftMode && (
+        <div className="game-over__draft-label">📜 Draft Mode</div>
+      )}
+
       <div className="game-over__buttons">
         <button
           className="game-over__button game-over__button--primary"

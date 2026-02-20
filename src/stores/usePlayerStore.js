@@ -21,6 +21,11 @@ function createPlayerSlice(set, get) {
       set({ deck, hand: [], board: [], graveyard: [], hp: STARTING_HP, mana: 0, maxMana: 0, fatigueDamage: 0 });
     },
 
+    // Initialize deck from pre-built cards (for draft mode)
+    initDeckFromCards: (deckCards) => {
+      set({ deck: deckCards, hand: [], board: [], graveyard: [], hp: STARTING_HP, mana: 0, maxMana: 0, fatigueDamage: 0 });
+    },
+
     // Draw card from deck to hand
     drawCard: () => {
       const { deck, hand } = get();

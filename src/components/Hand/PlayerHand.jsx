@@ -4,7 +4,8 @@ import usePlayerStore from '../../stores/usePlayerStore';
 import useOpponentStore from '../../stores/useOpponentStore';
 import useGameStore from '../../stores/useGameStore';
 import useUIStore from '../../stores/useUIStore';
-import { PHASES, PLAYERS, CARD_TYPES, LOG_TYPES, MAX_BOARD_SIZE } from '../../data/constants';
+import useQuestStore from '../../stores/useQuestStore';
+import { PHASES, PLAYERS, CARD_TYPES, LOG_TYPES, MAX_BOARD_SIZE, RARITY } from '../../data/constants';
 import { EFFECT_TYPES, TRIGGERS, TARGETS } from '../../data/effects';
 import { resolveEffects, applyBuffDefenseToMinion, incrementCardsPlayed } from '../../engine/effectResolver';
 import { checkGameOver } from '../../engine/gameRules';
@@ -56,6 +57,16 @@ export default function PlayerHand() {
 
     // Track for combo
     incrementCardsPlayed();
+
+    // Track quest events
+    if (card.type === CARD_TYPES.MINION) {
+      useQuestStore.getState().trackEvent('minions_played', 1);
+    } else {
+      useQuestStore.getState().trackEvent('spells_cast', 1);
+    }
+    if (card.rarity === RARITY.LEGENDARY) {
+      useQuestStore.getState().trackEvent('legendaries_played', 1);
+    }
 
     // Log
     useUIStore.getState().addLogEntry(

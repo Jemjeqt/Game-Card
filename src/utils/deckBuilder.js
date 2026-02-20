@@ -1,5 +1,5 @@
 import { getAllCards } from '../data/cards';
-import { CARDS_PER_COPY } from '../data/constants';
+import { CARDS_PER_COPY, RARITY } from '../data/constants';
 import { shuffle } from './shuffle';
 import { generateId } from './idGenerator';
 
@@ -27,16 +27,24 @@ export function createCardInstance(cardDef) {
   };
 }
 
-// Build a 40-card deck (2 copies of each of the 20 cards), shuffled
+// Build a standard deck (2 copies of each card, but only 1 copy of Legendaries), shuffled
 export function buildDeck() {
   const allCards = getAllCards();
   const deck = [];
 
   for (const cardDef of allCards) {
-    for (let i = 0; i < CARDS_PER_COPY; i++) {
+    // Legendaries: only 1 copy per deck
+    const copies = cardDef.rarity === RARITY.LEGENDARY ? 1 : CARDS_PER_COPY;
+    for (let i = 0; i < copies; i++) {
       deck.push(createCardInstance(cardDef));
     }
   }
 
+  return shuffle(deck);
+}
+
+// Build a deck from draft picks (each card appears once)
+export function buildDraftDeck(pickedCardDefs) {
+  const deck = pickedCardDefs.map((cardDef) => createCardInstance(cardDef));
   return shuffle(deck);
 }

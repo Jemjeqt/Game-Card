@@ -3,17 +3,21 @@ import usePlayerStore from '../../stores/usePlayerStore';
 import useOpponentStore from '../../stores/useOpponentStore';
 import useGameStore from '../../stores/useGameStore';
 import useMultiplayerStore from '../../stores/useMultiplayerStore';
+import useRankedStore from '../../stores/useRankedStore';
+import useDraftStore from '../../stores/useDraftStore';
 import HPBar from '../HUD/HPBar';
 import ManaBar from '../HUD/ManaBar';
 import DeckCounter from '../HUD/DeckCounter';
 import PhaseIndicator from '../HUD/PhaseIndicator';
 import TurnButton from '../HUD/TurnButton';
+import RankedBadge from '../HUD/RankedBadge';
 import OpponentHand from '../Hand/OpponentHand';
 import PlayerHand from '../Hand/PlayerHand';
 import OpponentField from '../Board/OpponentField';
 import PlayerField from '../Board/PlayerField';
 import BattleLog from '../BattleLog/BattleLog';
 import TurnBanner from '../Effects/TurnBanner';
+import QuestNotification from '../Effects/QuestNotification';
 import CardPreview from '../Card/CardPreview';
 import GameOverScreen from '../Screens/GameOverScreen';
 import { GAME_STATUS } from '../../data/constants';
@@ -36,6 +40,8 @@ export default function GameBoard() {
   const gameStatus = useGameStore((s) => s.gameStatus);
   const isMultiplayer = useMultiplayerStore((s) => s.isMultiplayer);
   const role = useMultiplayerStore((s) => s.role);
+  const isRankedMode = useRankedStore((s) => s.isRankedMode);
+  const isDraftMode = useDraftStore((s) => s.isDraftMode);
 
   const isGameOver =
     gameStatus === GAME_STATUS.PLAYER_WIN ||
@@ -88,6 +94,8 @@ export default function GameBoard() {
         <div className="hud__center">
           <span style={{ color: 'var(--text-dim)', fontSize: '12px', fontFamily: 'var(--font-heading)' }}>
             ⚔️ You{isMultiplayer ? ` (${role === 'host' ? 'Host' : 'Guest'})` : ''}
+            {isRankedMode ? ' 🏆' : ''}
+            {isDraftMode ? ' 📜' : ''}
           </span>
         </div>
         <div className="hud__right">
@@ -101,6 +109,9 @@ export default function GameBoard() {
 
       {/* Turn Banner Overlay */}
       <TurnBanner />
+
+      {/* Quest Notification */}
+      <QuestNotification />
 
       {/* Card Preview Overlay */}
       <CardPreview />

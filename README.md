@@ -1,6 +1,6 @@
 # ⚔️ Card Battle — Dark Fantasy Duel
 
-![Version](https://img.shields.io/badge/Version-v0.2.0--beta-blueviolet)
+![Version](https://img.shields.io/badge/Version-v0.3.1--beta-blueviolet)
 ![React](https://img.shields.io/badge/React-19-blue?logo=react)
 ![Vite](https://img.shields.io/badge/Vite-6-purple?logo=vite)
 ![Firebase](https://img.shields.io/badge/Firebase-Realtime%20DB-orange?logo=firebase)
@@ -22,7 +22,10 @@ Game kartu strategi berbasis giliran dengan tema dark fantasy. Mainkan kartu min
 
 ## ✨ Fitur
 
-- 🃏 **35 kartu unik** — Minion & Spell dengan berbagai efek spesial
+- 🃏 **42 kartu unik** — Minion & Spell dengan berbagai efek spesial (termasuk 8 Legendary)
+- 🏆 **Ranked Mode** — Sistem tier Bronze → Silver → Gold → Diamond → Mythic
+- 📜 **Draft Mode** — Pilih 1 dari 3 kartu, 15 kali, lalu battle!
+- 📋 **Daily Quest** — 3 quest harian dengan reward Ranked Points
 - 🤖 **VS AI** — Lawan AI dengan strategi rule-based
 - 🌐 **Multiplayer Online** — Main bareng teman via Firebase Realtime Database
 - 🔄 **5 fase giliran** — Start Turn → Draw → Main → Attack → End Turn
@@ -33,48 +36,63 @@ Game kartu strategi berbasis giliran dengan tema dark fantasy. Mainkan kartu min
 - 📜 **Battle Log** — Riwayat semua aksi dalam pertarungan
 - 🎨 **Dark Fantasy Theme** — UI gelap dengan animasi dan efek visual
 - 🏟️ **Arena 10 slot** — Pasang hingga 10 minion di arena
+- ⭐ **Legendary Limit** — Maks 1 copy per legendary card di deck
 
 ---
 
-## 🃏 Daftar Kartu (35 Kartu)
+## 🃏 Daftar Kartu (42 Kartu)
 
-| Kartu                 | Tipe   | Mana | ATK | DEF | Efek                                            |
-| --------------------- | ------ | :--: | :-: | :-: | ----------------------------------------------- |
-| Healing Wisp          | Minion |  1   |  0  |  3  | Battlecry: Heal hero 2 HP                       |
-| Ember Sprite          | Minion |  1   |  1  |  2  | On Attack: +1 damage ke hero                    |
-| Venom Fang            | Minion |  2   |  3  |  1  | On Attack: +1 damage ke hero                    |
-| Dark Ritualist        | Minion |  2   |  2  |  2  | Battlecry: Draw 1 kartu                         |
-| Ironclad Knight       | Minion |  3   |  2  |  5  | Shield                                          |
-| Soul Leech            | Minion |  3   |  3  |  3  | Lifesteal                                       |
-| Corpse Raiser         | Minion |  4   |  3  |  3  | Battlecry: Summon 1/1 Skeleton                  |
-| Shadowstrike Assassin | Minion |  4   |  5  |  2  | Battlecry: Deal 1 damage ke hero                |
-| Archmage Solara       | Minion |  5   |  4  |  4  | Start of Turn: Deal 2 damage ke hero            |
-| Divine Protector      | Minion |  5   |  3  |  6  | Battlecry: Heal hero 5 HP, semua minion +Shield |
-| Abyssal Devourer      | Minion |  6   |  5  |  6  | Battlecry: Destroy 1 minion musuh acak          |
-| Elder Dragon          | Minion |  7   |  7  |  7  | Battlecry: Deal 3 damage ke hero                |
-| Frost Mage            | Minion |  3   |  2  |  3  | Battlecry: 2 dmg. Combo: +2 dmg ke hero         |
-| Plague Rat            | Minion |  2   |  2  |  2  | Battlecry: Poison 1 dmg ke semua minion musuh   |
-| Warcry Berserker      | Minion |  4   |  3  |  4  | Battlecry: +1 ATK per minion di arena           |
-| Spirit Walker         | Minion |  4   |  2  |  5  | Battlecry: Heal 2 HP per minion di arena        |
-| Mirror Mage           | Minion |  5   |  3  |  3  | Battlecry: Copy 1 minion acak di arena          |
-| Thunder Elemental     | Minion |  5   |  4  |  4  | Battlecry: 1 AoE. Combo: +2 AoE ke minion musuh |
-| Blood Knight          | Minion |  4   |  4  |  3  | Lifesteal. Combo: Draw 1 kartu                  |
-| Shadow Dancer         | Minion |  3   |  2  |  3  | Combo: Gain +2/+2                               |
-| Void Cultist          | Minion |  3   |  2  |  4  | End of Turn: Deal 1 damage ke hero musuh        |
-| Cursed Blade          | Spell  |  2   |  —  |  —  | 3 dmg ke hero musuh. Combo: +2 dmg              |
-| Chain Lightning       | Spell  |  4   |  —  |  —  | AoE 2 dmg + 2 dmg ke hero musuh                 |
-| War Drums             | Spell  |  5   |  —  |  —  | Buff semua minion +2 ATK / +1 DEF               |
-| Soul Exchange         | Spell  |  3   |  —  |  —  | Kedua hero -5 HP, draw 2 kartu                  |
-| Phoenix Egg           | Minion |  2   |  0  |  3  | Deathrattle: Summon 3/2 Phoenix                 |
-| Doom Harbinger        | Minion |  8   |  6  |  6  | Battlecry: Destroy SEMUA minion musuh           |
-| Arcane Bolt           | Spell  |  1   |  —  |  —  | Deal 2 damage ke hero musuh                     |
-| Shadow Strike         | Spell  |  2   |  —  |  —  | Deal 3 damage ke hero musuh                     |
-| Blood Pact            | Spell  |  3   |  —  |  —  | Deal 3 damage ke hero sendiri, draw 3 kartu     |
-| Inferno Wave          | Spell  |  5   |  —  |  —  | Deal 3 damage ke hero musuh & AoE 1 damage      |
-| Holy Light            | Spell  |  2   |  —  |  —  | Heal hero 4 HP                                  |
-| Dark Offering         | Spell  |  4   |  —  |  —  | Destroy minion sendiri acak, draw 3 kartu       |
-| Mystic Shield         | Spell  |  3   |  —  |  —  | Beri Shield ke 1 minion                         |
-| Resurrection          | Spell  |  6   |  —  |  —  | Summon 2 minion 3/3 Revenant                    |
+### Minion (29 Kartu)
+
+| Kartu                 | Mana | ATK | DEF | Rarity    | Efek                                            |
+| --------------------- | :--: | :-: | :-: | --------- | ----------------------------------------------- |
+| Healing Wisp          |  1   |  0  |  3  | Common    | Battlecry: Heal hero 2 HP                       |
+| Ember Sprite          |  1   |  1  |  2  | Common    | —                                               |
+| Shadow Imp            |  1   |  2  |  1  | Common    | —                                               |
+| Plague Rat            |  1   |  1  |  1  | Common    | Start of Turn: Poison 1 dmg ke hero musuh       |
+| Venom Fang            |  2   |  3  |  1  | Rare      | On Attack: +1 damage ke hero                    |
+| Dark Ritualist        |  2   |  2  |  2  | Common    | Battlecry: Draw 1 kartu                         |
+| Frost Mage            |  2   |  2  |  3  | Rare      | Battlecry: 1 dmg. Combo: +2 dmg ke hero         |
+| Spirit Walker         |  2   |  1  |  4  | Common    | Battlecry: Heal 1 HP per minion di arena        |
+| Phoenix Egg           |  2   |  0  |  3  | Epic      | Deathrattle: Summon 3/3 Phoenix                 |
+| Ironclad Knight       |  3   |  2  |  5  | Common    | Shield (absorbs 2 damage)                       |
+| Soul Leech            |  3   |  3  |  3  | Rare      | Lifesteal                                       |
+| Flame Warlock         |  3   |  4  |  3  | Rare      | Battlecry: Deal 2 damage ke hero                |
+| Shadow Dancer         |  3   |  2  |  2  | Rare      | Combo: Gain +2/+2                               |
+| Void Cultist          |  3   |  2  |  5  | Rare      | End of Turn: Deal 1 damage ke hero musuh        |
+| Warcry Berserker      |  3   |  2  |  4  | Rare      | Battlecry: +1 ATK per minion di arena           |
+| Corpse Raiser         |  4   |  3  |  4  | Epic      | Battlecry: Summon 1/1 Skeleton                  |
+| Shadowstrike Assassin |  4   |  5  |  2  | Rare      | Battlecry: Deal 1 damage ke hero                |
+| Thunder Elemental     |  4   |  3  |  5  | Rare      | Battlecry: 2 dmg. Combo: +2 AoE ke minion musuh |
+| Blood Knight          |  4   |  4  |  3  | Epic      | Lifesteal. Combo: Draw 1 kartu                  |
+| Archmage Solara ⭐    |  5   |  4  |  5  | Legendary | Start of Turn: Deal 2 damage ke hero            |
+| Mirror Mage           |  5   |  3  |  3  | Epic      | Battlecry: Copy 1 minion acak di arena          |
+| Divine Protector      |  5   |  3  |  9  | Epic      | Battlecry: Heal 5 HP + semua minion +1 ATK      |
+| Void Empress ⭐       |  6   |  4  |  7  | Legendary | Lifesteal + Steal 1 ATK/turn + Draw 1           |
+| Abyssal Devourer      |  6   |  5  |  6  | Epic      | Battlecry: Destroy 1 minion musuh acak          |
+| Chrono Weaver ⭐      |  6   |  3  |  4  | Legendary | Battlecry: Draw 1 + semua minion +1 ATK         |
+| Elder Dragon ⭐       |  7   |  8  |  7  | Legendary | Battlecry: Deal 3 damage ke hero                |
+| Celestial Arbiter ⭐  |  7   |  4  |  8  | Legendary | Battlecry: 3 AoE + 3 hero dmg + Heal 5          |
+| Doom Harbinger ⭐     |  8   |  6  |  6  | Legendary | Battlecry: Deal 6 AoE ke semua minion musuh     |
+| Shadow Sovereign ⭐   |  8   |  6  |  6  | Legendary | Deathrattle: 5 AoE + 2 hero damage              |
+| Abyss Monarch ⭐      |  8   |  7  |  7  | Legendary | Battlecry: 4 AoE + 5 self damage                |
+| Infernal Titan ⭐     |  9   |  8  | 10  | Legendary | Battlecry: 5 hero dmg + Summon 2 Skeleton        |
+
+### Spell (13 Kartu)
+
+| Kartu               | Mana | Rarity | Efek                                            |
+| ------------------- | :--: | ------ | ----------------------------------------------- |
+| Arcane Spark        |  1   | Common | Deal 2 damage ke hero musuh                     |
+| Mystic Shield       |  2   | Common | +3 Defense ke 1 minion                          |
+| Cursed Blade        |  2   | Common | 2 dmg ke hero. Combo: +3 dmg                    |
+| Blood Pact          |  2   | Rare   | 2 self damage, draw 2 kartu                     |
+| Fireball            |  3   | Common | Deal 5 damage ke hero musuh                     |
+| Chain Lightning     |  3   | Rare   | 1 AoE + 2 dmg ke hero musuh                     |
+| Mana Aegis          |  3   | Rare   | Semua minion +2 DEF + Heal hero 3 HP            |
+| Mindbreak           |  4   | Rare   | Deal 2 AoE ke semua minion musuh                |
+| War Drums           |  4   | Epic   | Buff semua minion +2 ATK / +1 DEF               |
+| Soul Exchange       |  5   | Epic   | Kedua hero -5 HP, draw 2 kartu                  |
+| Inferno Wave        |  5   | Epic   | 3 dmg hero + 3 AoE ke semua minion musuh        |
 
 ---
 
@@ -149,7 +167,7 @@ Kurangi HP hero musuh dari **60 menjadi 0** sebelum HP hero kamu habis duluan! G
 | Kartu Awal (AI)   |   5   |
 | Maks Kartu Tangan |   9   |
 | Maks Minion Arena |  10   |
-| Total Kartu Unik  |  35   |
+| Total Kartu Unik  |  42   |
 
 ### 🔄 Fase Giliran
 
@@ -196,59 +214,17 @@ Setiap giliran terdiri dari **5 fase** berurutan:
 
 ### 🃏 Deskripsi Semua Kartu
 
-#### Minion (23 Kartu)
-
-|  #  | Kartu                     | Mana | ATK/DEF | Deskripsi Lengkap                                                                                                                          |
-| :-: | ------------------------- | :--: | :-----: | ------------------------------------------------------------------------------------------------------------------------------------------ |
-|  1  | **Healing Wisp**          |  1   |   0/3   | Makhluk penyembuh lemah. Saat dimainkan, menyembuhkan hero 2 HP. Berguna di early game untuk bertahan.                                     |
-|  2  | **Ember Sprite**          |  1   |   1/2   | Elemental api kecil. Setiap kali menyerang, memberikan +1 damage bonus ke hero musuh. Murah dan agresif.                                   |
-|  3  | **Venom Fang**            |  2   |   3/1   | Ular beracun dengan serangan tinggi tapi rapuh. Setiap serangannya memberikan +1 damage bonus. Glass cannon.                               |
-|  4  | **Dark Ritualist**        |  2   |   2/2   | Pendeta gelap. Saat dimainkan, mengambil 1 kartu dari deck. Stat standar dengan bonus card advantage.                                      |
-|  5  | **Plague Rat**            |  2   |   2/2   | Tikus pembawa wabah. Saat dimainkan, memberikan 1 damage ke **semua** minion musuh. Mini AoE early game.                                   |
-|  6  | **Phoenix Egg**           |  2   |   0/3   | Telur phoenix yang tidak bisa menyerang. Saat mati (**Deathrattle**), memanggil Phoenix 3/2 yang kuat! Bait musuh untuk menghancurkannya.  |
-|  7  | **Ironclad Knight**       |  3   |   2/5   | Ksatria berlapis besi dengan **Shield**. Menyerap damage pertama, menjadikannya tank yang andal.                                           |
-|  8  | **Soul Leech**            |  3   |   3/3   | Lintah jiwa dengan **Lifesteal**. Setiap serangan menyembuhkan hero kamu sejumlah damage yang diberikan.                                   |
-|  9  | **Frost Mage**            |  3   |   2/3   | Penyihir es. Saat dimainkan, deal 2 damage ke hero musuh. **Combo**: +2 damage tambahan jika sudah main kartu lain giliran ini!            |
-| 10  | **Shadow Dancer**         |  3   |   2/3   | Penari bayangan. **Combo**: Mendapat +2 ATK dan +2 DEF jika sudah main kartu lain giliran ini, menjadi 4/5!                                |
-| 11  | **Void Cultist**          |  3   |   2/4   | Pemuja kekosongan. **End of Turn**: Otomatis deal 1 damage ke hero musuh setiap akhir giliranmu. Damage pasif yang konsisten.              |
-| 12  | **Corpse Raiser**         |  4   |   3/3   | Penyihir bangkai. Saat dimainkan, memanggil Skeleton 1/1 ke arena. Dua tubuh dengan harga satu.                                            |
-| 13  | **Shadowstrike Assassin** |  4   |   5/2   | Pembunuh bayangan dengan ATK tinggi tapi DEF rendah. Saat dimainkan, deal 1 damage ke hero musuh. Agresif!                                 |
-| 14  | **Warcry Berserker**      |  4   |   3/4   | Berserker yang semakin kuat dengan pasukan. Saat dimainkan, mendapat **+1 ATK per minion** yang ada di arena. Mainkan saat arena ramai!    |
-| 15  | **Spirit Walker**         |  4   |   2/5   | Pejalan roh penyembuh. Saat dimainkan, menyembuhkan hero **2 HP per minion** di arena. Semakin banyak minion, semakin banyak heal.         |
-| 16  | **Blood Knight**          |  4   |   4/3   | Ksatria darah dengan **Lifesteal**. **Combo**: Draw 1 kartu bonus jika sudah main kartu lain giliran ini. Serba bisa.                      |
-| 17  | **Archmage Solara**       |  5   |   4/4   | Archmage legendaris. **Start of Turn**: Deal 2 damage ke hero musuh **setiap awal giliranmu**. Semakin lama hidup, semakin mematikan!      |
-| 18  | **Divine Protector**      |  5   |   3/6   | Pelindung suci. Saat dimainkan, heal hero 5 HP DAN memberikan **Shield** ke semua minion di arena. Kartu defensif ultimate.                |
-| 19  | **Mirror Mage**           |  5   |   3/3   | Penyihir cermin. Saat dimainkan, **meng-copy** minion acak dari arena kamu. Semakin kuat minion yang di-copy, semakin menguntungkan!       |
-| 20  | **Thunder Elemental**     |  5   |   4/4   | Elemental petir. Saat dimainkan, deal 1 damage AoE ke semua minion musuh. **Combo**: +2 AoE damage tambahan! Total 3 AoE jika combo aktif. |
-| 21  | **Abyssal Devourer**      |  6   |   5/6   | Pemangsa abyssal. Saat dimainkan, **menghancurkan 1 minion musuh acak** langsung. Removal premium.                                         |
-| 22  | **Elder Dragon**          |  7   |   7/7   | Naga tua yang perkasa. Stat besar 7/7, saat dimainkan deal 3 damage ke hero musuh. Late game powerhouse.                                   |
-| 23  | **Doom Harbinger**        |  8   |   6/6   | Pembawa kehancuran. Saat dimainkan, **MENGHANCURKAN SEMUA minion musuh**! Board clear ultimate dengan tubuh 6/6.                           |
-
-#### Spell (12 Kartu)
-
-|  #  | Kartu               | Mana | Deskripsi Lengkap                                                                                                                 |
-| :-: | ------------------- | :--: | --------------------------------------------------------------------------------------------------------------------------------- |
-|  1  | **Arcane Bolt**     |  1   | Tembakan sihir sederhana. Deal **2 damage** ke hero musuh. Murah dan efisien untuk chip damage.                                   |
-|  2  | **Shadow Strike**   |  2   | Serangan bayangan. Deal **3 damage** ke hero musuh. Damage efisien untuk biayanya.                                                |
-|  3  | **Holy Light**      |  2   | Cahaya suci. Menyembuhkan hero kamu **4 HP**. Penyembuhan efisien saat tertekan.                                                  |
-|  4  | **Cursed Blade**    |  2   | Pedang terkutuk. Deal **3 damage** ke hero musuh. **Combo**: +2 damage tambahan (total 5)! Sangat kuat jika diaktifkan combo.     |
-|  5  | **Blood Pact**      |  3   | Perjanjian darah berisiko. Deal **3 damage ke hero sendiri**, tapi draw **3 kartu**! High risk, high reward card advantage.       |
-|  6  | **Mystic Shield**   |  3   | Perisai mistis. Memberikan **Shield** ke 1 minion pilihanmu. Lindungi minion penting dari 1x serangan.                            |
-|  7  | **Soul Exchange**   |  3   | Pertukaran jiwa. **Kedua hero -5 HP**, lalu draw **2 kartu**. Menguntungkan jika HP kamu lebih tinggi dari musuh.                 |
-|  8  | **Chain Lightning** |  4   | Petir berantai. Deal **2 damage AoE** ke semua minion musuh DAN **2 damage** ke hero musuh. Damage serba guna.                    |
-|  9  | **Dark Offering**   |  4   | Persembahan gelap. **Menghancurkan 1 minion sendiri acak**, tapi draw **3 kartu**. Korbankan minion lemah untuk keuntungan besar. |
-| 10  | **War Drums**       |  5   | Genderang perang. **Buff semua minion** di arena: **+2 ATK** dan **+1 DEF**. Semakin banyak minion, semakin dahsyat!              |
-| 11  | **Inferno Wave**    |  5   | Gelombang api. Deal **3 damage** ke hero musuh DAN **1 damage AoE** ke semua minion musuh. Damage + board control.                |
-| 12  | **Resurrection**    |  6   | Kebangkitan. Memanggil **2 Revenant (3/3)** ke arena. Membangun board presence instan yang kuat.                                  |
+_(Lihat tabel kartu lengkap di bagian Daftar Kartu di atas)_
 
 ### 💡 Strategi & Tips
 
 - **Early Game (Mana 1-3):** Mainkan minion murah untuk membangun arena. Kartu seperti Dark Ritualist dan Plague Rat sangat efisien.
 - **Mid Game (Mana 4-6):** Mulai mainkan kartu dengan efek kuat. Aktifkan **combo** dengan memainkan kartu murah dulu, lalu kartu combo.
 - **Late Game (Mana 7+):** Kartu mahal seperti Elder Dragon dan Doom Harbinger bisa membalikkan keadaan.
-- **Combo Chain:** Mainkan Arcane Bolt (1 mana) → Cursed Blade (2 mana) = 2 + 5 = 7 damage hanya dengan 3 mana!
-- **Deathrattle Bait:** Mainkan Phoenix Egg dan biarkan musuh menghancurkannya — kamu dapat Phoenix 3/2 gratis!
+- **Combo Chain:** Mainkan Arcane Spark (1 mana) → Cursed Blade (2 mana) = 2 + 5 = 7 damage hanya dengan 3 mana!
+- **Deathrattle Bait:** Mainkan Phoenix Egg dan biarkan musuh menghancurkannya — kamu dapat Phoenix 3/3 gratis!
 - **Board Flood + Buff:** Isi arena dengan minion murah, lalu pakai War Drums untuk buff semua sekaligus.
+- **Legendary Strategy:** Legendary limit 1 per deck — pilih yang paling cocok dengan strategi kamu.
 - **Klik kanan** pada kartu untuk melihat preview lebih besar.
 - Kartu dengan **cahaya hijau** di tangan bisa dimainkan.
 - Minion dengan **border merah saat di-hover** bisa menyerang.
@@ -269,7 +245,7 @@ Setiap giliran terdiri dari **5 fase** berurutan:
 | ------------------------ | --------------------------- |
 | **React 19**             | UI framework                |
 | **Vite 6**               | Build tool & dev server     |
-| **Zustand**              | State management (5 stores) |
+| **Zustand**              | State management (8 stores) |
 | **Firebase Realtime DB** | Multiplayer sync            |
 | **Vercel**               | Hosting & deployment        |
 
@@ -285,8 +261,8 @@ src/
 │   ├── HUD/         # HPBar, ManaBar, TurnButton, dll
 │   ├── BattleLog/   # Battle log panel
 │   ├── Effects/     # TurnBanner
-│   └── Screens/     # MainMenu, GameOver, MultiplayerLobby
-├── data/            # Cards, constants, effects
+│   └── Screens/     # MainMenu, GameOver, MultiplayerLobby, DraftScreen
+├── data/            # Cards (42), constants, effects
 ├── engine/          # Turn engine, combat, effects, multiplayer
 ├── firebase/        # Config, room service, game sync
 ├── stores/          # Zustand stores

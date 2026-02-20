@@ -5,12 +5,15 @@ import usePlayerStore from '../stores/usePlayerStore';
 import useOpponentStore from '../stores/useOpponentStore';
 import useUIStore from '../stores/useUIStore';
 import useMultiplayerStore from '../stores/useMultiplayerStore';
+import useQuestStore from '../stores/useQuestStore';
+import useDraftStore from '../stores/useDraftStore';
 import { resolveStartOfTurnEffects, resolveEndOfTurnEffects, resetCardsPlayedThisTurn } from './effectResolver';
 import { checkGameOver } from './gameRules';
 import { runAITurn } from '../ai/aiController';
 import { createLogEntry } from '../utils/logger';
 import { delay } from '../utils/delay';
 import { LOG_TYPES } from '../data/constants';
+import { buildDraftDeck } from '../utils/deckBuilder';
 
 // Multiplayer sync callback - set by multiplayerEngine
 let _onMultiplayerSync = null;
@@ -31,11 +34,23 @@ export async function initializeGame() {
   const playerStore = usePlayerStore.getState();
   const opponentStore = useOpponentStore.getState();
   const uiStore = useUIStore.getState();
+  const draftStore = useDraftStore.getState();
 
   // Reset everything
   uiStore.resetUI();
-  playerStore.initDeck();
+
+  // Check if in draft mode — use drafted deck
+  if (draftStore.isDraftMode && draftStore.draftComplete) {
+    const draftedDeck = buildDraftDeck(draftStore.getDraftedDeck());
+    playerStore.initDeckFromCards(draftedDeck);
+  } else {
+    playerStore.initDeck();
+  }
   opponentStore.initDeck();
+
+  // Track quest: games played
+  useQuestStore.getState().checkDailyReset();
+  useQuestStore.getState().trackEvent('games_played', 1);
 
   // Start the game
   gameStore.startGame();
