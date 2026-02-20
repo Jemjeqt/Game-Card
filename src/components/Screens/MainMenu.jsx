@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { initializeGame } from '../../engine/turnEngine';
 import useGameStore from '../../stores/useGameStore';
-import { GAME_STATUS } from '../../data/constants';
+import { GAME_STATUS, GAME_VERSION } from '../../data/constants';
 
 const GUIDE_TABS = ['Mekanik', 'Minion', 'Spell', 'Strategi'];
 
@@ -49,6 +49,7 @@ const SPELL_CARDS = [
 export default function MainMenu() {
   const [showGuide, setShowGuide] = useState(false);
   const [guideTab, setGuideTab] = useState(0);
+  const [showPatchNotes, setShowPatchNotes] = useState(false);
 
   const handleStart = () => {
     initializeGame();
@@ -83,6 +84,54 @@ export default function MainMenu() {
         <p>35 kartu unik • Arena 10 slot • Combo & Deathrattle</p>
         <p>Serangan langsung • Tema fantasi gelap</p>
       </div>
+
+      <div className="main-menu__version" onClick={() => setShowPatchNotes(true)}>
+        <span className="version__badge">BETA</span>
+        <span className="version__text">{GAME_VERSION}</span>
+      </div>
+
+      {showPatchNotes && (
+        <div className="guide-overlay" onClick={() => setShowPatchNotes(false)}>
+          <div className="guide" onClick={(e) => e.stopPropagation()} style={{maxWidth: '520px'}}>
+            <button className="guide__close" onClick={() => setShowPatchNotes(false)}>✕</button>
+            <h2 className="guide__title">📋 Patch Notes</h2>
+            <div className="guide__content">
+
+              <section className="guide__section">
+                <h3 className="patch__version-header">🔥 v0.2.0-beta <span className="patch__date">20 Feb 2026</span></h3>
+                <p style={{color:'var(--accent-cyan)', fontSize:'12px', marginBottom:'10px'}}>Major Expansion Update</p>
+                <ul className="guide__tips">
+                  <li><strong>35 kartu</strong> — 15 kartu baru ditambahkan (dari 20)</li>
+                  <li><strong>Arena 10 slot</strong> — Board diperlebar dari 5 ke 10 minion</li>
+                  <li><strong>HP 60</strong> — HP awal dinaikkan dari 50 ke 60</li>
+                  <li><strong>Hand size 9</strong> — Maks kartu di tangan dari 7 ke 9</li>
+                  <li><strong>Sistem Combo</strong> — Bonus efek jika main beberapa kartu dalam 1 giliran</li>
+                  <li><strong>Deathrattle</strong> — Efek aktif saat minion mati (Phoenix Egg, dll)</li>
+                  <li><strong>End of Turn</strong> — Efek otomatis setiap akhir giliran (Void Cultist)</li>
+                  <li><strong>Copy Minion</strong> — Mirror Mage bisa menduplikasi minion di arena</li>
+                  <li><strong>Buff All</strong> — War Drums: buff semua minion +2/+1</li>
+                  <li><strong>Doom Harbinger</strong> — Board clear ultimate, destroy semua minion musuh</li>
+                  <li><strong>Guide lengkap</strong> — Cara Bermain dengan tab + deskripsi 35 kartu</li>
+                </ul>
+              </section>
+
+              <section className="guide__section">
+                <h3 className="patch__version-header">⚙️ v0.1.0 <span className="patch__date">Rilis Awal</span></h3>
+                <ul className="guide__tips">
+                  <li>20 kartu unik (Minion & Spell)</li>
+                  <li>VS AI dengan strategi rule-based</li>
+                  <li>Multiplayer online via Firebase</li>
+                  <li>5 fase giliran (Start → Draw → Main → Attack → End)</li>
+                  <li>Efek: Battlecry, Lifesteal, Shield, AoE, Summon, Start of Turn</li>
+                  <li>Battle Log, Dark Fantasy theme, Card preview</li>
+                  <li>Deploy ke Vercel</li>
+                </ul>
+              </section>
+
+            </div>
+          </div>
+        </div>
+      )}
 
       {showGuide && (
         <div className="guide-overlay" onClick={() => setShowGuide(false)}>
