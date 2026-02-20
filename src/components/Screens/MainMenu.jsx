@@ -3,8 +3,52 @@ import { initializeGame } from '../../engine/turnEngine';
 import useGameStore from '../../stores/useGameStore';
 import { GAME_STATUS } from '../../data/constants';
 
+const GUIDE_TABS = ['Mekanik', 'Minion', 'Spell', 'Strategi'];
+
+const MINION_CARDS = [
+  { name: 'Healing Wisp', mana: 1, atk: 0, def: 3, desc: 'Makhluk penyembuh lemah. Saat dimainkan, menyembuhkan hero 2 HP. Berguna di early game untuk bertahan.' },
+  { name: 'Ember Sprite', mana: 1, atk: 1, def: 2, desc: 'Elemental api kecil. Setiap kali menyerang, memberikan +1 damage bonus ke hero musuh. Murah dan agresif.' },
+  { name: 'Venom Fang', mana: 2, atk: 3, def: 1, desc: 'Ular beracun dengan serangan tinggi tapi rapuh. Setiap serangannya memberikan +1 damage bonus. Glass cannon.' },
+  { name: 'Dark Ritualist', mana: 2, atk: 2, def: 2, desc: 'Pendeta gelap. Saat dimainkan, mengambil 1 kartu dari deck. Stat standar dengan bonus card advantage.' },
+  { name: 'Plague Rat', mana: 2, atk: 2, def: 2, desc: 'Tikus pembawa wabah. Saat dimainkan, memberikan 1 damage ke SEMUA minion musuh. Mini AoE early game.' },
+  { name: 'Phoenix Egg', mana: 2, atk: 0, def: 3, desc: 'Telur phoenix yang tidak bisa menyerang. Saat mati (Deathrattle), memanggil Phoenix 3/2! Bait musuh untuk menghancurkannya.' },
+  { name: 'Ironclad Knight', mana: 3, atk: 2, def: 5, desc: 'Ksatria berlapis besi dengan Shield. Menyerap damage pertama, menjadikannya tank yang andal.' },
+  { name: 'Soul Leech', mana: 3, atk: 3, def: 3, desc: 'Lintah jiwa dengan Lifesteal. Setiap serangan menyembuhkan hero kamu sejumlah damage yang diberikan.' },
+  { name: 'Frost Mage', mana: 3, atk: 2, def: 3, desc: 'Penyihir es. Saat dimainkan, deal 2 damage ke hero musuh. Combo: +2 damage tambahan jika sudah main kartu lain giliran ini!' },
+  { name: 'Shadow Dancer', mana: 3, atk: 2, def: 3, desc: 'Penari bayangan. Combo: Mendapat +2 ATK dan +2 DEF jika sudah main kartu lain giliran ini, menjadi 4/5!' },
+  { name: 'Void Cultist', mana: 3, atk: 2, def: 4, desc: 'Pemuja kekosongan. End of Turn: Otomatis deal 1 damage ke hero musuh setiap akhir giliranmu. Damage pasif yang konsisten.' },
+  { name: 'Corpse Raiser', mana: 4, atk: 3, def: 3, desc: 'Penyihir bangkai. Saat dimainkan, memanggil Skeleton 1/1 ke arena. Dua tubuh dengan harga satu.' },
+  { name: 'Shadowstrike Assassin', mana: 4, atk: 5, def: 2, desc: 'Pembunuh bayangan dengan ATK tinggi tapi DEF rendah. Saat dimainkan, deal 1 damage ke hero musuh. Agresif!' },
+  { name: 'Warcry Berserker', mana: 4, atk: 3, def: 4, desc: 'Berserker yang semakin kuat. Saat dimainkan, mendapat +1 ATK per minion yang ada di arena. Mainkan saat arena ramai!' },
+  { name: 'Spirit Walker', mana: 4, atk: 2, def: 5, desc: 'Pejalan roh penyembuh. Saat dimainkan, menyembuhkan hero 2 HP per minion di arena. Semakin banyak minion, semakin banyak heal.' },
+  { name: 'Blood Knight', mana: 4, atk: 4, def: 3, desc: 'Ksatria darah dengan Lifesteal. Combo: Draw 1 kartu bonus jika sudah main kartu lain giliran ini. Serba bisa.' },
+  { name: 'Archmage Solara', mana: 5, atk: 4, def: 4, desc: 'Archmage legendaris. Start of Turn: Deal 2 damage ke hero musuh setiap awal giliranmu. Semakin lama hidup, semakin mematikan!' },
+  { name: 'Divine Protector', mana: 5, atk: 3, def: 6, desc: 'Pelindung suci. Saat dimainkan, heal hero 5 HP DAN memberikan Shield ke semua minion di arena. Defensif ultimate.' },
+  { name: 'Mirror Mage', mana: 5, atk: 3, def: 3, desc: 'Penyihir cermin. Saat dimainkan, meng-copy minion acak dari arena kamu. Semakin kuat minion yang di-copy, semakin menguntungkan!' },
+  { name: 'Thunder Elemental', mana: 5, atk: 4, def: 4, desc: 'Elemental petir. Saat dimainkan, deal 1 AoE ke semua minion musuh. Combo: +2 AoE tambahan! Total 3 AoE jika combo aktif.' },
+  { name: 'Abyssal Devourer', mana: 6, atk: 5, def: 6, desc: 'Pemangsa abyssal. Saat dimainkan, menghancurkan 1 minion musuh acak langsung. Removal premium.' },
+  { name: 'Elder Dragon', mana: 7, atk: 7, def: 7, desc: 'Naga tua yang perkasa. Stat besar 7/7, saat dimainkan deal 3 damage ke hero musuh. Late game powerhouse.' },
+  { name: 'Doom Harbinger', mana: 8, atk: 6, def: 6, desc: 'Pembawa kehancuran. Saat dimainkan, MENGHANCURKAN SEMUA minion musuh! Board clear ultimate dengan tubuh 6/6.' },
+];
+
+const SPELL_CARDS = [
+  { name: 'Arcane Bolt', mana: 1, desc: 'Tembakan sihir sederhana. Deal 2 damage ke hero musuh. Murah dan efisien untuk chip damage.' },
+  { name: 'Shadow Strike', mana: 2, desc: 'Serangan bayangan. Deal 3 damage ke hero musuh. Damage efisien untuk biayanya.' },
+  { name: 'Holy Light', mana: 2, desc: 'Cahaya suci. Menyembuhkan hero kamu 4 HP. Penyembuhan efisien saat tertekan.' },
+  { name: 'Cursed Blade', mana: 2, desc: 'Pedang terkutuk. Deal 3 damage ke hero musuh. Combo: +2 damage (total 5)! Sangat kuat jika combo aktif.' },
+  { name: 'Blood Pact', mana: 3, desc: 'Perjanjian darah berisiko. Deal 3 damage ke hero sendiri, tapi draw 3 kartu! High risk, high reward.' },
+  { name: 'Mystic Shield', mana: 3, desc: 'Perisai mistis. Memberikan Shield ke 1 minion pilihanmu. Lindungi minion penting dari 1x serangan.' },
+  { name: 'Soul Exchange', mana: 3, desc: 'Pertukaran jiwa. Kedua hero -5 HP, lalu draw 2 kartu. Menguntungkan jika HP kamu lebih tinggi.' },
+  { name: 'Chain Lightning', mana: 4, desc: 'Petir berantai. Deal 2 AoE ke semua minion musuh DAN 2 damage ke hero musuh. Damage serba guna.' },
+  { name: 'Dark Offering', mana: 4, desc: 'Persembahan gelap. Hancurkan 1 minion sendiri acak, tapi draw 3 kartu. Korbankan minion lemah!' },
+  { name: 'War Drums', mana: 5, desc: 'Genderang perang. Buff semua minion +2 ATK dan +1 DEF. Semakin banyak minion, semakin dahsyat!' },
+  { name: 'Inferno Wave', mana: 5, desc: 'Gelombang api. Deal 3 damage ke hero musuh DAN 1 AoE ke semua minion musuh. Damage + board control.' },
+  { name: 'Resurrection', mana: 6, desc: 'Kebangkitan. Memanggil 2 Revenant (3/3) ke arena. Board presence instan yang kuat.' },
+];
+
 export default function MainMenu() {
   const [showGuide, setShowGuide] = useState(false);
+  const [guideTab, setGuideTab] = useState(0);
 
   const handleStart = () => {
     initializeGame();
@@ -36,7 +80,7 @@ export default function MainMenu() {
       </div>
 
       <div className="main-menu__info">
-        <p>20 kartu unik • Strategi berbasis giliran • Lawan AI</p>
+        <p>35 kartu unik • Arena 10 slot • Combo & Deathrattle</p>
         <p>Serangan langsung • Tema fantasi gelap</p>
       </div>
 
@@ -46,136 +90,279 @@ export default function MainMenu() {
             <button className="guide__close" onClick={() => setShowGuide(false)}>✕</button>
             <h2 className="guide__title">📜 Cara Bermain</h2>
 
+            {/* Tabs */}
+            <div className="guide__tabs">
+              {GUIDE_TABS.map((tab, i) => (
+                <button
+                  key={tab}
+                  className={`guide__tab ${guideTab === i ? 'guide__tab--active' : ''}`}
+                  onClick={() => setGuideTab(i)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
             <div className="guide__content">
-              <section className="guide__section">
-                <h3>🎯 Tujuan</h3>
-                <p>Kurangi HP musuh dari <strong>60 menjadi 0</strong> sebelum HP kamu habis duluan. Gunakan 35 kartu unik dengan efek spesial!</p>
-              </section>
 
-              <section className="guide__section">
-                <h3>🔄 Fase Giliran</h3>
-                <div className="guide__phases">
-                  <div className="guide__phase">
-                    <span className="guide__phase-num">1</span>
-                    <div>
-                      <strong>MULAI GILIRAN</strong>
-                      <p>Dapat +1 kristal mana (maks 10), mana terisi penuh, minion siap bertarung.</p>
+              {/* TAB 0: MEKANIK */}
+              {guideTab === 0 && (
+                <>
+                  <section className="guide__section">
+                    <h3>🎯 Tujuan Permainan</h3>
+                    <p>Kurangi HP hero musuh dari <strong>60 menjadi 0</strong> sebelum HP kamu habis duluan. Gunakan 35 kartu unik dengan strategi yang tepat!</p>
+                    <div className="guide__stats">
+                      <div className="guide__stat-item">❤️ HP Awal: <strong>60</strong></div>
+                      <div className="guide__stat-item">💎 Mana Maks: <strong>10</strong></div>
+                      <div className="guide__stat-item">🃏 Kartu Awal: <strong>4 / 5</strong></div>
+                      <div className="guide__stat-item">✋ Maks Tangan: <strong>9</strong></div>
+                      <div className="guide__stat-item">🏟️ Maks Arena: <strong>10</strong></div>
+                      <div className="guide__stat-item">📦 Total Kartu: <strong>35</strong></div>
                     </div>
-                  </div>
-                  <div className="guide__phase">
-                    <span className="guide__phase-num">2</span>
-                    <div>
-                      <strong>AMBIL KARTU</strong>
-                      <p>Ambil 1 kartu. Tangan penuh (9)? Kartu hangus. Deck habis? Kena damage fatigue!</p>
-                    </div>
-                  </div>
-                  <div className="guide__phase">
-                    <span className="guide__phase-num">3</span>
-                    <div>
-                      <strong>FASE UTAMA</strong>
-                      <p>Mainkan kartu dari tangan. Klik untuk memilih, klik lagi untuk memainkan. Minion masuk ke arena, spell langsung aktif.</p>
-                    </div>
-                  </div>
-                  <div className="guide__phase">
-                    <span className="guide__phase-num">4</span>
-                    <div>
-                      <strong>FASE SERANG</strong>
-                      <p>Klik minion kamu untuk menyerang hero musuh secara langsung. Minion baru tidak bisa langsung menyerang (summoning sickness).</p>
-                    </div>
-                  </div>
-                  <div className="guide__phase">
-                    <span className="guide__phase-num">5</span>
-                    <div>
-                      <strong>AKHIRI GILIRAN</strong>
-                      <p>Giliran berpindah ke lawan.</p>
-                    </div>
-                  </div>
-                </div>
-              </section>
+                  </section>
 
-              <section className="guide__section">
-                <h3>🃏 Jenis Kartu</h3>
-                <div className="guide__grid">
-                  <div className="guide__item">
-                    <span>⚔️ <strong>Minion</strong></span>
-                    <p>Punya ATK & DEF. Tetap di arena, menyerang setiap giliran. Mati jika DEF mencapai 0.</p>
-                  </div>
-                  <div className="guide__item">
-                    <span>✦ <strong>Spell</strong></span>
-                    <p>Efek instan (damage, heal, ambil kartu, AoE). Tidak tetap di arena.</p>
-                  </div>
-                </div>
-              </section>
+                  <section className="guide__section">
+                    <h3>🔄 Fase Giliran</h3>
+                    <div className="guide__phases">
+                      <div className="guide__phase">
+                        <span className="guide__phase-num">1</span>
+                        <div>
+                          <strong>MULAI GILIRAN</strong>
+                          <p>Dapat +1 kristal mana (maks 10), mana terisi penuh, minion siap bertarung kembali.</p>
+                        </div>
+                      </div>
+                      <div className="guide__phase">
+                        <span className="guide__phase-num">2</span>
+                        <div>
+                          <strong>AMBIL KARTU</strong>
+                          <p>Otomatis ambil 1 kartu. Tangan penuh (9)? Kartu hangus. Deck habis? Kena damage fatigue yang meningkat!</p>
+                        </div>
+                      </div>
+                      <div className="guide__phase">
+                        <span className="guide__phase-num">3</span>
+                        <div>
+                          <strong>FASE UTAMA</strong>
+                          <p>Mainkan kartu dari tangan. Klik untuk memilih, klik lagi untuk memainkan. Minion masuk arena, spell langsung aktif.</p>
+                        </div>
+                      </div>
+                      <div className="guide__phase">
+                        <span className="guide__phase-num">4</span>
+                        <div>
+                          <strong>FASE SERANG</strong>
+                          <p>Klik minion untuk menyerang hero musuh langsung. Minion baru tidak bisa langsung menyerang (summoning sickness).</p>
+                        </div>
+                      </div>
+                      <div className="guide__phase">
+                        <span className="guide__phase-num">5</span>
+                        <div>
+                          <strong>AKHIRI GILIRAN</strong>
+                          <p>Efek End of Turn aktif, lalu giliran berpindah ke lawan.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
 
-              <section className="guide__section">
-                <h3>✨ Efek Spesial</h3>
-                <div className="guide__grid">
-                  <div className="guide__item"><strong>Battlecry</strong> — Efek saat kartu dimainkan</div>
-                  <div className="guide__item"><strong>Lifesteal</strong> — Menyembuhkan hero sejumlah damage yang diberikan</div>
-                  <div className="guide__item"><strong>Shield</strong> — Menyerap serangan pertama</div>
-                  <div className="guide__item"><strong>AoE</strong> — Mengenai semua minion musuh</div>
-                  <div className="guide__item"><strong>Summon</strong> — Memanggil minion tambahan</div>
-                  <div className="guide__item"><strong>Start of Turn</strong> — Efek aktif setiap awal giliran</div>
-                  <div className="guide__item"><strong>💥 Combo</strong> — Bonus efek jika sudah memainkan kartu lain giliran ini</div>
-                  <div className="guide__item"><strong>💀 Deathrattle</strong> — Efek aktif saat minion mati</div>
-                  <div className="guide__item"><strong>🌙 End of Turn</strong> — Efek aktif setiap akhir giliran</div>
-                  <div className="guide__item"><strong>🪞 Copy</strong> — Membuat salinan minion di arena</div>
-                  <div className="guide__item"><strong>☠️ Poison</strong> — Memberikan damage tambahan</div>
-                  <div className="guide__item"><strong>🛡️ Buff All</strong> — Menguatkan semua minion di arena</div>
-                </div>
-              </section>
+                  <section className="guide__section">
+                    <h3>🃏 Jenis Kartu</h3>
+                    <div className="guide__grid">
+                      <div className="guide__item">
+                        <span>⚔️ <strong>Minion</strong></span>
+                        <p>Punya ATK & DEF. Tetap di arena, menyerang hero musuh setiap giliran. Mati jika DEF mencapai 0.</p>
+                      </div>
+                      <div className="guide__item">
+                        <span>✦ <strong>Spell</strong></span>
+                        <p>Efek instan (damage, heal, draw, AoE, buff). Langsung masuk graveyard setelah dipakai.</p>
+                      </div>
+                    </div>
+                  </section>
 
-              <section className="guide__section">
-                <h3>💡 Tips</h3>
-                <ul className="guide__tips">
-                  <li><strong>Klik kanan</strong> pada kartu untuk melihat preview lebih besar</li>
-                  <li>Kartu dengan <span style={{color:'#22c55e'}}>cahaya hijau</span> bisa dimainkan</li>
-                  <li>Minion dengan <span style={{color:'#ef4444'}}>border merah saat di-hover</span> bisa menyerang</li>
-                  <li>Arena bisa menampung <strong>10 minion</strong> — manfaatkan ruang!</li>
-                  <li>Mainkan beberapa kartu dalam satu giliran untuk aktifkan <strong>Combo</strong></li>
-                  <li>Pantau <strong>Battle Log</strong> di kanan untuk melihat semua aksi</li>
-                </ul>
-              </section>
+                  <section className="guide__section">
+                    <h3>✨ Efek & Mekanik Spesial</h3>
+                    <div className="guide__effects-list">
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">⚔️ Battlecry</span>
+                        <span className="guide__effect-desc">Efek aktif <strong>saat kartu dimainkan</strong>. Contoh: deal damage, heal, summon.</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">💚 Lifesteal</span>
+                        <span className="guide__effect-desc">Saat menyerang, hero kamu <strong>sembuh sejumlah damage</strong> yang diberikan.</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">🛡️ Shield</span>
+                        <span className="guide__effect-desc">Menyerap <strong>damage pertama</strong> yang diterima. Habis setelah 1x.</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">💥 AoE</span>
+                        <span className="guide__effect-desc">Mengenai <strong>semua minion musuh</strong> sekaligus. Efektif lawan banyak minion.</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">👻 Summon</span>
+                        <span className="guide__effect-desc">Memanggil <strong>minion tambahan</strong> ke arena (Skeleton 1/1, Revenant 3/3, dll).</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">🌅 Start of Turn</span>
+                        <span className="guide__effect-desc">Efek otomatis <strong>setiap awal giliran</strong>. Contoh: Archmage deal 2 dmg tiap giliran.</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">🌙 End of Turn</span>
+                        <span className="guide__effect-desc">Efek otomatis <strong>setiap akhir giliran</strong>. Contoh: Void Cultist deal 1 dmg.</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">💥 Combo</span>
+                        <span className="guide__effect-desc">Bonus efek jika sudah <strong>main kartu lain</strong> di giliran yang sama sebelumnya.</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">💀 Deathrattle</span>
+                        <span className="guide__effect-desc">Efek aktif saat <strong>minion mati</strong>. Contoh: Phoenix Egg → summon Phoenix 3/2.</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">🪞 Copy</span>
+                        <span className="guide__effect-desc">Membuat <strong>salinan</strong> minion acak yang ada di arena kamu.</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">📈 Buff</span>
+                        <span className="guide__effect-desc">Menambah <strong>ATK/DEF</strong> minion. Bisa per-minion atau buff semua sekaligus.</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">☠️ Destroy</span>
+                        <span className="guide__effect-desc">Menghancurkan minion <strong>langsung</strong>, mengabaikan sisa DEF.</span>
+                      </div>
+                    </div>
+                  </section>
 
-              <section className="guide__section">
-                <h3>🌐 Multiplayer</h3>
-                <p>Main melawan teman secara online via Firebase Realtime Database!</p>
-                <div className="guide__phases">
-                  <div className="guide__phase">
-                    <span className="guide__phase-num">1</span>
-                    <div>
-                      <strong>BUAT ROOM</strong>
-                      <p>Klik <strong>Multiplayer → Create Room</strong>. Kamu akan mendapat kode 6 huruf.</p>
+                  <section className="guide__section">
+                    <h3>🌐 Multiplayer</h3>
+                    <p>Main melawan teman secara online!</p>
+                    <div className="guide__phases">
+                      <div className="guide__phase">
+                        <span className="guide__phase-num">1</span>
+                        <div><strong>BUAT ROOM</strong><p>Klik Multiplayer → Create Room. Dapat kode 6 huruf.</p></div>
+                      </div>
+                      <div className="guide__phase">
+                        <span className="guide__phase-num">2</span>
+                        <div><strong>BAGIKAN KODE</strong><p>Kirim kode ke teman via WA, chat, dll.</p></div>
+                      </div>
+                      <div className="guide__phase">
+                        <span className="guide__phase-num">3</span>
+                        <div><strong>GABUNG & MAIN</strong><p>Teman masukkan kode → Join Room. Game dimulai otomatis!</p></div>
+                      </div>
                     </div>
+                  </section>
+                </>
+              )}
+
+              {/* TAB 1: MINION CARDS */}
+              {guideTab === 1 && (
+                <section className="guide__section">
+                  <h3>⚔️ Kartu Minion ({MINION_CARDS.length} Kartu)</h3>
+                  <p style={{marginBottom: '12px'}}>Minion ditempatkan di arena dan bisa menyerang hero musuh setiap giliran.</p>
+                  <div className="guide__card-list">
+                    {MINION_CARDS.map((card, i) => (
+                      <div key={i} className="guide__card-entry">
+                        <div className="guide__card-header">
+                          <span className="guide__card-name">{card.name}</span>
+                          <span className="guide__card-stats">
+                            <span className="guide__card-mana">{card.mana}💎</span>
+                            <span className="guide__card-atk">{card.atk}⚔️</span>
+                            <span className="guide__card-def">{card.def}🛡️</span>
+                          </span>
+                        </div>
+                        <p className="guide__card-desc">{card.desc}</p>
+                      </div>
+                    ))}
                   </div>
-                  <div className="guide__phase">
-                    <span className="guide__phase-num">2</span>
-                    <div>
-                      <strong>BAGIKAN KODE</strong>
-                      <p>Bagikan kode room ke temanmu (via chat, WA, dll).</p>
+                </section>
+              )}
+
+              {/* TAB 2: SPELL CARDS */}
+              {guideTab === 2 && (
+                <section className="guide__section">
+                  <h3>✦ Kartu Spell ({SPELL_CARDS.length} Kartu)</h3>
+                  <p style={{marginBottom: '12px'}}>Spell memberikan efek instan dan langsung masuk graveyard setelah dipakai.</p>
+                  <div className="guide__card-list">
+                    {SPELL_CARDS.map((card, i) => (
+                      <div key={i} className="guide__card-entry guide__card-entry--spell">
+                        <div className="guide__card-header">
+                          <span className="guide__card-name">{card.name}</span>
+                          <span className="guide__card-stats">
+                            <span className="guide__card-mana">{card.mana}💎</span>
+                          </span>
+                        </div>
+                        <p className="guide__card-desc">{card.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* TAB 3: STRATEGI */}
+              {guideTab === 3 && (
+                <>
+                  <section className="guide__section">
+                    <h3>🎯 Strategi per Fase Game</h3>
+                    <div className="guide__phases">
+                      <div className="guide__phase">
+                        <span className="guide__phase-num" style={{background:'rgba(34,197,94,0.2)',color:'#22c55e'}}>⬤</span>
+                        <div>
+                          <strong>EARLY GAME (Mana 1-3)</strong>
+                          <p>Bangun arena dengan minion murah. Dark Ritualist, Plague Rat, dan Ember Sprite sangat efisien. Jangan buang spell damage terlalu awal.</p>
+                        </div>
+                      </div>
+                      <div className="guide__phase">
+                        <span className="guide__phase-num" style={{background:'rgba(245,158,11,0.2)',color:'#f59e0b'}}>⬤</span>
+                        <div>
+                          <strong>MID GAME (Mana 4-6)</strong>
+                          <p>Mainkan kartu dengan efek kuat. Aktifkan Combo dengan kartu murah dulu. War Drums + arena penuh = buff masif!</p>
+                        </div>
+                      </div>
+                      <div className="guide__phase">
+                        <span className="guide__phase-num" style={{background:'rgba(239,68,68,0.2)',color:'#ef4444'}}>⬤</span>
+                        <div>
+                          <strong>LATE GAME (Mana 7+)</strong>
+                          <p>Elder Dragon dan Doom Harbinger bisa membalikkan keadaan. Simpan removal untuk ancaman besar musuh.</p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="guide__phase">
-                    <span className="guide__phase-num">3</span>
-                    <div>
-                      <strong>GABUNG ROOM</strong>
-                      <p>Teman klik <strong>Multiplayer → masukkan kode → Join Room</strong>.</p>
+                  </section>
+
+                  <section className="guide__section">
+                    <h3>💥 Combo Chain Contoh</h3>
+                    <div className="guide__combo-examples">
+                      <div className="guide__combo-item">
+                        <div className="guide__combo-chain">Arcane Bolt (1💎) → Cursed Blade (2💎)</div>
+                        <div className="guide__combo-result">= 2 + 5 damage = <strong>7 damage</strong> hanya 3 mana!</div>
+                      </div>
+                      <div className="guide__combo-item">
+                        <div className="guide__combo-chain">Healing Wisp (1💎) → Shadow Dancer (3💎)</div>
+                        <div className="guide__combo-result">= Heal 2 HP + Shadow Dancer menjadi <strong>4/5</strong>! Total 4 mana.</div>
+                      </div>
+                      <div className="guide__combo-item">
+                        <div className="guide__combo-chain">Dark Ritualist (2💎) → Thunder Elemental (5💎)</div>
+                        <div className="guide__combo-result">= Draw 1 + AoE <strong>3 damage</strong> ke semua minion musuh! Total 7 mana.</div>
+                      </div>
+                      <div className="guide__combo-item">
+                        <div className="guide__combo-chain">Arcane Bolt (1💎) → Frost Mage (3💎)</div>
+                        <div className="guide__combo-result">= 2 dmg + 2 dmg + 2 combo = <strong>6 damage ke hero</strong>! Total 4 mana.</div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="guide__phase">
-                    <span className="guide__phase-num">4</span>
-                    <div>
-                      <strong>BERTARUNG!</strong>
-                      <p>Game otomatis dimulai. Host jalan duluan. Semua aksi di-sync real-time.</p>
-                    </div>
-                  </div>
-                </div>
-                <ul className="guide__tips" style={{marginTop: '10px'}}>
-                  <li>Butuh setup <strong>Firebase</strong> (lihat <code>.env.example</code>)</li>
-                  <li>Kedua pemain harus buka game di browser masing-masing</li>
-                  <li>Tidak ada AI — giliran bergantian antar pemain</li>
-                </ul>
-              </section>
+                  </section>
+
+                  <section className="guide__section">
+                    <h3>🧠 Tips Pro</h3>
+                    <ul className="guide__tips">
+                      <li><strong>Phoenix Egg Bait:</strong> Pasang di arena, biarkan musuh hancurkan — dapat Phoenix 3/2 gratis!</li>
+                      <li><strong>Board Flood + War Drums:</strong> Isi arena dengan minion murah, lalu buff semua sekaligus +2/+1.</li>
+                      <li><strong>Void Cultist Stack:</strong> 2-3 Void Cultist = 2-3 damage otomatis setiap akhir giliran tanpa menyerang.</li>
+                      <li><strong>Mirror Mage Value:</strong> Copy minion terkuat di arena — semakin kuat target, semakin menguntungkan.</li>
+                      <li><strong>Soul Exchange Timing:</strong> Pakai saat HP kamu jauh lebih tinggi dari musuh. -5/-5 HP + draw 2!</li>
+                      <li><strong>Doom Harbinger Finisher:</strong> Bersihkan seluruh arena musuh, lalu serang dengan semua minion.</li>
+                      <li><strong>Klik kanan</strong> pada kartu untuk preview lebih besar</li>
+                      <li>Kartu <span style={{color:'#22c55e'}}>hijau</span> = bisa dimainkan, Minion <span style={{color:'#ef4444'}}>merah</span> = bisa menyerang</li>
+                    </ul>
+                  </section>
+                </>
+              )}
+
             </div>
 
             <button className="guide__start" onClick={() => { setShowGuide(false); handleStart(); }}>

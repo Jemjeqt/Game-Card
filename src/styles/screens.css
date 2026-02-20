@@ -375,6 +375,182 @@
   transform: scale(1.05);
 }
 
+/* === Guide Tabs === */
+.guide__tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.guide__tab {
+  flex: 1;
+  padding: 8px 12px;
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.guide__tab:hover {
+  color: var(--text-primary);
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.guide__tab--active {
+  color: var(--text-bright);
+  background: rgba(139, 92, 246, 0.25);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
+}
+
+/* === Guide Stats Grid === */
+.guide__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.guide__stat-item {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  text-align: center;
+}
+
+.guide__stat-item strong {
+  color: var(--accent-cyan);
+}
+
+/* === Guide Effects List === */
+.guide__effects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.guide__effect-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 12px;
+}
+
+.guide__effect-name {
+  flex-shrink: 0;
+  min-width: 110px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.guide__effect-desc {
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* === Guide Card List === */
+.guide__card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guide__card-entry {
+  padding: 10px 12px;
+  background: rgba(139, 92, 246, 0.04);
+  border-radius: 8px;
+  border-left: 3px solid rgba(239, 68, 68, 0.5);
+}
+
+.guide__card-entry--spell {
+  border-left-color: rgba(59, 130, 246, 0.5);
+}
+
+.guide__card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.guide__card-name {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.guide__card-stats {
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.guide__card-mana {
+  color: var(--color-mana);
+}
+
+.guide__card-atk {
+  color: var(--color-attack);
+}
+
+.guide__card-def {
+  color: var(--accent-green);
+}
+
+.guide__card-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* === Combo Examples === */
+.guide__combo-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guide__combo-item {
+  padding: 10px 12px;
+  background: rgba(245, 158, 11, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid rgba(245, 158, 11, 0.4);
+}
+
+.guide__combo-chain {
+  font-size: 12px;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.guide__combo-result {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.guide__combo-result strong {
+  color: var(--color-gold);
+}
+
 /* ===== GAME OVER SCREEN ===== */
 
 .game-over {
