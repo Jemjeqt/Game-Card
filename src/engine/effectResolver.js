@@ -1,5 +1,7 @@
 import { EFFECT_TYPES, TRIGGERS, TARGETS, COMBO_BONUS } from '../data/effects';
 import { CARD_TYPES } from '../data/constants';
+import { getCardById } from '../data/cards';
+import { createCardInstance } from '../utils/deckBuilder';
 
 // Track cards played this turn (for combo detection)
 let _cardsPlayedThisTurn = 0;
@@ -267,7 +269,6 @@ function resolveHealPerMinion(effect, card, ownerStore, addLog) {
 }
 
 function resolveCopyMinion(effect, card, ownerStore, addLog) {
-  const { createCardInstance } = require('../utils/deckBuilder');
   const board = ownerStore.getState().board;
   // Pick a random minion that isn't the Mirror Mage itself
   const candidates = board.filter((m) => m.instanceId !== card.instanceId);
@@ -276,7 +277,6 @@ function resolveCopyMinion(effect, card, ownerStore, addLog) {
     return null;
   }
   const target = candidates[Math.floor(Math.random() * candidates.length)];
-  const { getCardById } = require('../data/cards');
   const cardDef = getCardById(target.cardId);
   if (cardDef) {
     const copy = createCardInstance(cardDef);
@@ -388,8 +388,6 @@ export function resolveDeathEffects({ card, ownerStore, enemyStore, addLog }) {
       if (effect.type === EFFECT_TYPES.SUMMON) {
         // Check if the card specifies a special summon
         const summonId = card.summonId || 'skeleton_token';
-        const { getCardById } = require('../data/cards');
-        const { createCardInstance } = require('../utils/deckBuilder');
         const tokenDef = getCardById(summonId);
         if (tokenDef) {
           for (let i = 0; i < effect.value; i++) {
