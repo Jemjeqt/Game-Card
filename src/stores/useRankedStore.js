@@ -1,9 +1,10 @@
 import { create } from 'zustand';
+import { TIER_RP } from '../data/constants';
 
 // ===== RANKED MODE SYSTEM =====
-// Tier system: Bronze → Silver → Gold → Platinum → Diamond → Mythic
-// Win: +25 points, Loss: -15 points
-// Each tier has 3 divisions (III, II, I) except Mythic
+// Tier system: Bronze → Silver → Gold → Platinum → Diamond → Mythic → Immortal
+// RP scales per tier — higher rank = less gain, more loss
+// Each tier has 3 divisions (III, II, I) except Immortal
 
 const TIERS = [
   { id: 'bronze', name: 'Bronze', icon: '🥉', minPoints: 0 },
@@ -12,12 +13,11 @@ const TIERS = [
   { id: 'platinum', name: 'Platinum', icon: '💎', minPoints: 900 },
   { id: 'diamond', name: 'Diamond', icon: '💠', minPoints: 1200 },
   { id: 'mythic', name: 'Mythic', icon: '🏆', minPoints: 1500 },
+  { id: 'immortal', name: 'Immortal', icon: '🔱', minPoints: 1800 },
 ];
 
 const DIVISIONS = ['III', 'II', 'I'];
 const POINTS_PER_DIVISION = 100;
-const WIN_POINTS = 25;
-const LOSS_POINTS = 15;
 
 function getStoredRankedData() {
   try {
@@ -57,8 +57,8 @@ function calculateTierInfo(points) {
     }
   }
 
-  // Mythic has no divisions
-  if (currentTier.id === 'mythic') {
+  // Immortal has no divisions
+  if (currentTier.id === 'immortal') {
     return {
       tier: currentTier,
       division: null,
@@ -115,7 +115,9 @@ const useRankedStore = create((set, get) => ({
   // Record a match result
   recordMatch: (won) => {
     const state = get();
-    const pointsChange = won ? WIN_POINTS : -LOSS_POINTS;
+    const tierInfo = calculateTierInfo(state.points);
+    const rp = TIER_RP[tierInfo.tier.id] || TIER_RP.bronze;
+    const pointsChange = won ? rp.win : -rp.loss;
     const newPoints = Math.max(0, state.points + pointsChange);
     const newWins = won ? state.wins + 1 : state.wins;
     const newLosses = won ? state.losses : state.losses + 1;
@@ -175,5 +177,5 @@ const useRankedStore = create((set, get) => ({
   },
 }));
 
-export { TIERS, DIVISIONS, WIN_POINTS, LOSS_POINTS, calculateTierInfo };
+export { TIERS, DIVISIONS, calculateTierInfo };
 export default useRankedStore;

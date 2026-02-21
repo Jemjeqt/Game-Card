@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { PHASES, GAME_STATUS, PLAYERS } from '../data/constants';
+import { PHASES, GAME_STATUS, PLAYERS, AI_DIFFICULTY } from '../data/constants';
 
 const useGameStore = create((set, get) => ({
   // State
@@ -9,6 +9,7 @@ const useGameStore = create((set, get) => ({
   gameStatus: GAME_STATUS.MENU,
   isProcessing: false,
   winner: null,
+  aiDifficulty: AI_DIFFICULTY.NORMAL, // Current AI difficulty
 
   // Actions
   startGame: () => {
@@ -21,6 +22,8 @@ const useGameStore = create((set, get) => ({
       winner: null,
     });
   },
+
+  setAiDifficulty: (diff) => set({ aiDifficulty: diff }),
 
   setPhase: (phase) => set({ phase }),
 
@@ -86,6 +89,7 @@ const useGameStore = create((set, get) => ({
       gameStatus: GAME_STATUS.MENU,
       isProcessing: false,
       winner: null,
+      aiDifficulty: AI_DIFFICULTY.NORMAL,
     });
   },
 
@@ -99,6 +103,7 @@ const useGameStore = create((set, get) => ({
       gameStatus: GAME_STATUS.MENU,
       isProcessing: false,
       winner: null,
+      aiDifficulty: AI_DIFFICULTY.NORMAL,
     });
   },
 }));

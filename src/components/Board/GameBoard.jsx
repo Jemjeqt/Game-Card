@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import usePlayerStore from '../../stores/usePlayerStore';
 import useOpponentStore from '../../stores/useOpponentStore';
 import useGameStore from '../../stores/useGameStore';
 import useMultiplayerStore from '../../stores/useMultiplayerStore';
 import useRankedStore from '../../stores/useRankedStore';
 import useDraftStore from '../../stores/useDraftStore';
+import useAuthStore from '../../stores/useAuthStore';
+import { updateUserProfile, recordGameResult } from '../../firebase/userService';
+import useUIStore from '../../stores/useUIStore';
+import useQuestStore from '../../stores/useQuestStore';
 import HPBar from '../HUD/HPBar';
 import ManaBar from '../HUD/ManaBar';
 import DeckCounter from '../HUD/DeckCounter';
@@ -44,15 +48,80 @@ export default function GameBoard() {
   const isRankedMode = useRankedStore((s) => s.isRankedMode);
   const isDraftMode = useDraftStore((s) => s.isDraftMode);
 
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+
+  const handleLeaveGame = useCallback(() => {
+    // If ranked, record as a loss
+    if (isRankedMode) {
+      useRankedStore.getState().recordMatch(false);
+      
+      // Record loss to Firestore
+      const user = useAuthStore.getState().user;
+      if (user) {
+        recordGameResult(user.uid, false)
+          .then(() => useAuthStore.getState().refreshProfile())
+          .catch((err) => console.warn('Failed to record forfeit:', err));
+      }
+    }
+
+    // Reset all stores
+    usePlayerStore.getState().resetPlayer();
+    useOpponentStore.getState().resetPlayer();
+    useUIStore.getState().resetUI();
+    useRankedStore.getState().clearLastMatch();
+    if (isDraftMode) {
+      useDraftStore.getState().resetDraft();
+    }
+    useGameStore.getState().returnToMenu();
+    setShowLeaveConfirm(false);
+  }, [isRankedMode, isDraftMode]);
+
   const isGameOver =
     gameStatus === GAME_STATUS.PLAYER_WIN ||
     gameStatus === GAME_STATUS.OPPONENT_WIN;
 
   return (
     <div className="game-board">
+      {/* Leave Confirmation Modal */}
+      {showLeaveConfirm && (
+        <div className="leave-confirm-overlay" onClick={() => setShowLeaveConfirm(false)}>
+          <div className="leave-confirm" onClick={(e) => e.stopPropagation()}>
+            <h3 className="leave-confirm__title">
+              {isRankedMode ? '🏳️ Menyerah?' : '🚪 Keluar Game?'}
+            </h3>
+            <p className="leave-confirm__text">
+              {isRankedMode
+                ? 'Keluar dari ranked match akan dihitung sebagai KALAH dan kehilangan RP.'
+                : 'Progress pertandingan saat ini akan hilang.'}
+            </p>
+            <div className="leave-confirm__buttons">
+              <button
+                className="leave-confirm__btn leave-confirm__btn--cancel"
+                onClick={() => setShowLeaveConfirm(false)}
+              >
+                Lanjut Main
+              </button>
+              <button
+                className="leave-confirm__btn leave-confirm__btn--leave"
+                onClick={handleLeaveGame}
+              >
+                {isRankedMode ? '🏳️ Menyerah' : '🚪 Keluar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Opponent HUD */}
       <div className="hud hud--opponent">
         <div className="hud__left">
+          <button
+            className="leave-game-btn"
+            onClick={() => setShowLeaveConfirm(true)}
+            title="Leave Game"
+          >
+            ✕
+          </button>
           <HPBar hp={opponentHp} maxHp={opponentMaxHp} />
         </div>
         <div className="hud__center">

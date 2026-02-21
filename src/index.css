@@ -6,6 +6,7 @@
 @import './styles/animations.css';
 @import './styles/screens.css';
 @import './styles/vfx.css';
+@import './styles/auth.css';
 
 *,
 *::before,

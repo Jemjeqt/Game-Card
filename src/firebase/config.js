@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
 import { getAuth, signInAnonymously } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -19,18 +20,20 @@ export const isFirebaseConfigured = Boolean(
 let app = null;
 let db = null;
 let auth = null;
+let firestore = null;
 
 if (isFirebaseConfigured) {
   try {
     app = initializeApp(firebaseConfig);
     db = getDatabase(app);
     auth = getAuth(app);
+    firestore = getFirestore(app);
   } catch (err) {
     console.error('Firebase initialization failed:', err);
   }
 }
 
-export { db, auth };
+export { db, auth, firestore };
 
 export async function signInAnon() {
   if (!auth) throw new Error('Firebase not configured');

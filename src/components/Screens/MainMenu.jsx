@@ -1,61 +1,87 @@
 import React, { useState } from 'react';
 import { initializeGame } from '../../engine/turnEngine';
 import useGameStore from '../../stores/useGameStore';
-import useRankedStore from '../../stores/useRankedStore';
+import useRankedStore, { calculateTierInfo } from '../../stores/useRankedStore';
 import useDraftStore from '../../stores/useDraftStore';
 import useQuestStore from '../../stores/useQuestStore';
+import useAuthStore from '../../stores/useAuthStore';
 import RankedBadge from '../HUD/RankedBadge';
 import QuestPanel from '../HUD/QuestPanel';
-import { GAME_STATUS, GAME_VERSION } from '../../data/constants';
+import ProfileSettings from './ProfileSettings';
+import RankedProfile from './RankedProfile';
+import DevTools from './DevTools';
+import { GAME_STATUS, GAME_VERSION, TIER_DIFFICULTY, DIFFICULTY_CONFIG, TIER_RP, TIER_CONFIG } from '../../data/constants';
 
 const GUIDE_TABS = ['Mekanik', 'Minion', 'Spell', 'Strategi'];
 
 const MINION_CARDS = [
-  { name: 'Healing Wisp', mana: 1, atk: 0, def: 3, desc: 'Makhluk penyembuh lemah. Saat dimainkan, menyembuhkan hero 2 HP. Berguna di early game untuk bertahan.' },
-  { name: 'Ember Sprite', mana: 1, atk: 1, def: 2, desc: 'Elemental api kecil. Setiap kali menyerang, memberikan +1 damage bonus ke hero musuh. Murah dan agresif.' },
-  { name: 'Venom Fang', mana: 2, atk: 3, def: 1, desc: 'Ular beracun dengan serangan tinggi tapi rapuh. Setiap serangannya memberikan +1 damage bonus. Glass cannon.' },
-  { name: 'Dark Ritualist', mana: 2, atk: 2, def: 2, desc: 'Pendeta gelap. Saat dimainkan, mengambil 1 kartu dari deck. Stat standar dengan bonus card advantage.' },
-  { name: 'Plague Rat', mana: 2, atk: 2, def: 2, desc: 'Tikus pembawa wabah. Saat dimainkan, memberikan 1 damage ke SEMUA minion musuh. Mini AoE early game.' },
-  { name: 'Phoenix Egg', mana: 2, atk: 0, def: 3, desc: 'Telur phoenix yang tidak bisa menyerang. Saat mati (Deathrattle), memanggil Phoenix 3/2! Bait musuh untuk menghancurkannya.' },
-  { name: 'Ironclad Knight', mana: 3, atk: 2, def: 5, desc: 'Ksatria berlapis besi dengan Shield. Menyerap damage pertama, menjadikannya tank yang andal.' },
-  { name: 'Soul Leech', mana: 3, atk: 3, def: 3, desc: 'Lintah jiwa dengan Lifesteal. Setiap serangan menyembuhkan hero kamu sejumlah damage yang diberikan.' },
-  { name: 'Frost Mage', mana: 3, atk: 2, def: 3, desc: 'Penyihir es. Saat dimainkan, deal 2 damage ke hero musuh. Combo: +2 damage tambahan jika sudah main kartu lain giliran ini!' },
-  { name: 'Shadow Dancer', mana: 3, atk: 2, def: 3, desc: 'Penari bayangan. Combo: Mendapat +2 ATK dan +2 DEF jika sudah main kartu lain giliran ini, menjadi 4/5!' },
-  { name: 'Void Cultist', mana: 3, atk: 2, def: 4, desc: 'Pemuja kekosongan. End of Turn: Otomatis deal 1 damage ke hero musuh setiap akhir giliranmu. Damage pasif yang konsisten.' },
-  { name: 'Corpse Raiser', mana: 4, atk: 3, def: 3, desc: 'Penyihir bangkai. Saat dimainkan, memanggil Skeleton 1/1 ke arena. Dua tubuh dengan harga satu.' },
-  { name: 'Shadowstrike Assassin', mana: 4, atk: 5, def: 2, desc: 'Pembunuh bayangan dengan ATK tinggi tapi DEF rendah. Saat dimainkan, deal 1 damage ke hero musuh. Agresif!' },
-  { name: 'Warcry Berserker', mana: 4, atk: 3, def: 4, desc: 'Berserker yang semakin kuat. Saat dimainkan, mendapat +1 ATK per minion yang ada di arena. Mainkan saat arena ramai!' },
-  { name: 'Spirit Walker', mana: 4, atk: 2, def: 5, desc: 'Pejalan roh penyembuh. Saat dimainkan, menyembuhkan hero 2 HP per minion di arena. Semakin banyak minion, semakin banyak heal.' },
-  { name: 'Blood Knight', mana: 4, atk: 4, def: 3, desc: 'Ksatria darah dengan Lifesteal. Combo: Draw 1 kartu bonus jika sudah main kartu lain giliran ini. Serba bisa.' },
-  { name: 'Archmage Solara', mana: 5, atk: 4, def: 4, desc: 'Archmage legendaris. Start of Turn: Deal 2 damage ke hero musuh setiap awal giliranmu. Semakin lama hidup, semakin mematikan!' },
-  { name: 'Divine Protector', mana: 5, atk: 3, def: 9, desc: 'Pelindung suci. Saat dimainkan, heal hero 5 HP DAN memberikan +1 ATK ke semua minion di arena. Tank defensif.' },
-  { name: 'Mirror Mage', mana: 5, atk: 3, def: 3, desc: 'Penyihir cermin. Saat dimainkan, meng-copy minion acak dari arena kamu. Semakin kuat minion yang di-copy, semakin menguntungkan!' },
-  { name: 'Thunder Elemental', mana: 5, atk: 4, def: 4, desc: 'Elemental petir. Saat dimainkan, deal 2 damage ke hero musuh. Combo: +2 AoE tambahan! Board control + damage.' },
-  { name: 'Abyssal Devourer', mana: 6, atk: 5, def: 6, desc: 'Pemangsa abyssal. Saat dimainkan, menghancurkan 1 minion musuh acak langsung. Removal premium.' },
-  { name: 'Elder Dragon', mana: 7, atk: 8, def: 7, desc: 'Naga tua yang perkasa. Stat besar 8/7, saat dimainkan deal 3 damage ke hero musuh. Late game powerhouse.' },
-  { name: 'Doom Harbinger', mana: 8, atk: 6, def: 6, desc: 'Pembawa kehancuran. Saat dimainkan, deal 6 damage ke SEMUA minion musuh! AoE besar dengan tubuh 6/6.' },
-  { name: 'Celestial Arbiter', mana: 7, atk: 4, def: 8, desc: '⭐ LEGENDARY — Hakim langit. Battlecry: 3 AoE + 3 ke hero + Heal 5. Penguasa medan perang.' },
-  { name: 'Void Empress', mana: 6, atk: 4, def: 7, desc: '⭐ LEGENDARY — Ratu kekosongan. Lifesteal + Start of Turn: Curi 1 ATK musuh + Draw 1 kartu.' },
-  { name: 'Infernal Titan', mana: 9, atk: 8, def: 10, desc: '⭐ LEGENDARY — Titan api. Battlecry: 5 damage ke hero + Summon 2 Skeleton. Kekuatan absolut.' },
-  { name: 'Chrono Weaver', mana: 6, atk: 3, def: 4, desc: '⭐ LEGENDARY — Penenun waktu. Battlecry: Draw 1 + Semua minion +1 ATK. Momentum swinger.' },
-  { name: 'Shadow Sovereign', mana: 8, atk: 6, def: 6, desc: '⭐ LEGENDARY — Pangeran bayangan. Deathrattle: Deal 5 ke SEMUA minion musuh + 2 damage ke hero.' },
-  { name: 'Abyss Monarch', mana: 8, atk: 7, def: 7, desc: '⭐ LEGENDARY — Raja jurang. Battlecry: Deal 4 AoE ke semua minion musuh. Bayar 5 HP hero sendiri.' },
+  // === COMMON ===
+  { name: 'Healing Wisp', mana: 1, atk: 0, def: 3, desc: 'Makhluk penyembuh. Battlecry: Heal hero 2 HP. Berguna di early game untuk bertahan.' },
+  { name: 'Ember Sprite', mana: 1, atk: 1, def: 2, desc: 'Roh api kecil tanpa efek spesial. Murah dan efisien untuk trade awal.' },
+  { name: 'Shadow Imp', mana: 1, atk: 2, def: 1, desc: 'Iblis bayangan dengan ATK tinggi tapi sangat rapuh. Agresif untuk chip damage awal.' },
+  { name: 'Plague Rat', mana: 1, atk: 1, def: 1, desc: 'Tikus wabah. Start of Turn: 1 poison damage ke hero musuh setiap giliran. Damage pasif konsisten.' },
+  { name: 'Dark Ritualist', mana: 2, atk: 2, def: 2, desc: 'Pendeta gelap. Battlecry: Draw 1 kartu. Stat standar dengan bonus card advantage.' },
+  { name: 'Spirit Walker', mana: 2, atk: 1, def: 4, desc: 'Pejalan roh. Battlecry: Heal 1 HP per minion di arena. Semakin banyak minion, semakin banyak heal!' },
+  { name: 'Ironclad Knight', mana: 3, atk: 2, def: 5, desc: 'Ksatria berlapis besi. Shield: menyerap 2 damage pertama. Tank yang andal.' },
+  // === RARE ===
+  { name: 'Venom Fang', mana: 2, atk: 3, def: 1, desc: '🔵 RARE — Ular beracun. On Attack: +1 damage bonus ke hero musuh. ATK tinggi tapi rapuh.' },
+  { name: 'Frost Mage', mana: 2, atk: 2, def: 3, desc: '🔵 RARE — Penyihir es. Battlecry: 1 damage. Combo: +1 extra damage ke hero.' },
+  { name: 'Soul Leech', mana: 3, atk: 3, def: 3, desc: '🔵 RARE — Lintah jiwa. Lifesteal: setiap serangan menyembuhkan hero sejumlah damage yang diberikan.' },
+  { name: 'Flame Warlock', mana: 3, atk: 4, def: 3, desc: '🔵 RARE — Penyihir api. Battlecry: 2 damage ke hero musuh. Stat agresif.' },
+  { name: 'Shadow Dancer', mana: 3, atk: 2, def: 2, desc: '🔵 RARE — Penari bayangan. Combo: +2/+2 jika sudah main kartu lain, menjadi 4/4!' },
+  { name: 'Void Cultist', mana: 3, atk: 2, def: 5, desc: '🔵 RARE — Pemuja kekosongan. End of Turn: 1 damage otomatis ke hero musuh.' },
+  { name: 'Warcry Berserker', mana: 3, atk: 2, def: 4, desc: '🔵 RARE — Berserker perkasa. Battlecry: +1 ATK per minion di arena. Arena ramai = makin kuat!' },
+  { name: 'Shadowstrike Assassin', mana: 4, atk: 5, def: 2, desc: '🔵 RARE — Pembunuh bayangan. Battlecry: 1 damage ke hero. ATK 5 tapi DEF rendah.' },
+  { name: 'Thunder Elemental', mana: 4, atk: 3, def: 5, desc: '🔵 RARE — Elemental petir. Battlecry: 2 damage hero. Combo: +2 AoE ke semua minion musuh!' },
+  // === EPIC ===
+  { name: 'Phoenix Egg', mana: 2, atk: 0, def: 3, desc: '🟣 EPIC — Telur phoenix. Deathrattle: Summon Phoenix 3/3! Bait musuh menghancurkannya.' },
+  { name: 'Corpse Raiser', mana: 4, atk: 3, def: 4, desc: '🟣 EPIC — Penyihir bangkai. Battlecry: Summon Skeleton 1/1. Dua tubuh harga satu.' },
+  { name: 'Blood Knight', mana: 4, atk: 4, def: 3, desc: '🟣 EPIC — Ksatria darah. Lifesteal. Combo: Draw 1 kartu bonus. Serba bisa.' },
+  { name: 'Mirror Mage', mana: 5, atk: 3, def: 3, desc: '🟣 EPIC — Penyihir cermin. Battlecry: Copy minion acak di arena. Target kuat = untung besar!' },
+  { name: 'Divine Protector', mana: 5, atk: 3, def: 9, desc: '🟣 EPIC — Pelindung suci. Battlecry: Heal 5 HP + semua minion +1 ATK. Tank premium.' },
+  { name: 'Abyssal Devourer', mana: 6, atk: 5, def: 6, desc: '🟣 EPIC — Pemangsa. Battlecry: Destroy 1 minion musuh acak langsung. Removal premium.' },
+  // === LEGENDARY ===
+  { name: 'Bronze Phoenix', mana: 3, atk: 2, def: 2, desc: '🌟 MINI-LEGENDARY — Deathrattle: Summon Skeleton 1/1. Legendary murah untuk tier rendah.' },
+  { name: 'Mini Reaper', mana: 3, atk: 2, def: 2, desc: '🌟 MINI-LEGENDARY — Lifesteal. Penyerap jiwa kecil yang rakus.' },
+  { name: 'Silver Shield', mana: 4, atk: 1, def: 4, desc: '🌟 MINI-LEGENDARY — Battlecry: +2 DEF ke friendly minion. Pelindung setia.' },
+  { name: 'Archmage Solara', mana: 5, atk: 4, def: 5, desc: '⭐ LEGENDARY — Start of Turn: 2 damage ke hero musuh setiap giliran. Semakin lama hidup, semakin mematikan!' },
+  { name: 'Chrono Weaver', mana: 6, atk: 3, def: 4, desc: '⭐ LEGENDARY — Battlecry: Draw 1 + Semua minion +1 ATK. Penenun waktu.' },
+  { name: 'Void Empress', mana: 6, atk: 4, def: 7, desc: '⭐ LEGENDARY — Lifesteal + Start of Turn: Curi 1 ATK musuh + Draw 1. Ratu kekosongan.' },
+  { name: 'Elder Dragon', mana: 7, atk: 8, def: 7, desc: '⭐ LEGENDARY — Naga legendaris 8/7. Battlecry: 3 damage ke hero. Late game powerhouse.' },
+  { name: 'Celestial Arbiter', mana: 7, atk: 4, def: 8, desc: '⭐ LEGENDARY — Battlecry: 3 AoE + 3 hero dmg + Heal 5. Swiss army knife.' },
+  { name: 'Doom Harbinger', mana: 8, atk: 6, def: 6, desc: '⭐ LEGENDARY — Battlecry: 5 damage ke SEMUA minion musuh. Board clear.' },
+  { name: 'Shadow Sovereign', mana: 8, atk: 6, def: 6, desc: '⭐ LEGENDARY — Deathrattle: 5 AoE + 2 hero damage. Pangeran bayangan.' },
+  { name: 'Abyss Monarch', mana: 8, atk: 7, def: 7, desc: '⭐ LEGENDARY — Battlecry: 4 AoE ke semua minion musuh. Bayar 5 HP hero sendiri.' },
+  { name: 'Infernal Titan', mana: 9, atk: 8, def: 10, desc: '⭐ LEGENDARY — Battlecry: 4 hero dmg + Summon 2 Skeleton. Body terbesar 8/10.' },
+  // === MYTHIC ===
+  { name: 'Soul Reaper', mana: 7, atk: 6, def: 6, desc: '💎 MYTHIC — Lifesteal. Battlecry: 4 hero dmg + Heal 4. Pemulih sekaligus pembunuh.' },
+  { name: 'Arcane Overlord', mana: 8, atk: 5, def: 9, desc: '💎 MYTHIC — Battlecry: Semua minion +2/+2 + Draw 1. Archmage supreme.' },
+  { name: 'Eternal Phoenix', mana: 9, atk: 7, def: 7, desc: '💎 MYTHIC — Battlecry: Draw 2. Deathrattle: 3 AoE + Heal 10. Burung abadi.' },
+  { name: 'Genesis Wyrm', mana: 9, atk: 8, def: 8, desc: '💎 MYTHIC — Battlecry: Summon 3 Skeleton. Start of Turn: Semua +1 ATK. Naga primordial.' },
+  { name: 'World Ender', mana: 10, atk: 10, def: 10, desc: '💎 MYTHIC — Battlecry: 5 AoE + 5 hero dmg. 10/10 stats. The end of all things.' },
+  { name: 'Void Devourer', mana: 10, atk: 9, def: 9, desc: '💎 MYTHIC — Battlecry: 8 AoE ke semua minion. Bayar 8 HP sendiri. Nuclear board clear.' },
 ];
 
 const SPELL_CARDS = [
-  { name: 'Arcane Bolt', mana: 1, desc: 'Tembakan sihir sederhana. Deal 2 damage ke hero musuh. Murah dan efisien untuk chip damage.' },
-  { name: 'Shadow Strike', mana: 2, desc: 'Serangan bayangan. Deal 3 damage ke hero musuh. Damage efisien untuk biayanya.' },
-  { name: 'Holy Light', mana: 2, desc: 'Cahaya suci. Menyembuhkan hero kamu 4 HP. Penyembuhan efisien saat tertekan.' },
-  { name: 'Cursed Blade', mana: 2, desc: 'Pedang terkutuk. Deal 3 damage ke hero musuh. Combo: +2 damage (total 5)! Sangat kuat jika combo aktif.' },
-  { name: 'Blood Pact', mana: 2, desc: 'Perjanjian darah. Deal 2 damage ke hero sendiri, tapi draw 2 kartu! Risiko lebih rendah, tetap efisien.' },
-  { name: 'Mystic Shield', mana: 3, desc: 'Perisai mistis. Memberikan Shield ke 1 minion pilihanmu. Lindungi minion penting dari 1x serangan.' },
-  { name: 'Mana Aegis', mana: 3, desc: 'Perisai mana. Semua minion +2 DEF dan heal hero 3 HP. Proteksi menyeluruh.' },
-  { name: 'Soul Exchange', mana: 3, desc: 'Pertukaran jiwa. Kedua hero -5 HP, lalu draw 2 kartu. Menguntungkan jika HP kamu lebih tinggi.' },
-  { name: 'Chain Lightning', mana: 4, desc: 'Petir berantai. Deal 2 AoE ke semua minion musuh DAN 2 damage ke hero musuh. Damage serba guna.' },
-  { name: 'Dark Offering', mana: 4, desc: 'Persembahan gelap. Hancurkan 1 minion sendiri acak, tapi draw 3 kartu. Korbankan minion lemah!' },
-  { name: 'War Drums', mana: 5, desc: 'Genderang perang. Buff semua minion +2 ATK dan +1 DEF. Semakin banyak minion, semakin dahsyat!' },
-  { name: 'Inferno Wave', mana: 5, desc: 'Gelombang api. Deal 3 damage ke hero musuh DAN 1 AoE ke semua minion musuh. Damage + board control.' },
-  { name: 'Resurrection', mana: 6, desc: 'Kebangkitan. Memanggil 2 Revenant (3/3) ke arena. Board presence instan yang kuat.' },
+  // === COMMON ===
+  { name: 'Arcane Spark', mana: 1, rarity: 'common', desc: 'Deal 2 damage ke hero musuh. Murah dan efisien untuk chip damage atau trigger combo.' },
+  { name: 'Mystic Shield', mana: 2, rarity: 'common', desc: '+3 Defense ke 1 friendly minion. Lindungi minion penting dari serangan musuh.' },
+  { name: 'Cursed Blade', mana: 2, rarity: 'common', desc: 'Deal 2 damage ke hero. Combo: +2 extra damage (total 4). Sangat kuat jika combo aktif!' },
+  { name: 'Fireball', mana: 3, rarity: 'common', desc: 'Deal 4 damage ke hero musuh. Direct damage yang solid untuk semua situasi.' },
+  // === RARE ===
+  { name: 'Blood Pact', mana: 2, rarity: 'rare', desc: '🔵 RARE — 2 self damage, draw 2 kartu. Risiko kecil, card advantage besar.' },
+  { name: 'Chain Lightning', mana: 3, rarity: 'rare', desc: '🔵 RARE — 1 AoE ke semua minion musuh + 2 damage ke hero. Serba guna.' },
+  { name: 'Mana Aegis', mana: 3, rarity: 'rare', desc: '🔵 RARE — Semua minion +2 DEF + Heal hero 3 HP. Proteksi menyeluruh.' },
+  { name: 'Mindbreak', mana: 4, rarity: 'rare', desc: '🔵 RARE — Deal 2 damage ke SEMUA minion musuh. AoE murni untuk board control.' },
+  // === EPIC ===
+  { name: 'War Drums', mana: 4, rarity: 'epic', desc: '🟣 EPIC — Buff semua minion +2 ATK / +1 DEF. Semakin banyak minion = makin dahsyat!' },
+  { name: 'Inferno Wave', mana: 5, rarity: 'epic', desc: '🟣 EPIC — 3 damage ke hero + 3 AoE ke semua minion musuh. Damage + board control.' },
+  { name: 'Soul Exchange', mana: 5, rarity: 'epic', desc: '🟣 EPIC — Kedua hero -5 HP, draw 2 kartu. Untung jika HP kamu lebih tinggi.' },
+  // === LEGENDARY ===
+  { name: 'Tiny Arcane', mana: 3, rarity: 'legendary', desc: '🌟 MINI-LEGENDARY — Deal 3 damage ke hero + Draw 1. Small but mighty.' },
+  // === MYTHIC ===
+  { name: 'Divine Wrath', mana: 6, rarity: 'mythic', desc: '💎 MYTHIC — Deal 8 damage ke hero + 3 self damage. Judgment from above. Nuke spell!' },
+  { name: 'Oblivion', mana: 7, rarity: 'mythic', desc: '💎 MYTHIC — Deal 6 AoE + 4 hero damage. Total annihilation. Ultimate spell.' },
 ];
 
 export default function MainMenu() {
@@ -64,8 +90,32 @@ export default function MainMenu() {
   const [showPatchNotes, setShowPatchNotes] = useState(false);
   const [showRanked, setShowRanked] = useState(false);
   const [showQuests, setShowQuests] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [showDevTools, setShowDevTools] = useState(false);
+  const [showRankedProfile, setShowRankedProfile] = useState(false);
 
   const unclaimedQuests = useQuestStore((s) => s.getUnclaimedCount());
+
+  const profile = useAuthStore((s) => s.profile);
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+
+  // Dev mode — only for the developer account
+  const isDev = user?.email === 'haezlv@cardbattle.local' || user?.displayName?.toLowerCase() === 'haezlv' || profile?.username?.toLowerCase() === 'haezlv';
+
+  // Fallback display info when profile hasn't loaded from Firestore yet
+  const displayName = profile?.username || user?.displayName || 'Player';
+  const displayAvatar = profile?.selectedAvatar || '🧙';
+  const displayLevel = profile?.level || 1;
+  const displayTitle = profile?.title || 'Pemula';
+  const displayCoins = profile?.coins ?? 0;
+  const displayExp = profile?.exp ?? 0;
+  const displayWins = profile?.totalWins ?? 0;
+  const displayLosses = profile?.totalLosses ?? 0;
+
+  // Ranked info
+  const rankedPoints = useRankedStore((s) => s.points);
+  const rankedInfo = React.useMemo(() => calculateTierInfo(rankedPoints), [rankedPoints]);
 
   // Check daily quest reset on menu load
   React.useEffect(() => {
@@ -74,6 +124,7 @@ export default function MainMenu() {
 
   const handleStart = () => {
     useRankedStore.getState().setRankedMode(false);
+    useGameStore.getState().setAiDifficulty('normal');
     initializeGame();
   };
 
@@ -81,15 +132,26 @@ export default function MainMenu() {
     setShowRanked(true);
   };
 
+  // Ranked: check if Gold+ (needs draft pick)
+  const needsDraft = ['gold', 'platinum', 'diamond', 'mythic', 'immortal'].includes(rankedInfo.tier.id);
+  const rankedDifficulty = TIER_DIFFICULTY[rankedInfo.tier.id] || 'normal';
+  const rankedDiffConfig = DIFFICULTY_CONFIG[rankedDifficulty];
+  const rankedRP = TIER_RP[rankedInfo.tier.id] || TIER_RP.bronze;
+  const tierConfig = TIER_CONFIG[rankedInfo.tier.id] || TIER_CONFIG.bronze;
+
   const handleRankedConfirm = () => {
     setShowRanked(false);
     useRankedStore.getState().setRankedMode(true);
-    initializeGame();
-  };
+    useGameStore.getState().setAiDifficulty(rankedDifficulty);
 
-  const handleDraft = () => {
-    useDraftStore.getState().startDraft();
-    useGameStore.getState().setGameStatus(GAME_STATUS.DRAFT);
+    if (needsDraft) {
+      // Gold+ goes through draft pick first
+      useDraftStore.getState().startDraft(rankedInfo.tier.id);
+      useGameStore.getState().setGameStatus(GAME_STATUS.DRAFT);
+    } else {
+      // Bronze/Silver plays directly
+      initializeGame();
+    }
   };
 
   const handleMultiplayer = () => {
@@ -98,34 +160,65 @@ export default function MainMenu() {
 
   return (
     <div className="main-menu">
+      {/* User Profile Bar */}
+      {user && (
+        <div className="user-profile-bar">
+          <div className="user-profile-bar__left">
+            <span className="user-profile-bar__avatar" onClick={() => setShowProfile(true)} style={{ cursor: 'pointer' }} title="Pengaturan Profil">{displayAvatar}</span>
+            <div className="user-profile-bar__info">
+              <span className="user-profile-bar__name">
+                {displayName}
+                {isDev && (
+                  <button className="user-profile-bar__dev" onClick={() => setShowDevTools(true)} title="Dev Tools">
+                    🔧
+                  </button>
+                )}
+              </span>
+              <span className="user-profile-bar__level">
+                Lv.{displayLevel} • {displayTitle}
+              </span>
+            </div>
+            <div className="user-profile-bar__rank" onClick={() => setShowRankedProfile(true)} title="Ranked Profile">
+              <span className="user-profile-bar__rank-icon">{rankedInfo.tier.icon}</span>
+              <div className="user-profile-bar__rank-info">
+                <span className="user-profile-bar__rank-tier">{rankedInfo.tier.name}{rankedInfo.division ? ` ${rankedInfo.division}` : ''}</span>
+                <span className="user-profile-bar__rank-points">{rankedPoints} pts</span>
+              </div>
+            </div>
+          </div>
+          <div className="user-profile-bar__right">
+            <span className="user-profile-bar__stat">🪙 {displayCoins}</span>
+            <span className="user-profile-bar__stat">⭐ {displayExp} EXP</span>
+            <span className="user-profile-bar__stat">🏆 {displayWins}W / {displayLosses}L</span>
+            <button className="user-profile-bar__logout" onClick={logout} title="Logout">
+              🚪
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="main-menu__icon">⚔️</div>
       <h1 className="main-menu__title">Card Battle</h1>
       <p className="main-menu__subtitle">Dark Fantasy Duel</p>
 
       <div className="main-menu__buttons">
         <button className="main-menu__button" onClick={handleStart}>
-          ⚔️ VS AI
+          ⚔️ Classic
         </button>
         <button className="main-menu__button main-menu__button--ranked" onClick={handleRankedStart}>
           🏆 Ranked
         </button>
-        <button className="main-menu__button main-menu__button--draft" onClick={handleDraft}>
-          📜 Draft Mode
-        </button>
         <button className="main-menu__button main-menu__button--multi" onClick={handleMultiplayer}>
           🌐 Multiplayer
         </button>
-        <button
-          className="main-menu__button main-menu__button--secondary"
-          onClick={() => setShowGuide(true)}
-        >
-          Cara Bermain
-        </button>
       </div>
 
-      {/* Quest Button */}
-      <div className="main-menu__meta-row">
-        <button className="main-menu__quest-btn" onClick={() => setShowQuests(!showQuests)}>
+      {/* Secondary menu row */}
+      <div className="main-menu__secondary-row">
+        <button className="main-menu__secondary-btn" onClick={() => setShowGuide(true)}>
+          📖 Cara Bermain
+        </button>
+        <button className="main-menu__secondary-btn" onClick={() => setShowQuests(!showQuests)}>
           📋 Quests {unclaimedQuests > 0 && <span className="main-menu__quest-badge">{unclaimedQuests}</span>}
         </button>
       </div>
@@ -133,17 +226,59 @@ export default function MainMenu() {
       {/* Ranked Detail Panel */}
       {showRanked && (
         <div className="guide-overlay" onClick={() => setShowRanked(false)}>
-          <div className="guide" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+          <div className="guide" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '420px' }}>
             <button className="guide__close" onClick={() => setShowRanked(false)}>✕</button>
-            <h2 className="guide__title">🏆 Ranked Profile</h2>
+            <h2 className="guide__title">🏆 Ranked Match</h2>
             <div className="guide__content">
               <RankedBadge />
+
+              <div className="ranked-match-info">
+                <div className="ranked-match-info__row">
+                  <span className="ranked-match-info__label">❤️ HP</span>
+                  <span className="ranked-match-info__value">{tierConfig.hp}</span>
+                </div>
+                <div className="ranked-match-info__row">
+                  <span className="ranked-match-info__label">💎 Max Mana</span>
+                  <span className="ranked-match-info__value">{tierConfig.maxMana}</span>
+                </div>
+                <div className="ranked-match-info__row">
+                  <span className="ranked-match-info__label">🂴 Deck Size</span>
+                  <span className="ranked-match-info__value">{tierConfig.deckSize} kartu</span>
+                </div>
+                <div className="ranked-match-info__row">
+                  <span className="ranked-match-info__label">⚔️ Mana Range</span>
+                  <span className="ranked-match-info__value">{tierConfig.manaRange[0]}–{tierConfig.manaRange[1]}</span>
+                </div>
+                <div className="ranked-match-info__row">
+                  <span className="ranked-match-info__label">🎯 Difficulty</span>
+                  <span className="ranked-match-info__value">{rankedDiffConfig.icon} {rankedDiffConfig.label}</span>
+                </div>
+                <div className="ranked-match-info__row">
+                  <span className="ranked-match-info__label">🃏 Mode</span>
+                  <span className="ranked-match-info__value">{needsDraft ? '📜 Draft Pick' : '⚔️ Standard'}</span>
+                </div>
+                <div className="ranked-match-info__row">
+                  <span className="ranked-match-info__label">📈 Win</span>
+                  <span className="ranked-match-info__value" style={{ color: '#22c55e' }}>+{rankedRP.win} RP</span>
+                </div>
+                <div className="ranked-match-info__row">
+                  <span className="ranked-match-info__label">📉 Lose</span>
+                  <span className="ranked-match-info__value" style={{ color: '#ef4444' }}>-{rankedRP.loss} RP</span>
+                </div>
+              </div>
+
+              {needsDraft && (
+                <p className="ranked-match-info__note">
+                  📜 Gold ke atas menggunakan <strong>Draft Pick</strong> — pilih kartu sebelum bertarung!
+                </p>
+              )}
+
               <button
                 className="main-menu__button main-menu__button--ranked"
                 style={{ marginTop: '16px', width: '100%' }}
                 onClick={handleRankedConfirm}
               >
-                ⚔️ Mulai Ranked Match
+                {needsDraft ? '📜 Mulai Draft Pick' : '⚔️ Mulai Ranked Match'}
               </button>
             </div>
           </div>
@@ -159,10 +294,32 @@ export default function MainMenu() {
         </div>
       )}
 
-      <div className="main-menu__info">
-        <p>42 kartu unik • 9 Legendary • Draft Mode • Ranked</p>
-        <p>Daily Quests • Arena 10 slot • Combo & Deathrattle</p>
-      </div>
+      {/* Profile Settings */}
+      {showProfile && (
+        <div className="guide-overlay" onClick={() => setShowProfile(false)}>
+          <div className="guide" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+            <ProfileSettings onClose={() => setShowProfile(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Ranked Profile */}
+      {showRankedProfile && (
+        <div className="guide-overlay" onClick={() => setShowRankedProfile(false)}>
+          <div className="guide" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+            <RankedProfile onClose={() => setShowRankedProfile(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Dev Tools */}
+      {showDevTools && (
+        <div className="guide-overlay" onClick={() => setShowDevTools(false)}>
+          <div className="guide" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '520px' }}>
+            <DevTools onClose={() => setShowDevTools(false)} />
+          </div>
+        </div>
+      )}
 
       <div className="main-menu__version" onClick={() => setShowPatchNotes(true)}>
         <span className="version__badge">BETA</span>
@@ -177,6 +334,31 @@ export default function MainMenu() {
             <button className="guide__close" onClick={() => setShowPatchNotes(false)}>✕</button>
             <h2 className="guide__title">📋 Patch Notes</h2>
             <div className="guide__content">
+
+              <section className="guide__section">
+                <h3 className="patch__version-header">⚔️ v0.4.0-beta <span className="patch__date">21 Feb 2026</span></h3>
+                <p style={{color:'var(--accent-cyan)', fontSize:'12px', marginBottom:'10px'}}>Tier System, Mythic & Balance Overhaul</p>
+                <ul className="guide__tips">
+                  <li><strong>🏰 7 Tier System</strong> — Bronze → Silver → Gold → Platinum → Diamond → Mythic → Immortal, masing-masing dengan HP, Mana, Deck Size, dan Card Pool yang berbeda</li>
+                  <li><strong>💎 8 Kartu Mythic Baru</strong> — World Ender, Eternal Phoenix, Arcane Overlord, Soul Reaper, Genesis Wyrm, Oblivion, Divine Wrath, Void Devourer</li>
+                  <li><strong>🌟 4 Mini Legendary Baru</strong> — Bronze Phoenix, Tiny Arcane, Silver Shield, Mini Reaper — kartu Legendary dengan mana rendah untuk tier awal</li>
+                  <li><strong>👑 Rarity Mythic & Immortal</strong> — 2 tier rarity baru ditambahkan ke sistem kartu</li>
+                  <li><strong>📊 Per-Tier Config</strong> — HP (20–45), Max Mana (5–15), Deck Size (20–30), Mana Range per tier</li>
+                  <li><strong>📜 Draft Pick Gold+</strong> — Mode Draft hanya untuk tier Gold ke atas di Ranked</li>
+                  <li><strong>🤖 7 Level AI</strong> — AI difficulty scaling dari Easy (Bronze) hingga Immortal</li>
+                  <li><strong>📈 RP Scaling</strong> — Win/Loss RP berbeda per tier: Bronze (+30/-10) → Immortal (+12/-28)</li>
+                  <li><strong>54 kartu total</strong> — 40 Minion + 14 Spell + 3 Token</li>
+                </ul>
+                <p style={{color:'var(--accent-yellow)', fontSize:'12px', marginTop:'8px', fontWeight:'bold'}}>⚖️ Balance Changes:</p>
+                <ul className="guide__tips" style={{marginTop:'4px'}}>
+                  <li><strong>🔻 NERF Fireball</strong> — Damage 5→4</li>
+                  <li><strong>🔻 NERF Frost Mage</strong> — Combo damage +2→+1</li>
+                  <li><strong>🔻 NERF Cursed Blade</strong> — Combo damage +3→+2</li>
+                  <li><strong>🔻 NERF Doom Harbinger</strong> — AoE 6→5</li>
+                  <li><strong>🔻 NERF Infernal Titan</strong> — Hero damage 5→4</li>
+                  <li><strong>🎨 12 Icon Fix</strong> — Semua kartu sekarang punya icon emoji unik (tidak ada duplikat)</li>
+                </ul>
+              </section>
 
               <section className="guide__section">
                 <h3 className="patch__version-header">🔧 v0.3.2-beta <span className="patch__date">21 Feb 2026</span></h3>
@@ -217,7 +399,7 @@ export default function MainMenu() {
                 <h3 className="patch__version-header">🏆 v0.3.0-beta <span className="patch__date">21 Feb 2026</span></h3>
                 <p style={{color:'var(--accent-cyan)', fontSize:'12px', marginBottom:'10px'}}>Ranked, Draft & Legendary Update</p>
                 <ul className="guide__tips">
-                  <li><strong>🏆 Ranked Mode</strong> — Sistem tier Bronze → Mythic (+25 menang, -15 kalah)</li>
+                  <li><strong>🏆 Ranked Mode</strong> — Sistem tier Bronze → Immortal (RP scaling per tier)</li>
                   <li><strong>📜 Draft Mode</strong> — Pilih 1 dari 3 kartu, 15 kali, lalu battle!</li>
                   <li><strong>⭐ 5 Legendary Baru</strong> — Celestial Arbiter, Void Empress, Infernal Titan, Chrono Weaver, Shadow Sovereign</li>
                   <li><strong>📋 Daily Quest</strong> — 3 quest harian dengan reward Ranked Points</li>
@@ -290,14 +472,64 @@ export default function MainMenu() {
                 <>
                   <section className="guide__section">
                     <h3>🎯 Tujuan Permainan</h3>
-                    <p>Kurangi HP hero musuh dari <strong>60 menjadi 0</strong> sebelum HP kamu habis duluan. Gunakan 42 kartu unik dengan strategi yang tepat!</p>
+                    <p>Kurangi HP hero musuh menjadi <strong>0</strong> sebelum HP kamu habis duluan. Gunakan 54 kartu unik (6 rarity) dengan strategi yang tepat!</p>
                     <div className="guide__stats">
-                      <div className="guide__stat-item">❤️ HP Awal: <strong>60</strong></div>
-                      <div className="guide__stat-item">💎 Mana Maks: <strong>10</strong></div>
                       <div className="guide__stat-item">🃏 Kartu Awal: <strong>4 / 5</strong></div>
                       <div className="guide__stat-item">✋ Maks Tangan: <strong>9</strong></div>
                       <div className="guide__stat-item">🏟️ Maks Arena: <strong>10</strong></div>
-                      <div className="guide__stat-item">📦 Total Kartu: <strong>42</strong></div>
+                      <div className="guide__stat-item">📦 Total Kartu: <strong>54</strong></div>
+                    </div>
+                  </section>
+
+                  <section className="guide__section">
+                    <h3>🏰 Mode Permainan</h3>
+                    <div className="guide__grid">
+                      <div className="guide__item">
+                        <span>⚔️ <strong>Classic</strong></span>
+                        <p>Mode bebas melawan AI Normal. HP 60, Max Mana 10, semua kartu tersedia.</p>
+                      </div>
+                      <div className="guide__item">
+                        <span>🏆 <strong>Ranked</strong></span>
+                        <p>Mode kompetitif dengan 7 tier. HP, Mana, dan Deck berbeda per tier. Gold+ menggunakan Draft Pick.</p>
+                      </div>
+                      <div className="guide__item">
+                        <span>🌐 <strong>Multiplayer</strong></span>
+                        <p>Main melawan teman online via room code. HP 60, semua kartu tersedia.</p>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section className="guide__section">
+                    <h3>🏆 Sistem Ranked (7 Tier)</h3>
+                    <div className="guide__effects-list">
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">🥉 Bronze</span>
+                        <span className="guide__effect-desc">HP 20, Mana 5, Deck 20, Mana 1-3 | AI Easy | +30/-10 RP</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">🥈 Silver</span>
+                        <span className="guide__effect-desc">HP 25, Mana 6, Deck 20, Mana 1-4 | AI Normal | +25/-15 RP</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">🥇 Gold</span>
+                        <span className="guide__effect-desc">HP 30, Mana 8, Deck 25, Mana 1-5 | AI Hard | Draft Pick | +22/-18 RP</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">💠 Platinum</span>
+                        <span className="guide__effect-desc">HP 35, Mana 10, Deck 25, Mana 2-6 | AI Expert | Draft Pick | +20/-20 RP</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">💎 Diamond</span>
+                        <span className="guide__effect-desc">HP 40, Mana 12, Deck 30, Mana 2-7 | AI Master | Draft + Mythic | +18/-22 RP</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">👑 Mythic</span>
+                        <span className="guide__effect-desc">HP 45, Mana 15, Deck 30, Mana 3-10 | AI Mythic | All rarity | +15/-25 RP</span>
+                      </div>
+                      <div className="guide__effect-row">
+                        <span className="guide__effect-name">🔱 Immortal</span>
+                        <span className="guide__effect-desc">HP 45, Mana 15, Deck 30, Mana 3-10 | AI Immortal | All rarity | +12/-28 RP</span>
+                      </div>
                     </div>
                   </section>
 
@@ -485,21 +717,21 @@ export default function MainMenu() {
                         <span className="guide__phase-num" style={{background:'rgba(34,197,94,0.2)',color:'#22c55e'}}>⬤</span>
                         <div>
                           <strong>EARLY GAME (Mana 1-3)</strong>
-                          <p>Bangun arena dengan minion murah. Dark Ritualist (draw 1), Plague Rat (AoE 1), dan Ember Sprite (+1 bonus dmg) sangat efisien. Simpan spell untuk combo nanti.</p>
+                          <p>Bangun arena dengan minion murah. Dark Ritualist (draw 1), Plague Rat (poison/turn), dan Shadow Imp (2 ATK) sangat efisien. Simpan spell untuk combo.</p>
                         </div>
                       </div>
                       <div className="guide__phase">
                         <span className="guide__phase-num" style={{background:'rgba(245,158,11,0.2)',color:'#f59e0b'}}>⬤</span>
                         <div>
                           <strong>MID GAME (Mana 4-6)</strong>
-                          <p>Aktifkan Combo: mainkan kartu murah dulu → lalu Frost Mage, Shadow Dancer, atau Thunder Elemental untuk bonus besar. Mana Aegis (+2 DEF semua + Heal 3) bagus untuk bertahan. War Drums + arena penuh = buff masif!</p>
+                          <p>Aktifkan Combo: mainkan kartu murah dulu → lalu Frost Mage, Shadow Dancer, atau Thunder Elemental untuk bonus. Mana Aegis untuk bertahan. War Drums + arena penuh = buff masif!</p>
                         </div>
                       </div>
                       <div className="guide__phase">
                         <span className="guide__phase-num" style={{background:'rgba(239,68,68,0.2)',color:'#ef4444'}}>⬤</span>
                         <div>
                           <strong>LATE GAME (Mana 7+)</strong>
-                          <p>Legendary cards jadi game changer. Elder Dragon (8/7 + 3 hero dmg), Doom Harbinger (6 AoE), atau Celestial Arbiter (3 AoE + 3 hero + Heal 5). Abyss Monarch (4 AoE) bagus tapi bayar 5 HP sendiri — pakai saat HP aman.</p>
+                          <p>Legendary & Mythic jadi game changer. Elder Dragon (8/7 + 3 dmg), Celestial Arbiter (3 AoE + Heal 5), atau World Ender (10/10 + 5 AoE + 5 hero). Mainkan kartu terkuat!</p>
                         </div>
                       </div>
                     </div>
@@ -509,20 +741,20 @@ export default function MainMenu() {
                     <h3>💥 Combo Chain Contoh</h3>
                     <div className="guide__combo-examples">
                       <div className="guide__combo-item">
-                        <div className="guide__combo-chain">Arcane Bolt (1💎) → Cursed Blade (2💎)</div>
-                        <div className="guide__combo-result">= 2 + 5 damage = <strong>7 damage</strong> hanya 3 mana!</div>
+                        <div className="guide__combo-chain">Arcane Spark (1💎) → Cursed Blade (2💎)</div>
+                        <div className="guide__combo-result">= 2 + 2 + 2 combo = <strong>6 damage</strong> hanya 3 mana!</div>
                       </div>
                       <div className="guide__combo-item">
                         <div className="guide__combo-chain">Healing Wisp (1💎) → Shadow Dancer (3💎)</div>
-                        <div className="guide__combo-result">= Heal 2 HP + Shadow Dancer menjadi <strong>4/5</strong>! Total 4 mana.</div>
+                        <div className="guide__combo-result">= Heal 2 HP + Shadow Dancer menjadi <strong>4/4</strong>! Total 4 mana.</div>
                       </div>
                       <div className="guide__combo-item">
-                        <div className="guide__combo-chain">Dark Ritualist (2💎) → Thunder Elemental (5💎)</div>
-                        <div className="guide__combo-result">= Draw 1 + 2 hero dmg + <strong>2 AoE</strong> ke semua minion musuh! Total 7 mana.</div>
+                        <div className="guide__combo-chain">Dark Ritualist (2💎) → Thunder Elemental (4💎)</div>
+                        <div className="guide__combo-result">= Draw 1 + 2 hero dmg + <strong>2 AoE</strong> ke semua minion musuh! Total 6 mana.</div>
                       </div>
                       <div className="guide__combo-item">
-                        <div className="guide__combo-chain">Arcane Bolt (1💎) → Frost Mage (3💎)</div>
-                        <div className="guide__combo-result">= 2 dmg + 2 dmg + 2 combo = <strong>6 damage ke hero</strong>! Total 4 mana.</div>
+                        <div className="guide__combo-chain">Arcane Spark (1💎) → Frost Mage (2💎)</div>
+                        <div className="guide__combo-result">= 2 dmg + 1 dmg + 1 combo = <strong>4 damage ke hero</strong>! Total 3 mana.</div>
                       </div>
                       <div className="guide__combo-item">
                         <div className="guide__combo-chain">Blood Pact (2💎) → Blood Knight (4💎)</div>
@@ -534,26 +766,48 @@ export default function MainMenu() {
                   <section className="guide__section">
                     <h3>⭐ Legendary Strategy</h3>
                     <ul className="guide__tips">
-                      <li><strong>Archmage Solara (5💎):</strong> Lindungi dengan Shield/buff — 2 dmg per giliran makin lama makin mematikan.</li>
+                      <li><strong>Archmage Solara (5💎):</strong> Lindungi dengan buff — 2 dmg per giliran makin lama makin mematikan.</li>
                       <li><strong>Void Empress (6💎):</strong> Lifesteal + curi ATK musuh tiap giliran. Semakin lama hidup, semakin dominan.</li>
                       <li><strong>Celestial Arbiter (7💎):</strong> Swiss army knife — 3 AoE + 3 hero dmg + Heal 5. Efektif di situasi apapun.</li>
-                      <li><strong>Infernal Titan (9💎):</strong> Finisher terkuat — 5 hero dmg + 8/10 body + 2 Skeleton. Mainkan saat mana penuh.</li>
-                      <li><strong>Abyss Monarch (8💎):</strong> 4 AoE murah tapi bayar 5 HP. Pakai saat HP kamu masih aman.</li>
-                      <li><strong>Ingat:</strong> Maks 1 copy per Legendary di deck — pilih yang cocok dengan gaya mainmu!</li>
+                      <li><strong>Infernal Titan (9💎):</strong> Finisher — 4 hero dmg + 8/10 body + 2 Skeleton. Mainkan saat mana penuh.</li>
+                      <li><strong>Abyss Monarch (8💎):</strong> 4 AoE tapi bayar 5 HP. Pakai saat HP kamu masih aman.</li>
+                      <li><strong>Mini Legendary (3-4💎):</strong> Bronze Phoenix, Mini Reaper, Silver Shield — Legendary murah untuk tier rendah!</li>
+                      <li><strong>Ingat:</strong> Maks 1 copy per Legendary/Mythic di deck — pilih yang cocok!</li>
+                    </ul>
+                  </section>
+
+                  <section className="guide__section">
+                    <h3>💎 Mythic Strategy</h3>
+                    <ul className="guide__tips">
+                      <li><strong>World Ender (10💎):</strong> 10/10 + 5 AoE + 5 hero. Ultimate finisher. Mainkan untuk mengakhiri pertandingan.</li>
+                      <li><strong>Eternal Phoenix (9💎):</strong> Draw 2 masuk + Deathrattle 3 AoE + Heal 10. Value tak tertandingi!</li>
+                      <li><strong>Genesis Wyrm (9💎):</strong> 3 Skeleton + Start of Turn buff. Semakin lama hidup, arena makin kuat.</li>
+                      <li><strong>Arcane Overlord (8💎):</strong> +2/+2 ke semua minion. Mainkan saat arena sudah penuh.</li>
+                      <li><strong>Void Devourer (10💎):</strong> 8 AoE nuclear tapi bayar 8 HP! Pakai saat benar-benar perlu board clear.</li>
+                      <li><strong>Oblivion (7💎):</strong> 6 AoE + 4 hero. Spell mythic terkuat untuk clear + damage.</li>
+                    </ul>
+                  </section>
+
+                  <section className="guide__section">
+                    <h3>🏆 Tips Ranked</h3>
+                    <ul className="guide__tips">
+                      <li><strong>Bronze (HP 20):</strong> Game cepat! Kartu murah dan agresif lebih efektif. Jangan menunggu late game.</li>
+                      <li><strong>Silver (HP 25):</strong> Sedikit lebih panjang. Mulai pertimbangkan card advantage.</li>
+                      <li><strong>Gold+ (Draft Pick):</strong> Pilih kartu dengan sinergi yang baik. Prioritaskan late game bombs.</li>
+                      <li><strong>Diamond+ (Mythic cards):</strong> Kartu Mythic tersedia! Rencanakan deck around kartu Mythic.</li>
+                      <li><strong>RP Tips:</strong> Di tier rendah, menang banyak (+30). Di tier tinggi, kalah banyak (-28). Main konsisten!</li>
                     </ul>
                   </section>
 
                   <section className="guide__section">
                     <h3>🧠 Tips Pro</h3>
                     <ul className="guide__tips">
-                      <li><strong>Phoenix Egg Bait:</strong> Pasang di arena, biarkan musuh hancurkan — dapat Phoenix 3/2 gratis!</li>
+                      <li><strong>Phoenix Egg Bait:</strong> Pasang di arena, biarkan musuh hancurkan — dapat Phoenix 3/3 gratis!</li>
                       <li><strong>Board Flood + War Drums:</strong> Isi arena dengan minion murah, lalu buff semua sekaligus +2/+1.</li>
-                      <li><strong>Void Cultist Stack:</strong> 2-3 Void Cultist = 2-3 damage otomatis setiap akhir giliran tanpa menyerang.</li>
-                      <li><strong>Mirror Mage Value:</strong> Copy minion terkuat di arena — semakin kuat target, semakin menguntungkan.</li>
-                      <li><strong>Soul Exchange Timing:</strong> Pakai saat HP kamu jauh lebih tinggi dari musuh. -5/-5 HP + draw 2!</li>
-                      <li><strong>Doom Harbinger Finisher:</strong> 6 AoE bersihkan arena musuh, lalu serang langsung dengan semua minion.</li>
-                      <li><strong>Mana Aegis Defensif:</strong> +2 DEF semua minion + Heal 3 — mainkan sebelum giliran musuh.</li>
-                      <li><strong>Warcry Berserker Timing:</strong> Mainkan saat arena penuh — mendapat +1 ATK per minion!</li>
+                      <li><strong>Void Cultist Stack:</strong> 2-3 Void Cultist = 2-3 damage otomatis setiap akhir giliran.</li>
+                      <li><strong>Mirror Mage Value:</strong> Copy minion terkuat di arena — semakin kuat target, semakin untung.</li>
+                      <li><strong>Soul Exchange Timing:</strong> Pakai saat HP kamu jauh lebih tinggi dari musuh.</li>
+                      <li><strong>Doom Harbinger:</strong> 5 AoE bersihkan arena, lalu serang langsung dengan semua minion.</li>
                       <li><strong>Klik kanan</strong> pada kartu untuk preview lebih besar</li>
                       <li>Kartu <span style={{color:'#22c55e'}}>hijau</span> = bisa dimainkan, Minion <span style={{color:'#ef4444'}}>merah</span> = bisa menyerang</li>
                     </ul>

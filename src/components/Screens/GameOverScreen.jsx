@@ -7,10 +7,12 @@ import useMultiplayerStore from '../../stores/useMultiplayerStore';
 import useRankedStore from '../../stores/useRankedStore';
 import useQuestStore from '../../stores/useQuestStore';
 import useDraftStore from '../../stores/useDraftStore';
+import useAuthStore from '../../stores/useAuthStore';
 import RankedResult from './RankedResult';
 import { PLAYERS } from '../../data/constants';
 import { initializeGame } from '../../engine/turnEngine';
 import { cleanupMultiplayer } from '../../engine/multiplayerEngine';
+import { recordGameResult } from '../../firebase/userService';
 
 export default function GameOverScreen() {
   const winner = useGameStore((s) => s.winner);
@@ -26,7 +28,7 @@ export default function GameOverScreen() {
   const playerWon = winner === PLAYERS.PLAYER;
   const [hasRecorded, setHasRecorded] = useState(false);
 
-  // Record match result for ranked/quests
+  // Record match result for ranked/quests/profile
   useEffect(() => {
     if (winner && !hasRecorded) {
       setHasRecorded(true);
@@ -42,6 +44,14 @@ export default function GameOverScreen() {
       // Record ranked match
       if (isRankedMode) {
         useRankedStore.getState().recordMatch(playerWon);
+      }
+
+      // Record to Firestore (coins, EXP, win/loss)
+      const user = useAuthStore.getState().user;
+      if (user) {
+        recordGameResult(user.uid, playerWon)
+          .then(() => useAuthStore.getState().refreshProfile())
+          .catch((err) => console.warn('Failed to record game result:', err));
       }
     }
   }, [winner, hasRecorded, playerWon, isRankedMode, isDraftMode]);

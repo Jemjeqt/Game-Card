@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { STARTING_HP, MAX_HP, MAX_MANA, MAX_HAND_SIZE, MAX_BOARD_SIZE } from '../data/constants';
+import { STARTING_HP, MAX_HP, MAX_MANA, MAX_HAND_SIZE, MAX_BOARD_SIZE, TIER_CONFIG } from '../data/constants';
 import { buildDeck, createCardInstance } from '../utils/deckBuilder';
 import { SKELETON_TOKEN } from '../data/cards';
 
@@ -9,20 +9,45 @@ const useOpponentStore = create((set, get) => ({
   maxHp: MAX_HP,
   mana: 0,
   maxMana: 0,
+  manaCap: MAX_MANA,
   hand: [],
   deck: [],
   board: [],
   graveyard: [],
   fatigueDamage: 0,
 
-  initDeck: () => {
-    const deck = buildDeck();
-    set({ deck, hand: [], board: [], graveyard: [], hp: STARTING_HP, mana: 0, maxMana: 0, fatigueDamage: 0 });
+  initDeck: (tierId = null) => {
+    const deck = buildDeck(tierId);
+    const config = tierId && TIER_CONFIG[tierId] ? TIER_CONFIG[tierId] : null;
+    set({
+      deck,
+      hand: [],
+      board: [],
+      graveyard: [],
+      hp: config ? config.hp : STARTING_HP,
+      maxHp: config ? config.maxHp : MAX_HP,
+      manaCap: config ? config.maxMana : MAX_MANA,
+      mana: 0,
+      maxMana: 0,
+      fatigueDamage: 0,
+    });
   },
 
   // Initialize deck from pre-built cards (for draft mode)
-  initDeckFromCards: (deckCards) => {
-    set({ deck: deckCards, hand: [], board: [], graveyard: [], hp: STARTING_HP, mana: 0, maxMana: 0, fatigueDamage: 0 });
+  initDeckFromCards: (deckCards, tierId = null) => {
+    const config = tierId && TIER_CONFIG[tierId] ? TIER_CONFIG[tierId] : null;
+    set({
+      deck: deckCards,
+      hand: [],
+      board: [],
+      graveyard: [],
+      hp: config ? config.hp : STARTING_HP,
+      maxHp: config ? config.maxHp : MAX_HP,
+      manaCap: config ? config.maxMana : MAX_MANA,
+      mana: 0,
+      maxMana: 0,
+      fatigueDamage: 0,
+    });
   },
 
   drawCard: () => {
@@ -92,8 +117,8 @@ const useOpponentStore = create((set, get) => ({
   },
 
   addMaxMana: () => {
-    const { maxMana } = get();
-    if (maxMana < MAX_MANA) {
+    const { maxMana, manaCap } = get();
+    if (maxMana < manaCap) {
       set({ maxMana: maxMana + 1 });
     }
   },
@@ -197,6 +222,7 @@ const useOpponentStore = create((set, get) => ({
       maxHp: MAX_HP,
       mana: 0,
       maxMana: 0,
+      manaCap: MAX_MANA,
       hand: [],
       deck: [],
       board: [],

@@ -1,5 +1,6 @@
-import { CARD_TYPES, MAX_BOARD_SIZE } from '../data/constants';
+import { CARD_TYPES, MAX_BOARD_SIZE, DIFFICULTY_CONFIG } from '../data/constants';
 import { EFFECT_TYPES, COMBO_BONUS } from '../data/effects';
+import useGameStore from '../stores/useGameStore';
 
 /**
  * Score a card for AI decision making.
@@ -211,11 +212,15 @@ function situationalBonus(card, aiState, enemyState) {
  * Returns cards in play order (highest scored first).
  */
 export function selectCardsToPlay(hand, mana, aiState, enemyState) {
+  // Get difficulty config
+  const difficulty = useGameStore.getState().aiDifficulty || 'normal';
+  const config = DIFFICULTY_CONFIG[difficulty] || DIFFICULTY_CONFIG.normal;
+
   const playableCards = hand
     .filter((card) => card.manaCost <= mana)
     .map((card) => ({
       card,
-      score: scoreCard(card, aiState, enemyState),
+      score: scoreCard(card, aiState, enemyState) * config.scoreMultiplier,
     }))
     .sort((a, b) => b.score - a.score);
 
@@ -226,11 +231,19 @@ export function selectCardsToPlay(hand, mana, aiState, enemyState) {
   for (const { card, score } of playableCards) {
     if (card.manaCost > remainingMana) continue;
     if (card.type === CARD_TYPES.MINION && boardSpace <= 0) continue;
-    if (score < 0) continue; // Don't play negative-value cards
+    if (score < 0) continue;
+
+    // Mistake chance — AI randomly skips a good play
+    if (config.mistakeChance > 0 && Math.random() < config.mistakeChance) continue;
 
     toPlay.push(card);
     remainingMana -= card.manaCost;
     if (card.type === CARD_TYPES.MINION) boardSpace--;
+  }
+
+  // Skip chance — AI might skip entire turn
+  if (config.skipChance > 0 && Math.random() < config.skipChance) {
+    return [];
   }
 
   return toPlay;

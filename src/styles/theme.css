@@ -13,12 +13,16 @@
   --border-rare: #3b82f6;
   --border-epic: #8b5cf6;
   --border-legendary: #f59e0b;
+  --border-mythic: #ef4444;
+  --border-immortal: #e040fb;
 
   /* Glow colors */
   --glow-common: rgba(107, 114, 128, 0.3);
   --glow-rare: rgba(59, 130, 246, 0.4);
   --glow-epic: rgba(139, 92, 246, 0.4);
   --glow-legendary: rgba(245, 158, 11, 0.5);
+  --glow-mythic: rgba(239, 68, 68, 0.6);
+  --glow-immortal: rgba(224, 64, 251, 0.7);
 
   /* Text */
   --text-primary: #e2e8f0;

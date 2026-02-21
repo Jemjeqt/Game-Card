@@ -1,5 +1,5 @@
 import React from 'react';
-import useDraftStore, { DRAFT_PICKS } from '../../stores/useDraftStore';
+import useDraftStore from '../../stores/useDraftStore';
 import useGameStore from '../../stores/useGameStore';
 import { initializeGame } from '../../engine/turnEngine';
 import { GAME_STATUS } from '../../data/constants';
@@ -9,6 +9,7 @@ export default function DraftScreen() {
     isDrafting,
     draftComplete,
     currentPick,
+    draftPicks,
     choices,
     pickedCards,
     pickCard,
@@ -31,6 +32,8 @@ export default function DraftScreen() {
   // Rarity color helper
   const rarityColor = (rarity) => {
     switch (rarity) {
+      case 'immortal': return '#e040fb';
+      case 'mythic': return '#ef4444';
       case 'legendary': return '#f59e0b';
       case 'epic': return '#8b5cf6';
       case 'rare': return '#3b82f6';
@@ -44,19 +47,19 @@ export default function DraftScreen() {
         <h1 className="draft-screen__title">📜 Draft Mode</h1>
         <p className="draft-screen__subtitle">
           {isDrafting
-            ? `Pilih kartu ${currentPick + 1} dari ${DRAFT_PICKS}`
+            ? `Pilih kartu ${currentPick + 1} dari ${draftPicks}`
             : draftComplete
               ? 'Draft selesai! Siap bertarung!'
-              : 'Pilih 1 dari 3 kartu sebanyak 15 kali'}
+              : `Pilih 1 dari 3 kartu sebanyak ${draftPicks} kali`}
         </p>
         <div className="draft-screen__progress">
           <div className="draft-screen__progress-bar">
             <div
               className="draft-screen__progress-fill"
-              style={{ width: `${(currentPick / DRAFT_PICKS) * 100}%` }}
+              style={{ width: `${(currentPick / draftPicks) * 100}%` }}
             />
           </div>
-          <span className="draft-screen__progress-text">{currentPick}/{DRAFT_PICKS}</span>
+          <span className="draft-screen__progress-text">{currentPick}/{draftPicks}</span>
         </div>
       </div>
 
@@ -76,6 +79,8 @@ export default function DraftScreen() {
               <div className="draft-card__rarity" style={{ color: rarityColor(card.rarity) }}>
                 {card.rarity.toUpperCase()}
                 {card.rarity === 'legendary' && ' ⭐'}
+                {card.rarity === 'mythic' && ' 🔥'}
+                {card.rarity === 'immortal' && ' 👑'}
               </div>
               {card.type === 'minion' && (
                 <div className="draft-card__stats">

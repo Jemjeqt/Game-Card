@@ -1,11 +1,11 @@
-import { CARD_TYPES, RARITY } from './constants';
+﻿import { CARD_TYPES, RARITY } from './constants';
 import { EFFECT_TYPES, TRIGGERS, TARGETS, COMBO_BONUS, createEffect, createComboEffect } from './effects';
 
 // Card emoji icons as visual placeholders
 const ICONS = {
-  ember_sprite: '🔥',
+  ember_sprite: '🧡',
   shadow_imp: '👿',
-  arcane_spark: '⚡',
+  arcane_spark: '🔆',
   healing_wisp: '✨',
   dark_ritualist: '📜',
   venom_fang: '🐍',
@@ -23,34 +23,44 @@ const ICONS = {
   inferno_wave: '🌋',
   archmage_solara: '🌟',
   divine_protector: '👼',
-  skeleton_token: '💀',
-  // New card icons
+  skeleton_token: '🦴',
   frost_mage: '❄️',
   plague_rat: '🐀',
   warcry_berserker: '🪓',
   spirit_walker: '👻',
   mirror_mage: '🪞',
   thunder_elemental: '⛈️',
-  blood_knight: '🩸',
+  blood_knight: '💉',
   shadow_dancer: '💃',
   void_cultist: '🌑',
-  cursed_blade: '⚔️',
-  chain_lightning: '⚡',
+  cursed_blade: '🔪',
+  chain_lightning: '🌩️',
   war_drums: '🥁',
   soul_exchange: '🔄',
   phoenix_egg: '🥚',
   phoenix_token: '🔥',
   doom_harbinger: '☠️',
-  revenant_token: '👻',
-  // v0.3.0 Legendary card icons
+  revenant_token: '💨',
   celestial_arbiter: '⭐',
   void_empress: '🌌',
   infernal_titan: '🔱',
   chrono_weaver: '⏳',
   shadow_sovereign: '👁️',
-  // v0.3.1 Balance Patch
   mana_aegis: '🔮',
   abyss_monarch: '👑',
+  world_ender: '💥',
+  eternal_phoenix: '🦅',
+  arcane_overlord: '🧿',
+  soul_reaper: '🪦',
+  genesis_wyrm: '🐲',
+  oblivion_spell: '🌪️',
+  divine_wrath: '⚡',
+  void_devourer: '🕳️',
+  bronze_phoenix: '🐣',
+  tiny_arcane: '💫',
+  silver_shield: '🔰',
+  mini_reaper: '⚰️',
+  mini_phoenix_token: '🐥',
 };
 
 // ===== ALL 35 CARD DEFINITIONS =====
@@ -196,8 +206,8 @@ const CARD_DEFINITIONS = [
     defense: 0,
     type: CARD_TYPES.SPELL,
     rarity: RARITY.COMMON,
-    effect: createEffect(EFFECT_TYPES.DAMAGE, 5, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
-    description: 'Deal 5 damage to the enemy hero.',
+    effect: createEffect(EFFECT_TYPES.DAMAGE, 4, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
+    description: 'Deal 4 damage to the enemy hero.',
     icon: ICONS.fireball,
     keywords: [],
   },
@@ -343,9 +353,9 @@ const CARD_DEFINITIONS = [
     rarity: RARITY.RARE,
     effect: [
       createEffect(EFFECT_TYPES.DAMAGE, 1, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
-      createComboEffect(COMBO_BONUS.EXTRA_DAMAGE, 2, TARGETS.ENEMY_HERO),
+      createComboEffect(COMBO_BONUS.EXTRA_DAMAGE, 1, TARGETS.ENEMY_HERO),
     ],
-    description: 'Battlecry: Deal 1 damage. Combo: Deal 2 extra damage.',
+    description: 'Battlecry: Deal 1 damage. Combo: Deal 1 extra damage.',
     icon: ICONS.frost_mage,
     keywords: ['combo'],
   },
@@ -488,9 +498,9 @@ const CARD_DEFINITIONS = [
     rarity: RARITY.COMMON,
     effect: [
       createEffect(EFFECT_TYPES.DAMAGE, 2, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
-      createComboEffect(COMBO_BONUS.EXTRA_DAMAGE, 3, TARGETS.ENEMY_HERO),
+      createComboEffect(COMBO_BONUS.EXTRA_DAMAGE, 2, TARGETS.ENEMY_HERO),
     ],
-    description: 'Deal 2 damage. Combo: Deal 3 extra damage.',
+    description: 'Deal 2 damage. Combo: Deal 2 extra damage.',
     icon: ICONS.cursed_blade,
     keywords: ['combo'],
   },
@@ -575,8 +585,8 @@ const CARD_DEFINITIONS = [
     defense: 6,
     type: CARD_TYPES.MINION,
     rarity: RARITY.LEGENDARY,
-    effect: createEffect(EFFECT_TYPES.AOE_DAMAGE, 6, TARGETS.ALL_ENEMY_MINIONS, TRIGGERS.ON_PLAY),
-    description: 'Battlecry: Deal 6 damage to ALL enemy minions.',
+    effect: createEffect(EFFECT_TYPES.AOE_DAMAGE, 5, TARGETS.ALL_ENEMY_MINIONS, TRIGGERS.ON_PLAY),
+    description: 'Battlecry: Deal 5 damage to ALL enemy minions.',
     icon: ICONS.doom_harbinger,
     keywords: [],
   },
@@ -631,10 +641,10 @@ const CARD_DEFINITIONS = [
     type: CARD_TYPES.MINION,
     rarity: RARITY.LEGENDARY,
     effect: [
-      createEffect(EFFECT_TYPES.DAMAGE, 5, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.DAMAGE, 4, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
       createEffect(EFFECT_TYPES.SUMMON, 2, TARGETS.SELF, TRIGGERS.ON_PLAY),
     ],
-    description: 'Battlecry: Deal 5 to enemy hero + Summon 2 Skeletons. Unstoppable force.',
+    description: 'Battlecry: Deal 4 to enemy hero + Summon 2 Skeletons. Unstoppable force.',
     icon: ICONS.infernal_titan,
     keywords: ['legendary'],
   },
@@ -711,6 +721,221 @@ const CARD_DEFINITIONS = [
     description: 'Battlecry: Deal 4 damage to ALL enemy minions. Deal 5 damage to your hero.',
     icon: ICONS.abyss_monarch,
     keywords: ['legendary'],
+  },
+
+  // ===== v0.4.0 — 8 MYTHIC CARDS (Total: 50) =====
+
+  // --- WORLD ENDER (10 mana) — Ultimate finisher ---
+  {
+    id: 'world_ender',
+    name: 'World Ender',
+    manaCost: 10,
+    attack: 10,
+    defense: 10,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.MYTHIC,
+    effect: [
+      createEffect(EFFECT_TYPES.AOE_DAMAGE, 5, TARGETS.ALL_ENEMY_MINIONS, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.DAMAGE, 5, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Battlecry: Deal 5 to ALL enemies and 5 to enemy hero. The end of all things.',
+    icon: ICONS.world_ender,
+    keywords: ['mythic'],
+  },
+
+  // --- ETERNAL PHOENIX (9 mana) — Immortal flame bird ---
+  {
+    id: 'eternal_phoenix',
+    name: 'Eternal Phoenix',
+    manaCost: 9,
+    attack: 7,
+    defense: 7,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.MYTHIC,
+    effect: [
+      createEffect(EFFECT_TYPES.AOE_DAMAGE, 3, TARGETS.ALL_ENEMY_MINIONS, TRIGGERS.ON_DEATH),
+      createEffect(EFFECT_TYPES.HEAL, 10, TARGETS.SELF_HERO, TRIGGERS.ON_DEATH),
+      createEffect(EFFECT_TYPES.DRAW, 2, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Battlecry: Draw 2. Deathrattle: Deal 3 AoE + Heal 10. Undying flame.',
+    icon: ICONS.eternal_phoenix,
+    keywords: ['deathrattle', 'mythic'],
+  },
+
+  // --- ARCANE OVERLORD (8 mana) — Spell power supreme ---
+  {
+    id: 'arcane_overlord',
+    name: 'Arcane Overlord',
+    manaCost: 8,
+    attack: 5,
+    defense: 9,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.MYTHIC,
+    effect: [
+      createEffect(EFFECT_TYPES.BUFF_ALL_ATTACK, 2, TARGETS.ALL_FRIENDLY_MINIONS, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.BUFF_ALL_DEFENSE, 2, TARGETS.ALL_FRIENDLY_MINIONS, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.DRAW, 1, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Battlecry: All friendly minions gain +2/+2. Draw 1. Supreme archmage.',
+    icon: ICONS.arcane_overlord,
+    keywords: ['mythic'],
+  },
+
+  // --- SOUL REAPER (7 mana) — Life drain master ---
+  {
+    id: 'soul_reaper',
+    name: 'Soul Reaper',
+    manaCost: 7,
+    attack: 6,
+    defense: 6,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.MYTHIC,
+    effect: [
+      createEffect(EFFECT_TYPES.LIFESTEAL, 0, TARGETS.SELF, TRIGGERS.PASSIVE),
+      createEffect(EFFECT_TYPES.DAMAGE, 4, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.HEAL, 4, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Lifesteal. Battlecry: Deal 4 to enemy hero + Heal 4. Harvester of souls.',
+    icon: ICONS.soul_reaper,
+    keywords: ['lifesteal', 'mythic'],
+  },
+
+  // --- GENESIS WYRM (9 mana) — Dragon that summons army ---
+  {
+    id: 'genesis_wyrm',
+    name: 'Genesis Wyrm',
+    manaCost: 9,
+    attack: 8,
+    defense: 8,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.MYTHIC,
+    effect: [
+      createEffect(EFFECT_TYPES.SUMMON, 3, TARGETS.SELF, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.BUFF_ALL_ATTACK, 1, TARGETS.ALL_FRIENDLY_MINIONS, TRIGGERS.START_OF_TURN),
+    ],
+    description: 'Battlecry: Summon 3 Skeletons. Start of Turn: All friendly +1 ATK. Primordial dragon.',
+    icon: ICONS.genesis_wyrm,
+    keywords: ['mythic'],
+  },
+
+  // --- OBLIVION SPELL (7 mana) — Ultimate destruction spell ---
+  {
+    id: 'oblivion_spell',
+    name: 'Oblivion',
+    manaCost: 7,
+    attack: 0,
+    defense: 0,
+    type: CARD_TYPES.SPELL,
+    rarity: RARITY.MYTHIC,
+    effect: [
+      createEffect(EFFECT_TYPES.AOE_DAMAGE, 6, TARGETS.ALL_ENEMY_MINIONS, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.DAMAGE, 4, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Deal 6 damage to ALL enemy minions and 4 to enemy hero. Total annihilation.',
+    icon: ICONS.oblivion_spell,
+    keywords: ['mythic'],
+  },
+
+  // --- DIVINE WRATH (6 mana) — Holy nuke spell ---
+  {
+    id: 'divine_wrath',
+    name: 'Divine Wrath',
+    manaCost: 6,
+    attack: 0,
+    defense: 0,
+    type: CARD_TYPES.SPELL,
+    rarity: RARITY.MYTHIC,
+    effect: [
+      createEffect(EFFECT_TYPES.DAMAGE, 8, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.SELF_DAMAGE, 3, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Deal 8 damage to enemy hero. Deal 3 to your hero. Judgment from above.',
+    icon: ICONS.divine_wrath,
+    keywords: ['mythic'],
+  },
+
+  // --- VOID DEVOURER (10 mana) — Board wipe + stats ---
+  {
+    id: 'void_devourer',
+    name: 'Void Devourer',
+    manaCost: 10,
+    attack: 9,
+    defense: 9,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.MYTHIC,
+    effect: [
+      createEffect(EFFECT_TYPES.AOE_DAMAGE, 8, TARGETS.ALL_ENEMY_MINIONS, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.SELF_DAMAGE, 8, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Battlecry: Deal 8 to ALL enemy minions. Deal 8 to your hero. Consume everything.',
+    icon: ICONS.void_devourer,
+    keywords: ['mythic'],
+  },
+
+  // ===== v0.4.1 — 4 MINI LEGENDARY CARDS (Total: 54) =====
+  // Mini Legendary = Legendary rarity but cost 3-4 mana, ringan effect, untuk Bronze/Silver
+
+  // --- BRONZE PHOENIX (3 mana) — Deathrattle: summon 1/1 token ---
+  {
+    id: 'bronze_phoenix',
+    name: 'Bronze Phoenix',
+    manaCost: 3,
+    attack: 2,
+    defense: 2,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.LEGENDARY,
+    effect: createEffect(EFFECT_TYPES.SUMMON, 1, TARGETS.SELF, TRIGGERS.ON_DEATH),
+    description: 'Deathrattle: Summon a 1/1 Skeleton. A tiny legendary.',
+    icon: ICONS.bronze_phoenix,
+    keywords: ['deathrattle', 'mini-legendary'],
+  },
+
+  // --- TINY ARCANE (3 mana, Spell) — Deal 3 damage + Draw 1 ---
+  {
+    id: 'tiny_arcane',
+    name: 'Tiny Arcane',
+    manaCost: 3,
+    attack: 0,
+    defense: 0,
+    type: CARD_TYPES.SPELL,
+    rarity: RARITY.LEGENDARY,
+    effect: [
+      createEffect(EFFECT_TYPES.DAMAGE, 3, TARGETS.ENEMY_HERO, TRIGGERS.ON_PLAY),
+      createEffect(EFFECT_TYPES.DRAW, 1, TARGETS.SELF_HERO, TRIGGERS.ON_PLAY),
+    ],
+    description: 'Deal 3 damage to enemy hero. Draw 1 card. Small but mighty.',
+    icon: ICONS.tiny_arcane,
+    keywords: ['mini-legendary'],
+  },
+
+  // --- SILVER SHIELD (4 mana) — Give +2 Defense to friendly minion ---
+  {
+    id: 'silver_shield',
+    name: 'Silver Shield',
+    manaCost: 4,
+    attack: 1,
+    defense: 4,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.LEGENDARY,
+    effect: createEffect(EFFECT_TYPES.BUFF_DEFENSE, 2, TARGETS.FRIENDLY_MINION, TRIGGERS.ON_PLAY),
+    description: 'Battlecry: Give a friendly minion +2 Defense. Sturdy protector.',
+    icon: ICONS.silver_shield,
+    keywords: ['mini-legendary'],
+  },
+
+  // --- MINI REAPER (3 mana) — Lifesteal ---
+  {
+    id: 'mini_reaper',
+    name: 'Mini Reaper',
+    manaCost: 3,
+    attack: 2,
+    defense: 2,
+    type: CARD_TYPES.MINION,
+    rarity: RARITY.LEGENDARY,
+    effect: createEffect(EFFECT_TYPES.LIFESTEAL, 0, TARGETS.SELF, TRIGGERS.PASSIVE),
+    description: 'Lifesteal. A small but hungry soul collector.',
+    icon: ICONS.mini_reaper,
+    keywords: ['lifesteal', 'mini-legendary'],
   },
 ];
 

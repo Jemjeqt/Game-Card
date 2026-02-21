@@ -14,6 +14,7 @@ import { createLogEntry } from '../utils/logger';
 import { delay } from '../utils/delay';
 import { LOG_TYPES } from '../data/constants';
 import { emitAbilityTriggered } from '../vfx/vfxEvents';
+import useRankedStore from '../stores/useRankedStore';
 import { buildDraftDeck } from '../utils/deckBuilder';
 
 // Multiplayer sync callback - set by multiplayerEngine
@@ -36,6 +37,10 @@ export async function initializeGame() {
   const opponentStore = useOpponentStore.getState();
   const uiStore = useUIStore.getState();
   const draftStore = useDraftStore.getState();
+  const rankedStore = useRankedStore.getState();
+
+  // Determine card pool tier for ranked mode
+  const tierId = rankedStore.isRankedMode ? rankedStore.getTierInfo().tier.id : null;
 
   // Reset everything
   uiStore.resetUI();
@@ -43,11 +48,11 @@ export async function initializeGame() {
   // Check if in draft mode — use drafted deck
   if (draftStore.isDraftMode && draftStore.draftComplete) {
     const draftedDeck = buildDraftDeck(draftStore.getDraftedDeck());
-    playerStore.initDeckFromCards(draftedDeck);
+    playerStore.initDeckFromCards(draftedDeck, tierId);
   } else {
-    playerStore.initDeck();
+    playerStore.initDeck(tierId);
   }
-  opponentStore.initDeck();
+  opponentStore.initDeck(tierId);
 
   // Track quest: games played
   useQuestStore.getState().checkDailyReset();

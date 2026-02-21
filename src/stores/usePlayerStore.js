@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { STARTING_HP, MAX_HP, STARTING_MANA, MAX_MANA, MAX_HAND_SIZE, MAX_BOARD_SIZE } from '../data/constants';
+import { STARTING_HP, MAX_HP, STARTING_MANA, MAX_MANA, MAX_HAND_SIZE, MAX_BOARD_SIZE, TIER_CONFIG } from '../data/constants';
 import { buildDeck, createCardInstance } from '../utils/deckBuilder';
 import { SKELETON_TOKEN } from '../data/cards';
 
@@ -9,21 +9,46 @@ function createPlayerSlice(set, get) {
     maxHp: MAX_HP,
     mana: 0,
     maxMana: 0,
+    manaCap: MAX_MANA, // tier-specific mana cap (default 10)
     hand: [],
     deck: [],
     board: [],
     graveyard: [],
     fatigueDamage: 0,
 
-    // Initialize a fresh deck
-    initDeck: () => {
-      const deck = buildDeck();
-      set({ deck, hand: [], board: [], graveyard: [], hp: STARTING_HP, mana: 0, maxMana: 0, fatigueDamage: 0 });
+    // Initialize a fresh deck — uses tier config for HP/mana in ranked mode
+    initDeck: (tierId = null) => {
+      const deck = buildDeck(tierId);
+      const config = tierId && TIER_CONFIG[tierId] ? TIER_CONFIG[tierId] : null;
+      set({
+        deck,
+        hand: [],
+        board: [],
+        graveyard: [],
+        hp: config ? config.hp : STARTING_HP,
+        maxHp: config ? config.maxHp : MAX_HP,
+        manaCap: config ? config.maxMana : MAX_MANA,
+        mana: 0,
+        maxMana: 0,
+        fatigueDamage: 0,
+      });
     },
 
-    // Initialize deck from pre-built cards (for draft mode)
-    initDeckFromCards: (deckCards) => {
-      set({ deck: deckCards, hand: [], board: [], graveyard: [], hp: STARTING_HP, mana: 0, maxMana: 0, fatigueDamage: 0 });
+    // Initialize deck from pre-built cards (for draft mode) — also sets tier HP/mana
+    initDeckFromCards: (deckCards, tierId = null) => {
+      const config = tierId && TIER_CONFIG[tierId] ? TIER_CONFIG[tierId] : null;
+      set({
+        deck: deckCards,
+        hand: [],
+        board: [],
+        graveyard: [],
+        hp: config ? config.hp : STARTING_HP,
+        maxHp: config ? config.maxHp : MAX_HP,
+        manaCap: config ? config.maxMana : MAX_MANA,
+        mana: 0,
+        maxMana: 0,
+        fatigueDamage: 0,
+      });
     },
 
     // Draw card from deck to hand
@@ -101,10 +126,10 @@ function createPlayerSlice(set, get) {
       return true;
     },
 
-    // Add max mana crystal (+1 per turn, cap 10)
+    // Add max mana crystal (+1 per turn, respects tier mana cap)
     addMaxMana: () => {
-      const { maxMana } = get();
-      if (maxMana < MAX_MANA) {
+      const { maxMana, manaCap } = get();
+      if (maxMana < manaCap) {
         set({ maxMana: maxMana + 1 });
       }
     },
@@ -221,6 +246,7 @@ function createPlayerSlice(set, get) {
         maxHp: MAX_HP,
         mana: 0,
         maxMana: 0,
+        manaCap: MAX_MANA,
         hand: [],
         deck: [],
         board: [],
