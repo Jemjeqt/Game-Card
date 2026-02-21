@@ -63,6 +63,7 @@ export default function ProfileSettings({ onClose }) {
     setError(null);
     try {
       await updateUserProfile(user.uid, {
+        avatar: selectedAvatar,
         selectedAvatar,
         username: nickname.trim(),
         title: selectedTitle,
