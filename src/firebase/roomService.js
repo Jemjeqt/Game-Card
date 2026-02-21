@@ -10,8 +10,9 @@ function generateRoomCode() {
   return code;
 }
 
-export async function createRoom(uid) {
+export async function createRoom(uid, _attempt = 0) {
   if (!db) throw new Error('Firebase not configured');
+  if (_attempt > 10) throw new Error('Failed to create unique room code after multiple attempts');
 
   const roomCode = generateRoomCode();
   const roomRef = ref(db, `rooms/${roomCode}`);
@@ -19,7 +20,7 @@ export async function createRoom(uid) {
   // Check collision
   const existing = await get(roomRef);
   if (existing.exists()) {
-    return createRoom(uid); // Retry with new code
+    return createRoom(uid, _attempt + 1); // Retry with new code
   }
 
   await set(roomRef, {
@@ -61,7 +62,7 @@ export async function joinRoom(roomCode, uid) {
 }
 
 export function listenToRoom(roomCode, callback) {
-  if (!db) return () => {};
+  if (!db) return () => { };
 
   const roomRef = ref(db, `rooms/${roomCode}`);
   const unsubscribe = onValue(roomRef, (snapshot) => {

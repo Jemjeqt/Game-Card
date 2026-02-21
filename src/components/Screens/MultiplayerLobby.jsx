@@ -218,15 +218,6 @@ export default function MultiplayerLobby() {
           </div>
         )}
 
-        {/* Join room - status */}
-        {screen === 'join' && (
-          <div className="lobby__waiting">
-            <div className="lobby__status">
-              <div className="lobby__spinner" />
-              <span>{statusText}</span>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -11,21 +11,17 @@ export default function QuestPanel({ onClose }) {
   const handleClaim = (questId) => {
     const reward = claimReward(questId);
     if (reward > 0) {
-      // Add reward to ranked points
+      // Add reward to ranked points through the store
       const rankedStore = useRankedStore.getState();
       const currentPoints = rankedStore.points;
-      // Directly add bonus points
+      const newPoints = currentPoints + reward;
+      const newHighest = Math.max(rankedStore.highestPoints, newPoints);
       useRankedStore.setState({
-        points: currentPoints + reward,
-        highestPoints: Math.max(rankedStore.highestPoints, currentPoints + reward),
+        points: newPoints,
+        highestPoints: newHighest,
       });
-      // Persist
-      try {
-        const data = JSON.parse(localStorage.getItem('cardBattle_ranked') || '{}');
-        data.points = currentPoints + reward;
-        data.highestPoints = Math.max(data.highestPoints || 0, currentPoints + reward);
-        localStorage.setItem('cardBattle_ranked', JSON.stringify(data));
-      } catch (e) {}
+      // Persist via store's own save method
+      rankedStore.saveRankedData();
     }
   };
 

@@ -1,6 +1,6 @@
 # ⚔️ Card Battle — Dark Fantasy Duel
 
-![Version](https://img.shields.io/badge/Version-v0.3.1--beta-blueviolet)
+![Version](https://img.shields.io/badge/Version-v0.3.2--beta-blueviolet)
 ![React](https://img.shields.io/badge/React-19-blue?logo=react)
 ![Vite](https://img.shields.io/badge/Vite-6-purple?logo=vite)
 ![Firebase](https://img.shields.io/badge/Firebase-Realtime%20DB-orange?logo=firebase)
@@ -22,7 +22,7 @@ Game kartu strategi berbasis giliran dengan tema dark fantasy. Mainkan kartu min
 
 ## ✨ Fitur
 
-- 🃏 **42 kartu unik** — Minion & Spell dengan berbagai efek spesial (termasuk 8 Legendary)
+- 🃏 **42 kartu unik** — Minion & Spell dengan berbagai efek spesial (termasuk 9 Legendary)
 - 🏆 **Ranked Mode** — Sistem tier Bronze → Silver → Gold → Diamond → Mythic
 - 📜 **Draft Mode** — Pilih 1 dari 3 kartu, 15 kali, lalu battle!
 - 📋 **Daily Quest** — 3 quest harian dengan reward Ranked Points
@@ -272,7 +272,51 @@ src/
 
 ---
 
-## � Patch Notes
+## 📋 Patch Notes
+
+### v0.3.2-beta — 21 Februari 2026
+
+**VFX, Mobile & Bugfix Patch**
+
+- ✨ **3-Phase VFX System** — Efek visual baru: Windup → Impact → Resolve per kartu
+- 📱 **Full Mobile Responsive** — UI responsif untuk semua ukuran layar (mobile/tablet/desktop)
+- 📸 **Camera Shake** — Efek getaran kamera untuk kartu Epic & Legendary
+- ⚡ **Adaptive Performance** — VFX otomatis menyesuaikan performa device
+- ♿ **Reduced Motion** — Aksesibilitas: animasi minimal jika OS setting aktif
+- 🐛 **FIX: Phoenix Egg** — Sekarang summon Phoenix 3/2 (bukan Skeleton 1/1)
+- 🐛 **FIX: Warcry Berserker** — +ATK per minion sekarang berfungsi benar
+- 🐛 **FIX: AI Combo** — AI sekarang bisa mengaktifkan efek Combo
+- 🐛 **FIX: Board Limit Visual** — Kartu playable glow benar hingga 10 slot
+- 📝 **Fix typo** — Perbaikan teks di battle log & patch notes
+
+### v0.3.1-beta — 21 Februari 2026
+
+**Balance Patch**
+
+- 🔻 **NERF Chrono Weaver** — Mana 5→6, Draw 2→1, Buff ATK +2→+1
+- 🔻 **NERF Doom Harbinger** — AoE 99→6 (tidak lagi instant kill)
+- 🔻 **NERF Celestial Arbiter** — ATK 5→4
+- 🔻 **NERF Shadow Sovereign** — AoE 99→5, Hero DMG 3→2
+- 🔺 **BUFF Elder Dragon** — ATK 7→8
+- 🔺 **BUFF Thunder Elemental** — Base DMG 1→2
+- 🔺 **BUFF Divine Protector** — DEF 8→9
+- 🔄 **REWORK Blood Pact** — 3 mana→2 mana, 3 self DMG→2, Draw 3→2
+- ✦ **NEW Mana Aegis** — 3 mana spell: +2 DEF semua minion + Heal 3
+- ✦ **NEW Abyss Monarch** — 8 mana 7/7: AoE 4 + Self DMG 5
+- +2 kartu baru — Mana Aegis & Abyss Monarch (total 42)
+
+### v0.3.0-beta — 21 Februari 2026
+
+**Ranked, Draft & Legendary Update**
+
+- 🏆 **Ranked Mode** — Sistem tier Bronze → Mythic (+25 menang, -15 kalah)
+- 📜 **Draft Mode** — Pilih 1 dari 3 kartu, 15 kali, lalu battle!
+- ⭐ **5 Legendary Baru** — Celestial Arbiter, Void Empress, Infernal Titan, Chrono Weaver, Shadow Sovereign
+- 📋 **Daily Quest** — 3 quest harian dengan reward Ranked Points
+- 42 kartu — Total kartu bertambah dari 35 ke 42
+- 9 Legendary — Kartu legendary limit 1 per deck
+- Win Streak — Tracking streak dan best streak
+- Ranked Profile — Lihat rank, tier ladder, dan statistik
 
 ### v0.2.0-beta — 20 Februari 2026
 

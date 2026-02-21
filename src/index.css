@@ -28,13 +28,16 @@ body {
   background: var(--bg-deep);
   color: var(--text-primary);
   overflow: hidden;
-  min-width: 900px;
   min-height: 100vh;
+  min-height: 100dvh;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #root {
   width: 100%;
   height: 100vh;
+  height: 100dvh;
 }
 
 button {

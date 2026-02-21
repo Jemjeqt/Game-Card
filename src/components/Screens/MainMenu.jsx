@@ -177,7 +177,24 @@ export default function MainMenu() {
             <div className="guide__content">
 
               <section className="guide__section">
-                <h3 className="patch__version-header">⚖️ v0.3.1-beta <span className="patch__date">22 Feb 2026</span></h3>
+                <h3 className="patch__version-header">🔧 v0.3.2-beta <span className="patch__date">21 Feb 2026</span></h3>
+                <p style={{color:'var(--accent-cyan)', fontSize:'12px', marginBottom:'10px'}}>VFX, Mobile & Bugfix Patch</p>
+                <ul className="guide__tips">
+                  <li><strong>✨ 3-Phase VFX System</strong> — Efek visual baru: Windup → Impact → Resolve per kartu</li>
+                  <li><strong>📱 Full Mobile Responsive</strong> — UI responsif untuk semua ukuran layar (mobile/tablet/desktop)</li>
+                  <li><strong>📸 Camera Shake</strong> — Efek getaran kamera untuk kartu Epic & Legendary</li>
+                  <li><strong>⚡ Adaptive Performance</strong> — VFX otomatis menyesuaikan performa device</li>
+                  <li><strong>♿ Reduced Motion</strong> — Aksesibilitas: animasi minimal jika OS setting aktif</li>
+                  <li><strong>🐛 FIX: Phoenix Egg</strong> — Sekarang summon Phoenix 3/2 (bukan Skeleton)</li>
+                  <li><strong>🐛 FIX: Warcry Berserker</strong> — +ATK per minion sekarang berfungsi benar</li>
+                  <li><strong>🐛 FIX: AI Combo</strong> — AI sekarang bisa mengaktifkan efek Combo</li>
+                  <li><strong>🐛 FIX: Board Limit Visual</strong> — Kartu playable glow benar hingga 10 slot</li>
+                  <li><strong>📝 Fix typo</strong> — Perbaikan teks di battle log & patch notes</li>
+                </ul>
+              </section>
+
+              <section className="guide__section">
+                <h3 className="patch__version-header">⚖️ v0.3.1-beta <span className="patch__date">21 Feb 2026</span></h3>
                 <p style={{color:'var(--accent-cyan)', fontSize:'12px', marginBottom:'10px'}}>Balance Patch</p>
                 <ul className="guide__tips">
                   <li><strong>🔻 NERF Chrono Weaver</strong> — Mana 5→6, Draw 2→1, Buff ATK +2→+1</li>
@@ -210,7 +227,7 @@ export default function MainMenu() {
               </section>
 
               <section className="guide__section">
-                <h3 className="patch__version-header">�🔥 v0.2.0-beta <span className="patch__date">20 Feb 2026</span></h3>
+                <h3 className="patch__version-header">🔥 v0.2.0-beta <span className="patch__date">20 Feb 2026</span></h3>
                 <p style={{color:'var(--accent-cyan)', fontSize:'12px', marginBottom:'10px'}}>Major Expansion Update</p>
                 <ul className="guide__tips">
                   <li><strong>35 kartu</strong> — 15 kartu baru ditambahkan (dari 20)</li>
@@ -466,21 +483,21 @@ export default function MainMenu() {
                         <span className="guide__phase-num" style={{background:'rgba(34,197,94,0.2)',color:'#22c55e'}}>⬤</span>
                         <div>
                           <strong>EARLY GAME (Mana 1-3)</strong>
-                          <p>Bangun arena dengan minion murah. Dark Ritualist, Plague Rat, dan Ember Sprite sangat efisien. Jangan buang spell damage terlalu awal.</p>
+                          <p>Bangun arena dengan minion murah. Dark Ritualist (draw 1), Plague Rat (AoE 1), dan Ember Sprite (+1 bonus dmg) sangat efisien. Simpan spell untuk combo nanti.</p>
                         </div>
                       </div>
                       <div className="guide__phase">
                         <span className="guide__phase-num" style={{background:'rgba(245,158,11,0.2)',color:'#f59e0b'}}>⬤</span>
                         <div>
                           <strong>MID GAME (Mana 4-6)</strong>
-                          <p>Mainkan kartu dengan efek kuat. Aktifkan Combo dengan kartu murah dulu. War Drums + arena penuh = buff masif!</p>
+                          <p>Aktifkan Combo: mainkan kartu murah dulu → lalu Frost Mage, Shadow Dancer, atau Thunder Elemental untuk bonus besar. Mana Aegis (+2 DEF semua + Heal 3) bagus untuk bertahan. War Drums + arena penuh = buff masif!</p>
                         </div>
                       </div>
                       <div className="guide__phase">
                         <span className="guide__phase-num" style={{background:'rgba(239,68,68,0.2)',color:'#ef4444'}}>⬤</span>
                         <div>
                           <strong>LATE GAME (Mana 7+)</strong>
-                          <p>Elder Dragon dan Doom Harbinger bisa membalikkan keadaan. Simpan removal untuk ancaman besar musuh.</p>
+                          <p>Legendary cards jadi game changer. Elder Dragon (8/7 + 3 hero dmg), Doom Harbinger (6 AoE), atau Celestial Arbiter (3 AoE + 3 hero + Heal 5). Abyss Monarch (4 AoE) bagus tapi bayar 5 HP sendiri — pakai saat HP aman.</p>
                         </div>
                       </div>
                     </div>
@@ -499,13 +516,29 @@ export default function MainMenu() {
                       </div>
                       <div className="guide__combo-item">
                         <div className="guide__combo-chain">Dark Ritualist (2💎) → Thunder Elemental (5💎)</div>
-                        <div className="guide__combo-result">= Draw 1 + AoE <strong>3 damage</strong> ke semua minion musuh! Total 7 mana.</div>
+                        <div className="guide__combo-result">= Draw 1 + 2 hero dmg + <strong>2 AoE</strong> ke semua minion musuh! Total 7 mana.</div>
                       </div>
                       <div className="guide__combo-item">
                         <div className="guide__combo-chain">Arcane Bolt (1💎) → Frost Mage (3💎)</div>
                         <div className="guide__combo-result">= 2 dmg + 2 dmg + 2 combo = <strong>6 damage ke hero</strong>! Total 4 mana.</div>
                       </div>
+                      <div className="guide__combo-item">
+                        <div className="guide__combo-chain">Blood Pact (2💎) → Blood Knight (4💎)</div>
+                        <div className="guide__combo-result">= Draw 2 + Lifesteal 4/3 + <strong>Draw 1 combo</strong> = 3 kartu! Total 6 mana.</div>
+                      </div>
                     </div>
+                  </section>
+
+                  <section className="guide__section">
+                    <h3>⭐ Legendary Strategy</h3>
+                    <ul className="guide__tips">
+                      <li><strong>Archmage Solara (5💎):</strong> Lindungi dengan Shield/buff — 2 dmg per giliran makin lama makin mematikan.</li>
+                      <li><strong>Void Empress (6💎):</strong> Lifesteal + curi ATK musuh tiap giliran. Semakin lama hidup, semakin dominan.</li>
+                      <li><strong>Celestial Arbiter (7💎):</strong> Swiss army knife — 3 AoE + 3 hero dmg + Heal 5. Efektif di situasi apapun.</li>
+                      <li><strong>Infernal Titan (9💎):</strong> Finisher terkuat — 5 hero dmg + 8/10 body + 2 Skeleton. Mainkan saat mana penuh.</li>
+                      <li><strong>Abyss Monarch (8💎):</strong> 4 AoE murah tapi bayar 5 HP. Pakai saat HP kamu masih aman.</li>
+                      <li><strong>Ingat:</strong> Maks 1 copy per Legendary di deck — pilih yang cocok dengan gaya mainmu!</li>
+                    </ul>
                   </section>
 
                   <section className="guide__section">
@@ -516,7 +549,9 @@ export default function MainMenu() {
                       <li><strong>Void Cultist Stack:</strong> 2-3 Void Cultist = 2-3 damage otomatis setiap akhir giliran tanpa menyerang.</li>
                       <li><strong>Mirror Mage Value:</strong> Copy minion terkuat di arena — semakin kuat target, semakin menguntungkan.</li>
                       <li><strong>Soul Exchange Timing:</strong> Pakai saat HP kamu jauh lebih tinggi dari musuh. -5/-5 HP + draw 2!</li>
-                      <li><strong>Doom Harbinger Finisher:</strong> Bersihkan seluruh arena musuh, lalu serang dengan semua minion.</li>
+                      <li><strong>Doom Harbinger Finisher:</strong> 6 AoE bersihkan arena musuh, lalu serang langsung dengan semua minion.</li>
+                      <li><strong>Mana Aegis Defensif:</strong> +2 DEF semua minion + Heal 3 — mainkan sebelum giliran musuh.</li>
+                      <li><strong>Warcry Berserker Timing:</strong> Mainkan saat arena penuh — mendapat +1 ATK per minion!</li>
                       <li><strong>Klik kanan</strong> pada kartu untuk preview lebih besar</li>
                       <li>Kartu <span style={{color:'#22c55e'}}>hijau</span> = bisa dimainkan, Minion <span style={{color:'#ef4444'}}>merah</span> = bisa menyerang</li>
                     </ul>

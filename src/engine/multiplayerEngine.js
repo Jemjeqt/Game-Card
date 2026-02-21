@@ -16,6 +16,7 @@ import { PLAYERS } from '../data/constants';
 let _unsubPlayerSync = null;
 let _unsubOpponentSync = null;
 let _unsubGameSync = null;
+let _syncTimer = null;
 
 /**
  * Initialize a multiplayer game.
@@ -52,8 +53,6 @@ export async function initializeMultiplayerGame() {
  * Only syncs when it's the local player's turn and the change is local.
  */
 function startAutoSync() {
-  let syncTimer = null;
-
   const scheduleSync = () => {
     // Don't sync if the change came from Firebase
     if (isApplyingRemoteUpdate()) return;
@@ -66,8 +65,9 @@ function startAutoSync() {
     if (game.activePlayer !== PLAYERS.PLAYER) return;
     if (game.isProcessing) return;
 
-    if (syncTimer) clearTimeout(syncTimer);
-    syncTimer = setTimeout(() => {
+    if (_syncTimer) clearTimeout(_syncTimer);
+    _syncTimer = setTimeout(() => {
+      _syncTimer = null;
       // RE-CHECK all conditions at fire time — game state may have changed
       // during the 250ms debounce window (e.g., endTurn switched activePlayer)
       if (isApplyingRemoteUpdate()) return;
@@ -87,6 +87,10 @@ function startAutoSync() {
  * Stop auto-sync subscriptions
  */
 function stopAutoSync() {
+  if (_syncTimer) {
+    clearTimeout(_syncTimer);
+    _syncTimer = null;
+  }
   if (_unsubPlayerSync) {
     _unsubPlayerSync();
     _unsubPlayerSync = null;

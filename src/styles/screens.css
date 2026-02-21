@@ -1768,3 +1768,296 @@
   color: var(--color-attack);
   border-color: rgba(239, 68, 68, 0.3);
 }
+
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE — All Screens (≤640px)
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  /* === Main Menu === */
+  .main-menu__icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+  .main-menu__title {
+    font-size: 28px;
+    letter-spacing: 1px;
+  }
+  .main-menu__subtitle {
+    font-size: 11px;
+    margin-bottom: 24px;
+    letter-spacing: 2px;
+  }
+  .main-menu__button {
+    padding: 12px 28px;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+  }
+  .main-menu__button--secondary {
+    padding: 10px 28px;
+    font-size: 11px;
+  }
+  .main-menu__buttons {
+    gap: 8px;
+    width: 90%;
+    max-width: 300px;
+  }
+  .main-menu__info {
+    font-size: 10px;
+    margin-top: 20px;
+    padding: 0 16px;
+  }
+  .main-menu__meta-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .main-menu__version {
+    bottom: 8px;
+    right: 8px;
+    padding: 4px 8px;
+  }
+  .version__badge {
+    font-size: 7px;
+    padding: 1px 6px;
+  }
+  .version__text {
+    font-size: 9px;
+  }
+
+  /* === Game Over === */
+  .game-over__icon {
+    font-size: 52px;
+    margin-bottom: 10px;
+  }
+  .game-over__title {
+    font-size: 28px;
+    letter-spacing: 2px;
+  }
+  .game-over__subtitle {
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  .game-over__buttons {
+    flex-direction: column;
+    gap: 8px;
+    width: 80%;
+    max-width: 260px;
+  }
+  .game-over__button {
+    padding: 10px 20px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* === Lobby === */
+  .lobby__card {
+    padding: 24px 16px;
+    width: 95%;
+  }
+  .lobby__title {
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+  .lobby__btn {
+    padding: 12px 20px;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+  .lobby__room-code {
+    font-size: 32px;
+    letter-spacing: 6px;
+    padding: 12px 16px;
+  }
+  .lobby__input {
+    font-size: 16px;
+    letter-spacing: 4px;
+    padding: 12px;
+  }
+
+  /* === Guide === */
+  .guide {
+    width: 95%;
+    padding: 20px 16px;
+    max-height: 90vh;
+  }
+  .guide__title {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+  .guide__section h3 {
+    font-size: 14px;
+  }
+  .guide__section p {
+    font-size: 12px;
+  }
+  .guide__grid {
+    grid-template-columns: 1fr;
+  }
+  .guide__tabs {
+    flex-wrap: wrap;
+  }
+  .guide__tab {
+    font-size: 10px;
+    padding: 6px 8px;
+  }
+  .guide__stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  .guide__start {
+    padding: 12px 28px;
+    font-size: 14px;
+  }
+  .guide__effect-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .guide__effect-name {
+    min-width: 0;
+  }
+
+  /* === Draft Screen === */
+  .draft-screen {
+    padding: 12px 8px;
+  }
+  .draft-screen__title {
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+  .draft-screen__subtitle {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+  .draft-screen__choices {
+    gap: 8px;
+  }
+  .draft-card {
+    width: 140px;
+    padding: 10px;
+  }
+  .draft-card__art {
+    font-size: 32px;
+    margin: 4px 0;
+  }
+  .draft-card__name {
+    font-size: 11px;
+  }
+  .draft-card__mana {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+  .draft-card__stats {
+    font-size: 12px;
+    gap: 8px;
+  }
+  .draft-card__desc {
+    font-size: 9px;
+  }
+  .draft-screen__progress-bar {
+    width: 140px;
+  }
+  .draft-screen__btn {
+    padding: 10px 20px;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+  .draft-screen__actions {
+    flex-direction: column;
+    gap: 8px;
+    width: 80%;
+  }
+  .draft-screen__cancel {
+    position: static;
+    margin-top: 12px;
+    align-self: center;
+  }
+
+  /* === Ranked Badge === */
+  .ranked-badge__ladder-tier {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+  .ranked-badge__stat-value {
+    font-size: 14px;
+  }
+
+  /* === Quest Panel === */
+  .quest-panel__header {
+    padding: 10px 14px;
+  }
+  .quest-panel__title {
+    font-size: 16px;
+  }
+  .quest-item {
+    padding: 10px;
+    gap: 8px;
+  }
+  .quest-item__icon {
+    font-size: 22px;
+  }
+  .quest-item__title {
+    font-size: 12px;
+  }
+  .quest-item__desc {
+    font-size: 10px;
+  }
+
+  /* === Ranked Results === */
+  .ranked-result__title {
+    font-size: 16px;
+  }
+  .ranked-result__change {
+    font-size: 14px;
+  }
+
+  /* === Quest Notification === */
+  .quest-notification {
+    top: 8px;
+    right: 8px;
+    left: 8px;
+  }
+  .quest-notification__content {
+    padding: 8px 12px;
+  }
+  .quest-notification__title {
+    font-size: 12px;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   TABLET RESPONSIVE — Screens (641px–1024px)
+   ═══════════════════════════════════════════════════════════ */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .main-menu__title {
+    font-size: 40px;
+  }
+  .main-menu__icon {
+    font-size: 60px;
+  }
+  .main-menu__button {
+    padding: 14px 36px;
+    font-size: 15px;
+  }
+  .game-over__title {
+    font-size: 36px;
+  }
+  .game-over__icon {
+    font-size: 60px;
+  }
+  .draft-screen__title {
+    font-size: 28px;
+  }
+  .draft-card {
+    width: 170px;
+  }
+  .guide {
+    width: 92%;
+    padding: 24px;
+  }
+}

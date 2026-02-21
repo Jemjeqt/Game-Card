@@ -4,7 +4,7 @@ import useGameStore from '../stores/useGameStore';
 import useOpponentStore from '../stores/useOpponentStore';
 import usePlayerStore from '../stores/usePlayerStore';
 import useUIStore from '../stores/useUIStore';
-import { resolveEffects, applyBuffDefenseToMinion } from '../engine/effectResolver';
+import { resolveEffects, resolveEndOfTurnEffects, applyBuffDefenseToMinion, incrementCardsPlayed } from '../engine/effectResolver';
 import { resolveAttack, getAttackableMinions } from '../engine/combatResolver';
 import { checkGameOver } from '../engine/gameRules';
 import { selectCardsToPlay } from './aiStrategy';
@@ -45,6 +45,18 @@ export async function runAITurn() {
   // === END TURN ===
   gameStore.getState().setPhase(PHASES.END_TURN);
   await delay(DELAYS.PHASE_TRANSITION);
+
+  // Resolve end-of-turn effects for AI minions (e.g., Void Cultist)
+  const addLog = (text) =>
+    useUIStore.getState().addLogEntry(createLogEntry(text, LOG_TYPES.EFFECT));
+  resolveEndOfTurnEffects({
+    ownerStore: useOpponentStore,
+    enemyStore: usePlayerStore,
+    addLog,
+  });
+
+  // Check game over after end-of-turn effects
+  if (checkGameOver()) return;
 
   // Switch to player's turn
   gameStore.getState().switchTurn();
@@ -93,6 +105,9 @@ async function aiMainPhase() {
     // Emit VFX event (event bus → VFXLayer)
     emitCardPlayed(card, 'opponent');
 
+    // Track combo for AI
+    incrementCardsPlayed();
+
     if (card.type === CARD_TYPES.MINION) {
       // Place on board
       useOpponentStore.getState().addToBoard(card);
@@ -109,7 +124,7 @@ async function aiMainPhase() {
       // Emit VFX for minion abilities
       if (!card.rarity || card.rarity !== 'legendary') {
         for (const r of minionResults) {
-          if (r && r.type !== 'needsTarget') { emitAbilityTriggered(r, card, 'opponent'); break; }
+          if (r && r.type !== 'needsTarget') { emitAbilityTriggered(r, card, 'opponent'); }
         }
       }
     } else {
@@ -143,7 +158,7 @@ async function aiMainPhase() {
 
       // Emit VFX for spell results
       for (const r of results) {
-        if (r && r.type !== 'needsTarget') { emitAbilityTriggered(r, card, 'opponent'); break; }
+        if (r && r.type !== 'needsTarget') { emitAbilityTriggered(r, card, 'opponent'); }
       }
 
       // Move spell to graveyard

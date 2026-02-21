@@ -20,6 +20,8 @@ export function createCardInstance(cardDef) {
     description: cardDef.description,
     icon: cardDef.icon,
     keywords: [...(cardDef.keywords || [])],
+    specialEffect: cardDef.specialEffect || null,
+    summonId: cardDef.summonId || null,
     canAttack: false, // summoning sickness
     exhausted: false,
     shield: 0,

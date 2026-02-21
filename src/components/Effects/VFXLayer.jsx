@@ -7,6 +7,7 @@ import FloatingText from './FloatingText';
 import ScreenEffect from './ScreenEffect';
 import ParticleBurst from './ParticleBurst';
 import OverlayEffect from './OverlayEffect';
+import CameraShake from './CameraShake';
 
 /**
  * VFXLayer — Portal-based overlay that listens to the VFX event bus
@@ -66,6 +67,11 @@ export default function VFXLayer() {
 
     return () => {
       clearAllAnimations();
+      // Remove portal div from DOM on unmount
+      const portalEl = document.getElementById('vfx-portal');
+      if (portalEl && portalEl.parentNode) {
+        portalEl.parentNode.removeChild(portalEl);
+      }
     };
   }, []);
 
@@ -142,6 +148,18 @@ export default function VFXLayer() {
               count={anim.particles.count}
               spread={anim.particles.spread}
               duration={anim.particles.duration}
+              delay={anim.particles.delay || 0}
+              noGlow={anim.particles.noGlow || false}
+              onComplete={handleComplete}
+            />
+          )}
+
+          {/* Camera shake */}
+          {anim.cameraShake && (
+            <CameraShake
+              id={`${anim.id}_shake`}
+              intensity={anim.cameraShake.intensity}
+              duration={anim.cameraShake.duration}
               onComplete={handleComplete}
             />
           )}

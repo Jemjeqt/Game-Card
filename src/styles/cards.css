@@ -400,3 +400,172 @@
   font-weight: 600;
   letter-spacing: 0.5px;
 }
+
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE — Cards (≤640px)
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  /* Mana cost badge */
+  .card__mana-cost {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+    top: 2px;
+    left: 2px;
+  }
+
+  /* Art area */
+  .card__art {
+    font-size: 28px;
+  }
+  .card--board .card__art {
+    font-size: 18px;
+  }
+  .card--preview .card__art {
+    font-size: 52px;
+  }
+
+  /* Card name */
+  .card__name {
+    font-size: 7px;
+    padding: 2px 3px;
+  }
+  .card--board .card__name {
+    font-size: 6px;
+    padding: 1px 2px;
+  }
+  .card--preview .card__name {
+    font-size: 13px;
+    padding: 6px;
+  }
+
+  /* Description */
+  .card__description {
+    font-size: 6px;
+    padding: 2px 4px;
+    line-height: 1.2;
+  }
+  .card--preview .card__description {
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+
+  /* Stats */
+  .card__stat {
+    font-size: 9px;
+  }
+  .card--board .card__stat {
+    font-size: 8px;
+  }
+  .card__stats {
+    padding: 2px 4px;
+  }
+  .card--preview .card__stat {
+    font-size: 14px;
+    padding: 4px 8px;
+  }
+
+  /* Card hover — reduced lift on mobile (touch) */
+  .card--hand:hover:not(.card--selected) {
+    transform: translateY(-14px) scale(1.06);
+  }
+  .card--selected {
+    transform: translateY(-10px) scale(1.04);
+  }
+
+  /* Shield badge */
+  .card__shield {
+    width: 16px;
+    height: 16px;
+    font-size: 7px;
+    top: 2px;
+    right: 2px;
+  }
+
+  /* Card back (opponent) */
+  .card-back {
+    border-radius: 6px;
+  }
+  .card-back__pattern {
+    font-size: 18px;
+    border-width: 1px;
+  }
+
+  /* Keywords */
+  .card__keyword {
+    font-size: 5px;
+    padding: 0px 2px;
+    letter-spacing: 0;
+  }
+  .card__keywords {
+    gap: 2px;
+    padding: 1px 2px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EXTRA SMALL PHONES — Cards (≤380px)
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 380px) {
+  .card__mana-cost {
+    width: 16px;
+    height: 16px;
+    font-size: 8px;
+    top: 1px;
+    left: 1px;
+    border-width: 1px;
+  }
+  .card__art {
+    font-size: 22px;
+  }
+  .card--board .card__art {
+    font-size: 14px;
+  }
+  .card__name {
+    font-size: 5px;
+    padding: 1px 2px;
+  }
+  .card--board .card__name {
+    font-size: 5px;
+  }
+  .card__description {
+    font-size: 5px;
+    padding: 1px 2px;
+  }
+  .card__stat {
+    font-size: 7px;
+  }
+  .card--board .card__stat {
+    font-size: 7px;
+  }
+  .card__stats {
+    padding: 1px 2px;
+  }
+  .card__keyword {
+    font-size: 4px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TABLET RESPONSIVE — Cards (641px–1024px)
+   ═══════════════════════════════════════════════════════════ */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .card__mana-cost {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+  .card__art {
+    font-size: 34px;
+  }
+  .card--board .card__art {
+    font-size: 22px;
+  }
+  .card__name {
+    font-size: 9px;
+  }
+  .card__stat {
+    font-size: 11px;
+  }
+}

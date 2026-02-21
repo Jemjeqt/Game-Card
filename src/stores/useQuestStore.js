@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { shuffle } from '../utils/shuffle';
 
 // ===== DAILY QUEST SYSTEM =====
 // 3 quests per day, reset at midnight
@@ -147,7 +148,7 @@ function saveQuestData(state) {
 }
 
 function pickRandomQuests(count) {
-  const shuffled = [...QUEST_POOL].sort(() => Math.random() - 0.5);
+  const shuffled = shuffle([...QUEST_POOL]);
   return shuffled.slice(0, count).map((q) => ({
     ...q,
     progress: 0,

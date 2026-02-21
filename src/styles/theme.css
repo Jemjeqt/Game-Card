@@ -71,3 +71,38 @@
   --font-heading: 'Cinzel', 'Times New Roman', serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
+
+/* ===== MOBILE VARIABLE OVERRIDES ===== */
+@media (max-width: 640px) {
+  :root {
+    --card-width-hand: 68px;
+    --card-height-hand: 96px;
+    --card-width-board: 52px;
+    --card-height-board: 74px;
+    --card-width-preview: 200px;
+    --card-height-preview: 280px;
+    --border-radius-card: 6px;
+  }
+}
+
+/* Extra small phones (≤380px) */
+@media (max-width: 380px) {
+  :root {
+    --card-width-hand: 60px;
+    --card-height-hand: 85px;
+    --card-width-board: 46px;
+    --card-height-board: 66px;
+    --border-radius-card: 5px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  :root {
+    --card-width-hand: 90px;
+    --card-height-hand: 128px;
+    --card-width-board: 70px;
+    --card-height-board: 100px;
+    --card-width-preview: 230px;
+    --card-height-preview: 330px;
+  }
+}

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { getAllCards } from '../data/cards';
 import { RARITY } from '../data/constants';
+import { shuffle } from '../utils/shuffle';
 
 // ===== DRAFT MODE =====
 // Pick 1 from 3 cards, 15 times → build a 15-card deck → battle AI
@@ -29,7 +30,7 @@ function generateDraftChoices(allCards, pickedIds) {
   // Pick 3 unique cards
   const choices = [];
   const usedIds = new Set();
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const shuffled = shuffle([...pool]);
 
   for (const card of shuffled) {
     if (choices.length >= CARDS_PER_CHOICE) break;

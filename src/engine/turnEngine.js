@@ -119,7 +119,7 @@ export async function executeStartTurn() {
 
   // Emit VFX for start-of-turn effects
   for (const r of startResults) {
-    if (r) { emitAbilityTriggered(r, null, isPlayer ? 'player' : 'opponent'); break; }
+    if (r) { emitAbilityTriggered(r, null, isPlayer ? 'player' : 'opponent'); }
   }
 
   // Check game over after start-of-turn effects

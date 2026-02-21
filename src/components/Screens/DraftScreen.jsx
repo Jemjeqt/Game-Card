@@ -46,8 +46,8 @@ export default function DraftScreen() {
           {isDrafting
             ? `Pilih kartu ${currentPick + 1} dari ${DRAFT_PICKS}`
             : draftComplete
-            ? 'Draft selesai! Siap bertarung!'
-            : 'Pilih 1 dari 3 kartu sebanyak 15 kali'}
+              ? 'Draft selesai! Siap bertarung!'
+              : 'Pilih 1 dari 3 kartu sebanyak 15 kali'}
         </p>
         <div className="draft-screen__progress">
           <div className="draft-screen__progress-bar">
@@ -94,7 +94,7 @@ export default function DraftScreen() {
         <div className="draft-screen__summary">
           <h3 className="draft-screen__deck-title">Deck Kamu ({pickedCards.length} kartu)</h3>
           <div className="draft-screen__deck-list">
-            {pickedCards
+            {[...pickedCards]
               .sort((a, b) => a.manaCost - b.manaCost)
               .map((card, i) => (
                 <div

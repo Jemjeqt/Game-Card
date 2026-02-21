@@ -1,6 +1,6 @@
 // Version
-export const GAME_VERSION = 'v0.3.1-beta';
-export const GAME_VERSION_DATE = '2026-02-22';
+export const GAME_VERSION = 'v0.3.2-beta';
+export const GAME_VERSION_DATE = '2026-02-21';
 
 // Game constants
 export const STARTING_HP = 60;

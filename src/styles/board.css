@@ -591,3 +591,294 @@
   z-index: 200;
   backdrop-filter: blur(4px);
 }
+
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE — Board & HUD (≤640px)
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .game-board {
+    height: 100vh;
+    height: 100dvh;
+    grid-template-rows: auto auto 1fr auto 1fr auto auto;
+    overflow: hidden;
+    padding-bottom: 24px; /* reserve space for minimized battle log */
+  }
+
+  /* HUD — compact */
+  .hud {
+    padding: 3px 8px;
+    gap: 4px;
+  }
+  .hud__left,
+  .hud__right {
+    gap: 6px;
+  }
+  .hud__center {
+    gap: 4px;
+  }
+  .hud__center > span {
+    font-size: 9px !important;
+  }
+
+  /* HP Bar — narrower */
+  .hp-bar__bar {
+    width: 70px;
+    height: 12px;
+  }
+  .hp-bar__icon {
+    font-size: 14px;
+  }
+  .hp-bar__text {
+    font-size: 10px;
+    min-width: 32px;
+  }
+
+  /* Mana — smaller crystals */
+  .mana-bar__crystal {
+    width: 10px;
+    height: 10px;
+  }
+  .mana-bar__text {
+    font-size: 10px;
+    min-width: 22px;
+  }
+  .mana-bar__crystals {
+    gap: 2px;
+  }
+
+  /* Deck counter */
+  .deck-counter {
+    font-size: 10px;
+    gap: 3px;
+  }
+  .deck-counter__icon {
+    font-size: 12px;
+  }
+
+  /* Fields — scrollable horizontally, compact height */
+  .field {
+    gap: 3px;
+    padding: 2px 4px;
+    min-height: 0;
+    overflow: visible;
+    justify-content: center;
+  }
+  .field .card {
+    flex-shrink: 0;
+  }
+
+  /* Center divider */
+  .center-divider {
+    padding: 2px 8px;
+    gap: 6px;
+  }
+  .center-divider > span {
+    font-size: 9px !important;
+  }
+
+  /* Phase indicator */
+  .phase-indicator {
+    font-size: 8px;
+    padding: 2px 6px;
+    letter-spacing: 1px;
+  }
+
+  /* Turn button */
+  .turn-button {
+    padding: 4px 10px;
+    font-size: 9px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Player hand — allow hover overflow upward */
+  .hand {
+    padding: 16px 4px 4px;
+    min-height: 0;
+    overflow: visible;
+    justify-content: center;
+  }
+  .hand__cards {
+    flex-wrap: nowrap;
+    justify-content: center;
+  }
+  .hand__card-wrapper {
+    margin-left: -24px;
+    flex-shrink: 0;
+  }
+  .hand__card-wrapper:first-child {
+    margin-left: 0;
+  }
+  .hand__card-wrapper:hover {
+    margin-left: -12px;
+    margin-right: 6px;
+  }
+
+  /* Opponent hand */
+  .opponent-hand {
+    padding: 2px 8px;
+    min-height: 0;
+  }
+  .opponent-hand .card-back {
+    margin-left: -26px;
+    width: 34px;
+    height: 46px;
+  }
+  .opponent-hand .card-back .card-back__pattern {
+    font-size: 9px;
+  }
+
+  /* Battle log — minimized bar fixed at bottom */
+  .battle-log {
+    position: fixed;
+    right: auto;
+    left: 0;
+    top: auto;
+    bottom: 0;
+    transform: none;
+    width: 100%;
+    max-height: 100px;
+    border-radius: 8px 8px 0 0;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .battle-log--minimized {
+    max-height: 24px;
+  }
+  .battle-log__header {
+    padding: 3px 10px;
+    font-size: 9px;
+  }
+  .battle-log__entry {
+    padding: 2px 10px;
+    font-size: 10px;
+  }
+
+  /* Turn banner */
+  .turn-banner__text {
+    font-size: 28px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EXTRA SMALL PHONES — Board (≤380px)
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 380px) {
+  .hud {
+    padding: 2px 6px;
+  }
+  .hp-bar__bar {
+    width: 55px;
+    height: 10px;
+  }
+  .hp-bar__text {
+    font-size: 9px;
+    min-width: 28px;
+  }
+  .hp-bar__icon {
+    font-size: 12px;
+  }
+  .mana-bar__crystal {
+    width: 8px;
+    height: 8px;
+  }
+  .mana-bar__text {
+    font-size: 9px;
+  }
+  .field {
+    min-height: 0;
+    gap: 2px;
+    padding: 2px 2px;
+  }
+  .hand {
+    padding: 2px 2px 2px;
+    min-height: 0;
+  }
+  .hand__card-wrapper {
+    margin-left: -26px;
+  }
+  .opponent-hand {
+    min-height: 0;
+    padding: 2px 6px;
+  }
+  .opponent-hand .card-back {
+    margin-left: -28px;
+    width: 28px;
+    height: 38px;
+  }
+  .center-divider {
+    padding: 1px 6px;
+    gap: 4px;
+  }
+  .turn-button {
+    padding: 3px 8px;
+    font-size: 8px;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   TABLET RESPONSIVE — Board & HUD (641px–1024px)
+   ═══════════════════════════════════════════════════════════ */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .hud {
+    padding: 6px 12px;
+  }
+  .hud__left,
+  .hud__right {
+    gap: 10px;
+  }
+
+  .hp-bar__bar {
+    width: 90px;
+    height: 14px;
+  }
+  .hp-bar__text {
+    font-size: 12px;
+  }
+
+  .mana-bar__crystal {
+    width: 12px;
+    height: 12px;
+  }
+
+  .field {
+    gap: 4px;
+    padding: 6px 8px;
+    min-height: 110px;
+  }
+
+  .hand {
+    padding: 4px 12px 8px;
+    min-height: 140px;
+  }
+  .hand__card-wrapper {
+    margin-left: -16px;
+  }
+
+  .opponent-hand {
+    padding: 6px 12px;
+    min-height: 60px;
+  }
+  .opponent-hand .card-back {
+    margin-left: -26px;
+    width: 48px;
+    height: 68px;
+  }
+
+  .battle-log {
+    width: 200px;
+    max-height: 35vh;
+  }
+  .battle-log__header {
+    font-size: 10px;
+    padding: 6px 10px;
+  }
+  .battle-log__entry {
+    font-size: 10px;
+  }
+
+  .turn-banner__text {
+    font-size: 36px;
+  }
+}

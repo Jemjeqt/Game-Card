@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { LOG_TYPES } from '../data/constants';
 
+const MAX_LOG_ENTRIES = 100;
+
 const useUIStore = create((set, get) => ({
   // State
   selectedCardId: null,
@@ -12,8 +14,7 @@ const useUIStore = create((set, get) => ({
   damageNumbers: [], // { id, amount, x, y, isHeal }
   targetingMode: false, // for targeted spells like Mystic Shield
   targetingCardId: null,
-
-
+  pendingSpell: null, // spell card awaiting target selection
 
   // Actions
   selectCard: (instanceId) =>
@@ -30,7 +31,7 @@ const useUIStore = create((set, get) => ({
 
   addLogEntry: (entry) =>
     set((state) => ({
-      battleLog: [...state.battleLog, entry],
+      battleLog: [...state.battleLog, entry].slice(-MAX_LOG_ENTRIES),
     })),
 
   clearLog: () =>
@@ -62,7 +63,13 @@ const useUIStore = create((set, get) => ({
     set({ targetingMode: true, targetingCardId: cardId }),
 
   cancelTargeting: () =>
-    set({ targetingMode: false, targetingCardId: null }),
+    set({ targetingMode: false, targetingCardId: null, pendingSpell: null }),
+
+  setPendingSpell: (card) =>
+    set({ pendingSpell: card }),
+
+  clearPendingSpell: () =>
+    set({ pendingSpell: null }),
 
   // Reset
   resetUI: () =>
@@ -76,6 +83,7 @@ const useUIStore = create((set, get) => ({
       damageNumbers: [],
       targetingMode: false,
       targetingCardId: null,
+      pendingSpell: null,
     }),
 }));
 

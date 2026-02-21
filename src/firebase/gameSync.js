@@ -1,6 +1,6 @@
 import { db } from './config';
 import { ref, update, onValue } from 'firebase/database';
-import { PLAYERS } from '../data/constants';
+import { PLAYERS, STARTING_HP, MAX_HP } from '../data/constants';
 import usePlayerStore from '../stores/usePlayerStore';
 import useOpponentStore from '../stores/useOpponentStore';
 import useGameStore from '../stores/useGameStore';
@@ -72,8 +72,8 @@ function cleanUndefined(obj) {
 
 function serializeState(state) {
   return cleanUndefined({
-    hp: state.hp ?? 50,
-    maxHp: state.maxHp ?? 50,
+    hp: state.hp ?? STARTING_HP,
+    maxHp: state.maxHp ?? MAX_HP,
     mana: state.mana ?? 0,
     maxMana: state.maxMana ?? 0,
     fatigueDamage: state.fatigueDamage ?? 0,
@@ -84,7 +84,7 @@ function serializeState(state) {
         ...c,
         canAttack: c.canAttack || false,
         exhausted: c.exhausted || false,
-        shield: c.shield || false,
+        shield: c.shield || 0,
       })
     ),
     graveyard: (state.graveyard || []).map((c) => cleanUndefined({ ...c })),
@@ -276,8 +276,8 @@ export function startGameListener(roomCode, myRole) {
 function loadStateIntoStore(store, data) {
   if (!data) return;
   store.setState({
-    hp: data.hp ?? 50,
-    maxHp: data.maxHp ?? 50,
+    hp: data.hp ?? STARTING_HP,
+    maxHp: data.maxHp ?? MAX_HP,
     mana: data.mana ?? 0,
     maxMana: data.maxMana ?? 0,
     fatigueDamage: data.fatigueDamage || 0,

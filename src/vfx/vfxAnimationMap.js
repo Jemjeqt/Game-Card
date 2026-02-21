@@ -1,301 +1,492 @@
 /**
- * VFX Animation Map
+ * VFX Animation Map — 3-Phase Architecture
  *
- * Maps VFX event types → animation configuration objects.
- * Each config describes what the VFXLayer should render (animation class,
- * duration, intensity by rarity, overlay type, particles, floating text, etc.).
+ * Every VFX animation has three sequential phases:
+ *   1. WINDUP  — anticipation (scale-up, charge glow, darkener)
+ *   2. IMPACT  — main visual hit (burst, flash, particles, shockwave)
+ *   3. RESOLVE — dissipation (fade-out, particles settle)
  *
- * Rarity intensities:
- *   common    – subtle, fast (<300ms)
- *   rare      – additional glow
- *   epic      – light burst + slight screen emphasis
- *   legendary – shockwave + short screen darken (max 200ms)
+ * Rarity configurations (hard cap: 600ms total, darken ≤200ms):
+ *   Common:    ×1.0 (200–300ms), 4 particles, no screen/shake
+ *   Rare:      ×1.1, 6 particles, soft glow at impact
+ *   Epic:      ×1.25 (max 450ms), 10 particles, light burst + micro shake
+ *   Legendary: ×1.4 (max 550–600ms), 14–18 particles, darken + shockwave + shake
+ *
+ * All configs are scaled by performanceDetector before rendering.
  */
 
 import { VFX_EVENTS } from './vfxEvents';
+import { applyAdaptiveScaling } from './performanceDetector';
 
-// ── Rarity duration multipliers ──────────────────────────────
-const RARITY_SCALE = {
-  common:    { duration: 1.0, intensity: 0.6, particles: 4,  glow: false, burst: false, darken: false },
-  rare:      { duration: 1.1, intensity: 0.8, particles: 6,  glow: true,  burst: false, darken: false },
-  epic:      { duration: 1.2, intensity: 1.0, particles: 10, glow: true,  burst: true,  darken: false },
-  legendary: { duration: 1.0, intensity: 1.0, particles: 14, glow: true,  burst: true,  darken: true  },
+// ── Hard caps ────────────────────────────────────────────────
+const MAX_TOTAL_DURATION = 600;
+const MAX_DARKEN_DURATION = 200;
+const MAX_LEGENDARY_DURATION = 600;
+
+// ── Rarity scaling parameters ────────────────────────────────
+const RARITY_CONFIG = {
+  common: {
+    durationMul: 1.0,     // base 200–300ms
+    particles:   4,
+    glow:        false,
+    burst:       false,
+    darken:      false,
+    shake:       false,
+    shakeIntensity: 0,
+  },
+  rare: {
+    durationMul: 1.1,
+    particles:   6,
+    glow:        true,    // soft glow at impact
+    burst:       false,
+    darken:      false,
+    shake:       false,
+    shakeIntensity: 0,
+  },
+  epic: {
+    durationMul: 1.25,    // max 450ms
+    particles:   10,
+    glow:        true,
+    burst:       true,    // light burst at impact
+    darken:      false,
+    shake:       true,    // micro shake
+    shakeIntensity: 2,    // px
+  },
+  legendary: {
+    durationMul: 1.4,     // max 550–600ms
+    particles:   16,
+    glow:        true,
+    burst:       true,
+    darken:      true,    // screen darken during windup (150–200ms)
+    shake:       true,    // controlled shake
+    shakeIntensity: 4,    // px
+  },
 };
 
-export function getRarityScale(rarity) {
-  return RARITY_SCALE[rarity] || RARITY_SCALE.common;
+function getRarity(rarity) {
+  return RARITY_CONFIG[rarity] || RARITY_CONFIG.common;
 }
 
-// ── Animation configs per event ──────────────────────────────
+// ── Helper: generate unique ID ───────────────────────────────
+let _counter = 0;
+function uid(prefix) {
+  return `${prefix}_${++_counter}_${Date.now().toString(36)}`;
+}
+
+// ── Helper: clamp total duration ─────────────────────────────
+function clampDuration(base, mul, max = MAX_TOTAL_DURATION) {
+  return Math.min(Math.round(base * mul), max);
+}
+
+// ── Helper: compute 3-phase timing ───────────────────────────
+function computePhases(totalDuration, rarityConfig) {
+  // Phase distribution: windup 25%, impact 35%, resolve 40%
+  const windup  = Math.round(totalDuration * 0.25);
+  const impact  = Math.round(totalDuration * 0.35);
+  const resolve = totalDuration - windup - impact;
+  return { windup, impact, resolve };
+}
+
+// ═══════════════════════════════════════════════════════════
+//   ANIMATION MAP — each event → config factory
+// ═══════════════════════════════════════════════════════════
 
 const ANIMATION_MAP = {
-  // ── Card Played ────────────────────────────────────────────
+
+  // ── CARD PLAYED ────────────────────────────────────────────
   [VFX_EVENTS.CARD_PLAYED]: (payload) => {
-    const rs = getRarityScale(payload.rarity);
+    const rc = getRarity(payload.rarity);
     const isLegendary = payload.rarity === 'legendary';
     const isSpell = payload.cardType === 'spell';
 
-    return {
-      id: `play_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      // Screen-level effect
+    const baseDuration = isLegendary ? 550 : 300;
+    const total = clampDuration(baseDuration, rc.durationMul, isLegendary ? MAX_LEGENDARY_DURATION : MAX_TOTAL_DURATION);
+    const phases = computePhases(total, rc);
+
+    return applyAdaptiveScaling({
+      id: uid('play'),
+      phases,
+
+      // Screen darken (legendary) or flash (epic burst)
       screen: isLegendary
-        ? { type: 'darken', duration: 200, intensity: 0.7 }
-        : rs.burst
-          ? { type: 'flash', duration: 180, color: isSpell ? 'purple' : 'gold' }
+        ? { type: 'darken', duration: Math.min(phases.windup + 50, MAX_DARKEN_DURATION), intensity: 0.65 }
+        : rc.burst
+          ? { type: 'flash', duration: phases.impact, color: isSpell ? 'purple' : 'gold' }
           : null,
+
+      // Camera shake
+      cameraShake: rc.shake
+        ? { intensity: rc.shakeIntensity, duration: phases.impact }
+        : null,
+
       // Center overlay
       overlay: isLegendary
-        ? {
-            type: 'legendary_entrance',
-            icon: payload.icon,
-            name: payload.name,
-            duration: 1800,
-          }
+        ? { type: 'legendary_entrance', icon: payload.icon, name: payload.name, duration: total }
         : isSpell
-          ? {
-              type: 'spell_cast',
-              icon: payload.icon,
-              name: payload.name,
-              duration: Math.round(600 * rs.duration),
-            }
+          ? { type: 'spell_cast', icon: payload.icon, name: payload.name, duration: total }
           : null,
-      // Floating text
+
       floatingText: null,
-      // Particles
-      particles: isLegendary
-        ? { color: 'gold', count: rs.particles, spread: 140, duration: 1200 }
-        : rs.glow
-          ? { color: isSpell ? 'purple' : 'gold', count: rs.particles, spread: 80, duration: Math.round(500 * rs.duration) }
-          : null,
-      // Total duration (auto-cleanup)
-      totalDuration: isLegendary ? 2000 : Math.round(700 * rs.duration),
-    };
+
+      // Particles at impact phase
+      particles: (rc.glow || isLegendary)
+        ? {
+            color: isLegendary ? 'gold' : isSpell ? 'purple' : 'gold',
+            count: rc.particles,
+            spread: isLegendary ? 140 : 80,
+            duration: phases.impact + phases.resolve,
+            delay: phases.windup,
+            noGlow: false,
+          }
+        : null,
+
+      totalDuration: total,
+    });
   },
 
-  // ── Damage Applied ─────────────────────────────────────────
+  // ── DAMAGE APPLIED ─────────────────────────────────────────
   [VFX_EVENTS.DAMAGE_APPLIED]: (payload) => {
-    const rs = getRarityScale(payload.rarity);
-    return {
-      id: `dmg_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      screen: { type: 'flash', duration: Math.round(150 * rs.duration), color: 'red' },
+    const rc = getRarity(payload.rarity);
+    const total = clampDuration(250, rc.durationMul);
+    const phases = computePhases(total, rc);
+
+    return applyAdaptiveScaling({
+      id: uid('dmg'),
+      phases,
+
+      screen: { type: 'flash', duration: phases.impact, color: 'red' },
+
+      cameraShake: rc.shake
+        ? { intensity: rc.shakeIntensity, duration: phases.impact }
+        : null,
+
       overlay: null,
+
       floatingText: {
         text: `-${payload.value}`,
         color: '#ff4444',
         position: payload.owner === 'player' ? 'opponent-hero' : 'player-hero',
-        duration: 800,
+        duration: total + 200,
+        delay: phases.windup,
       },
-      particles: rs.burst
-        ? { color: 'fire', count: rs.particles, spread: 100, duration: 500 }
+
+      particles: rc.burst
+        ? { color: 'fire', count: rc.particles, spread: 100, duration: phases.impact + phases.resolve, delay: phases.windup }
         : null,
-      totalDuration: Math.round(600 * rs.duration),
-    };
+
+      totalDuration: total + 200,
+    });
   },
 
-  // ── AOE Damage ─────────────────────────────────────────────
+  // ── AOE DAMAGE ─────────────────────────────────────────────
   [VFX_EVENTS.AOE_DAMAGE]: (payload) => {
-    const rs = getRarityScale(payload.rarity);
-    return {
-      id: `aoe_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      screen: { type: 'flash', duration: Math.round(200 * rs.duration), color: 'red' },
-      overlay: {
-        type: 'aoe_ring',
-        duration: Math.round(800 * rs.duration),
-      },
+    const rc = getRarity(payload.rarity);
+    const total = clampDuration(400, rc.durationMul);
+    const phases = computePhases(total, rc);
+
+    return applyAdaptiveScaling({
+      id: uid('aoe'),
+      phases,
+
+      screen: { type: 'flash', duration: phases.impact, color: 'red' },
+
+      cameraShake: rc.shake
+        ? { intensity: rc.shakeIntensity + 1, duration: phases.impact + 50 }
+        : null,
+
+      overlay: { type: 'aoe_ring', duration: total },
+
       floatingText: {
         text: `AOE -${payload.value}`,
         color: '#ff6644',
         position: 'center',
-        duration: 900,
+        duration: total + 200,
+        delay: phases.windup,
       },
-      particles: { color: 'fire', count: rs.particles, spread: 150, duration: Math.round(700 * rs.duration) },
-      totalDuration: Math.round(900 * rs.duration),
-    };
+
+      particles: {
+        color: 'fire', count: rc.particles, spread: 150,
+        duration: phases.impact + phases.resolve,
+        delay: phases.windup,
+      },
+
+      totalDuration: total + 200,
+    });
   },
 
-  // ── Heal Applied ───────────────────────────────────────────
+  // ── HEAL APPLIED ───────────────────────────────────────────
   [VFX_EVENTS.HEAL_APPLIED]: (payload) => {
-    const rs = getRarityScale(payload.rarity);
-    return {
-      id: `heal_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    const rc = getRarity(payload.rarity);
+    const total = clampDuration(300, rc.durationMul);
+    const phases = computePhases(total, rc);
+
+    return applyAdaptiveScaling({
+      id: uid('heal'),
+      phases,
       screen: null,
-      overlay: {
-        type: 'heal_glow',
-        duration: Math.round(700 * rs.duration),
-      },
+      cameraShake: null,
+
+      overlay: { type: 'heal_glow', duration: total },
+
       floatingText: {
         text: `+${payload.value}`,
         color: '#44ff88',
         position: payload.owner === 'player' ? 'player-hero' : 'opponent-hero',
-        duration: 800,
+        duration: total + 200,
+        delay: phases.windup,
       },
-      particles: { color: 'heal', count: rs.particles, spread: 80, duration: Math.round(600 * rs.duration) },
-      totalDuration: Math.round(800 * rs.duration),
-    };
+
+      particles: {
+        color: 'heal', count: rc.particles, spread: 80,
+        duration: phases.impact + phases.resolve,
+        delay: phases.windup,
+      },
+
+      totalDuration: total + 200,
+    });
   },
 
-  // ── Minion Died ────────────────────────────────────────────
+  // ── MINION DIED ────────────────────────────────────────────
   [VFX_EVENTS.MINION_DIED]: (payload) => {
-    const rs = getRarityScale(payload.rarity);
-    return {
-      id: `death_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      screen: rs.darken ? { type: 'darken', duration: 200, intensity: 0.4 } : null,
-      overlay: {
-        type: 'void_implode',
-        icon: '💀',
-        duration: Math.round(700 * rs.duration),
-      },
+    const rc = getRarity(payload.rarity);
+    const total = clampDuration(350, rc.durationMul);
+    const phases = computePhases(total, rc);
+
+    return applyAdaptiveScaling({
+      id: uid('death'),
+      phases,
+
+      screen: rc.darken
+        ? { type: 'darken', duration: Math.min(phases.windup, MAX_DARKEN_DURATION), intensity: 0.35 }
+        : null,
+
+      cameraShake: rc.shake
+        ? { intensity: rc.shakeIntensity, duration: phases.impact }
+        : null,
+
+      overlay: { type: 'void_implode', icon: '💀', duration: total },
+
       floatingText: null,
-      particles: { color: 'dark', count: rs.particles, spread: 90, duration: 600 },
-      totalDuration: Math.round(800 * rs.duration),
-    };
+
+      particles: {
+        color: 'dark', count: rc.particles, spread: 90,
+        duration: phases.impact + phases.resolve,
+        delay: phases.windup,
+      },
+
+      totalDuration: total,
+    });
   },
 
-  // ── Minion Summoned ────────────────────────────────────────
+  // ── MINION SUMMONED ────────────────────────────────────────
   [VFX_EVENTS.MINION_SUMMONED]: (payload) => {
-    const rs = getRarityScale(payload.rarity);
-    return {
-      id: `summon_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    const rc = getRarity(payload.rarity);
+    const total = clampDuration(300, rc.durationMul);
+    const phases = computePhases(total, rc);
+
+    return applyAdaptiveScaling({
+      id: uid('summon'),
+      phases,
       screen: null,
-      overlay: {
-        type: 'portal_summon',
-        icon: payload.icon || '👻',
-        duration: Math.round(700 * rs.duration),
-      },
+      cameraShake: null,
+
+      overlay: { type: 'portal_summon', icon: payload.icon || '👻', duration: total },
+
       floatingText: null,
-      particles: { color: 'purple', count: rs.particles, spread: 70, duration: Math.round(600 * rs.duration) },
-      totalDuration: Math.round(800 * rs.duration),
-    };
+
+      particles: {
+        color: 'purple', count: rc.particles, spread: 70,
+        duration: phases.impact + phases.resolve,
+        delay: phases.windup,
+      },
+
+      totalDuration: total,
+    });
   },
 
-  // ── Buff Applied ───────────────────────────────────────────
+  // ── BUFF APPLIED ───────────────────────────────────────────
   [VFX_EVENTS.BUFF_APPLIED]: (payload) => {
-    const rs = getRarityScale(payload.rarity);
-    return {
-      id: `buff_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    const rc = getRarity(payload.rarity);
+    const total = clampDuration(250, rc.durationMul);
+    const phases = computePhases(total, rc);
+
+    return applyAdaptiveScaling({
+      id: uid('buff'),
+      phases,
       screen: null,
-      overlay: {
-        type: 'buff_glow',
-        duration: Math.round(500 * rs.duration),
-      },
+      cameraShake: null,
+
+      overlay: { type: 'buff_glow', duration: total },
+
       floatingText: {
         text: `+${payload.value}`,
         color: '#ffd700',
         position: 'center',
-        duration: 700,
+        duration: total + 150,
+        delay: phases.windup,
       },
-      particles: rs.glow
-        ? { color: 'gold', count: rs.particles, spread: 60, duration: Math.round(400 * rs.duration) }
+
+      particles: rc.glow
+        ? { color: 'gold', count: rc.particles, spread: 60, duration: phases.impact + phases.resolve, delay: phases.windup }
         : null,
-      totalDuration: Math.round(600 * rs.duration),
-    };
+
+      totalDuration: total + 150,
+    });
   },
 
-  // ── Shield Applied ─────────────────────────────────────────
+  // ── SHIELD APPLIED ─────────────────────────────────────────
   [VFX_EVENTS.SHIELD_APPLIED]: (payload) => {
-    const rs = getRarityScale(payload.rarity);
-    return {
-      id: `shield_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    const rc = getRarity(payload.rarity);
+    const total = clampDuration(280, rc.durationMul);
+    const phases = computePhases(total, rc);
+
+    return applyAdaptiveScaling({
+      id: uid('shield'),
+      phases,
       screen: null,
-      overlay: {
-        type: 'shield_barrier',
-        duration: Math.round(600 * rs.duration),
-      },
+      cameraShake: null,
+
+      overlay: { type: 'shield_barrier', duration: total },
+
       floatingText: {
         text: `🛡️ +${payload.value}`,
         color: '#64b4ff',
         position: 'center',
-        duration: 700,
+        duration: total + 150,
+        delay: phases.windup,
       },
-      particles: { color: 'cyan', count: rs.particles, spread: 70, duration: Math.round(500 * rs.duration) },
-      totalDuration: Math.round(700 * rs.duration),
-    };
+
+      particles: {
+        color: 'cyan', count: rc.particles, spread: 70,
+        duration: phases.impact + phases.resolve,
+        delay: phases.windup,
+      },
+
+      totalDuration: total + 150,
+    });
   },
 
-  // ── Draw Cards ─────────────────────────────────────────────
+  // ── DRAW CARDS ─────────────────────────────────────────────
   [VFX_EVENTS.DRAW_CARDS]: (payload) => {
-    const rs = getRarityScale(payload.rarity);
-    return {
-      id: `draw_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    const rc = getRarity(payload.rarity);
+    const total = clampDuration(200, rc.durationMul);
+    const phases = computePhases(total, rc);
+
+    return applyAdaptiveScaling({
+      id: uid('draw'),
+      phases,
       screen: null,
-      overlay: {
-        type: 'draw_glow',
-        duration: Math.round(400 * rs.duration),
-      },
+      cameraShake: null,
+
+      overlay: { type: 'draw_glow', duration: total },
+
       floatingText: {
         text: `Draw ${payload.value}`,
         color: '#00c8ff',
         position: 'center',
-        duration: 600,
+        duration: total + 100,
+        delay: phases.windup,
       },
+
       particles: null,
-      totalDuration: Math.round(500 * rs.duration),
-    };
+      totalDuration: total + 100,
+    });
   },
 
-  // ── Steal Effect ───────────────────────────────────────────
+  // ── STEAL EFFECT ───────────────────────────────────────────
   [VFX_EVENTS.STEAL_EFFECT]: (payload) => {
-    const rs = getRarityScale(payload.rarity);
-    return {
-      id: `steal_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    const rc = getRarity(payload.rarity);
+    const total = clampDuration(300, rc.durationMul);
+    const phases = computePhases(total, rc);
+
+    return applyAdaptiveScaling({
+      id: uid('steal'),
+      phases,
       screen: null,
-      overlay: {
-        type: 'drain_spiral',
-        icon: payload.icon || '👁️',
-        duration: Math.round(600 * rs.duration),
-      },
+      cameraShake: null,
+
+      overlay: { type: 'drain_spiral', icon: payload.icon || '👁️', duration: total },
+
       floatingText: {
         text: `Steal ${payload.value}`,
         color: '#c832ff',
         position: 'center',
-        duration: 700,
+        duration: total + 150,
+        delay: phases.windup,
       },
-      particles: { color: 'purple', count: rs.particles, spread: 80, duration: 500 },
-      totalDuration: Math.round(700 * rs.duration),
-    };
+
+      particles: {
+        color: 'purple', count: rc.particles, spread: 80,
+        duration: phases.impact + phases.resolve,
+        delay: phases.windup,
+      },
+
+      totalDuration: total + 150,
+    });
   },
 
-  // ── Self Damage ────────────────────────────────────────────
+  // ── SELF DAMAGE ────────────────────────────────────────────
   [VFX_EVENTS.SELF_DAMAGE]: (payload) => {
-    return {
-      id: `selfdmg_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      screen: { type: 'flash', duration: 150, color: 'dark-red' },
+    const total = 250;
+    const phases = computePhases(total, RARITY_CONFIG.common);
+
+    return applyAdaptiveScaling({
+      id: uid('selfdmg'),
+      phases,
+
+      screen: { type: 'flash', duration: phases.impact, color: 'dark-red' },
+      cameraShake: null,
       overlay: null,
+
       floatingText: {
         text: `-${payload.value}`,
         color: '#cc3333',
         position: payload.owner === 'player' ? 'player-hero' : 'opponent-hero',
-        duration: 700,
+        duration: total + 150,
+        delay: phases.windup,
       },
+
       particles: null,
-      totalDuration: 500,
-    };
+      totalDuration: total + 150,
+    });
   },
 
-  // ── Poison Tick ────────────────────────────────────────────
+  // ── POISON TICK ────────────────────────────────────────────
   [VFX_EVENTS.POISON_TICK]: (payload) => {
-    return {
-      id: `poison_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    const total = 300;
+    const phases = computePhases(total, RARITY_CONFIG.common);
+
+    return applyAdaptiveScaling({
+      id: uid('poison'),
+      phases,
       screen: null,
-      overlay: {
-        type: 'poison_aura',
-        duration: 600,
-      },
+      cameraShake: null,
+
+      overlay: { type: 'poison_aura', duration: total },
+
       floatingText: {
         text: `☠ -${payload.value}`,
         color: '#44cc44',
         position: 'center',
-        duration: 700,
+        duration: total + 150,
+        delay: phases.windup,
       },
-      particles: { color: 'poison', count: 6, spread: 50, duration: 500 },
-      totalDuration: 700,
-    };
+
+      particles: {
+        color: 'poison', count: 4, spread: 50,
+        duration: phases.impact + phases.resolve,
+        delay: phases.windup,
+      },
+
+      totalDuration: total + 150,
+    });
   },
 };
 
 /**
  * Resolve an event name + payload into a VFX animation config.
  * Returns null if no mapping exists.
+ * Config is already adaptively scaled.
  */
 export function resolveVFXConfig(eventName, payload) {
   const resolver = ANIMATION_MAP[eventName];

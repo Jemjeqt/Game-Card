@@ -4,11 +4,12 @@ import usePlayerStore from '../../stores/usePlayerStore';
 import useOpponentStore from '../../stores/useOpponentStore';
 import useGameStore from '../../stores/useGameStore';
 import useUIStore from '../../stores/useUIStore';
-import { PHASES, PLAYERS, LOG_TYPES } from '../../data/constants';
+import useQuestStore from '../../stores/useQuestStore';
+import { PHASES, PLAYERS, LOG_TYPES, RARITY } from '../../data/constants';
 import { TARGETS } from '../../data/effects';
 import { resolveAttack } from '../../engine/combatResolver';
 import { checkGameOver } from '../../engine/gameRules';
-import { applyBuffDefenseToMinion } from '../../engine/effectResolver';
+import { applyBuffDefenseToMinion, incrementCardsPlayed } from '../../engine/effectResolver';
 import { createLogEntry } from '../../utils/logger';
 import useMultiplayerStore from '../../stores/useMultiplayerStore';
 import { syncMultiplayerState } from '../../firebase/gameSync';
@@ -54,7 +55,7 @@ export default function PlayerField() {
   };
 
   const handleTargetSelection = (minion) => {
-    const pendingSpell = window.__pendingSpell;
+    const pendingSpell = useUIStore.getState().pendingSpell;
     if (!pendingSpell) {
       useUIStore.getState().cancelTargeting();
       return;
@@ -62,6 +63,28 @@ export default function PlayerField() {
 
     const addLog = (text) =>
       useUIStore.getState().addLogEntry(createLogEntry(text, LOG_TYPES.EFFECT));
+
+    // Now spend mana and remove from hand (deferred from PlayerHand)
+    if (!usePlayerStore.getState().spendMana(pendingSpell.manaCost)) {
+      useUIStore.getState().cancelTargeting();
+      return;
+    }
+    usePlayerStore.getState().removeFromHand(pendingSpell.instanceId);
+
+    // Track combo + quest
+    incrementCardsPlayed();
+    useQuestStore.getState().trackEvent('spells_cast', 1);
+    if (pendingSpell.rarity === RARITY.LEGENDARY) {
+      useQuestStore.getState().trackEvent('legendaries_played', 1);
+    }
+
+    // Log the play
+    useUIStore.getState().addLogEntry(
+      createLogEntry(
+        `You played ${pendingSpell.name} (${pendingSpell.manaCost} mana)`,
+        LOG_TYPES.PLAY
+      )
+    );
 
     // Apply buff defense
     const effects = Array.isArray(pendingSpell.effect)
@@ -83,7 +106,6 @@ export default function PlayerField() {
     usePlayerStore.getState().addToGraveyard(pendingSpell);
 
     // Clear targeting
-    window.__pendingSpell = null;
     useUIStore.getState().cancelTargeting();
   };
 

@@ -4,7 +4,8 @@ import useUIStore from '../../stores/useUIStore';
 export default function BattleLog() {
   const battleLog = useUIStore((s) => s.battleLog);
   const scrollRef = useRef(null);
-  const [minimized, setMinimized] = useState(false);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 640;
+  const [minimized, setMinimized] = useState(isMobile);
 
   // Auto-scroll to bottom
   useEffect(() => {

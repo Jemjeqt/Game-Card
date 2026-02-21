@@ -50,6 +50,22 @@ export default function PlayerHand() {
     const addLog = (text) =>
       useUIStore.getState().addLogEntry(createLogEntry(text, LOG_TYPES.EFFECT));
 
+    if (card.type !== CARD_TYPES.MINION) {
+      // Spell — check if it needs targeting BEFORE spending mana
+      const effects = Array.isArray(card.effect) ? card.effect : [card.effect];
+      const needsTarget = effects.some(
+        (e) => e && e.target === TARGETS.FRIENDLY_MINION
+      );
+
+      if (needsTarget && board.length > 0) {
+        // Enter targeting mode WITHOUT spending mana or removing card
+        useUIStore.getState().setTargetingMode(card.instanceId);
+        useUIStore.getState().setPendingSpell(card);
+        useUIStore.getState().clearSelection();
+        return; // Wait for target selection (PlayerField will finalize)
+      }
+    }
+
     // Spend mana
     if (!usePlayerStore.getState().spendMana(card.manaCost)) return;
 
@@ -93,41 +109,23 @@ export default function PlayerHand() {
         addLog,
       });
 
-      // Emit VFX for the first meaningful effect result
+      // Emit VFX for all meaningful effect results
       for (const r of results) {
         if (r && r.type !== 'needsTarget') {
           if (card.rarity !== 'legendary') {
             emitAbilityTriggered(r, card, 'player');
           }
-          break;
         }
       }
 
-      // Handle targeted effects — for now, auto-select best target for simplicity
-      // (can be enhanced later with targeting UI)
+      // Handle targeted effects — auto-select best target for simplicity
       for (const result of results) {
         if (result && result.type === 'needsTarget') {
-          // For Mystic Shield on player's minion
           handleTargetedEffect(result, card);
         }
       }
     } else {
-      // Spell — check if it needs targeting
-      const effects = Array.isArray(card.effect) ? card.effect : [card.effect];
-      const needsTarget = effects.some(
-        (e) => e && e.target === TARGETS.FRIENDLY_MINION
-      );
-
-      if (needsTarget && board.length > 0) {
-        // Enter targeting mode
-        useUIStore.getState().setTargetingMode(card.instanceId);
-        // Store the card data for later resolution
-        window.__pendingSpell = card;
-        useUIStore.getState().clearSelection();
-        return; // Don't resolve yet
-      }
-
-      // No targeting needed — resolve effects
+      // Non-targeted spell — resolve effects directly
       const results = resolveEffects({
         card,
         trigger: TRIGGERS.ON_PLAY,
@@ -136,10 +134,10 @@ export default function PlayerHand() {
         addLog,
       });
 
-      // Emit VFX for spell effects (if not legendary)
+      // Emit VFX for all spell effect results
       if (card.rarity !== 'legendary') {
         for (const r of results) {
-          if (r) { emitAbilityTriggered(r, card, 'player'); break; }
+          if (r) { emitAbilityTriggered(r, card, 'player'); }
         }
       }
 
@@ -149,8 +147,8 @@ export default function PlayerHand() {
 
     useUIStore.getState().clearSelection();
     const isOver = checkGameOver();
-    // In multiplayer, sync after playing a card (especially if game over from spell)
-    if (isOver && useMultiplayerStore.getState().isMultiplayer) {
+    // In multiplayer, sync after playing a card
+    if (useMultiplayerStore.getState().isMultiplayer) {
       syncMultiplayerState(false).catch(console.error);
     }
   };
@@ -184,7 +182,7 @@ export default function PlayerHand() {
           const isPlayable =
             isPlayerMainPhase &&
             card.manaCost <= mana &&
-            (card.type !== CARD_TYPES.MINION || board.length < 5);
+            (card.type !== CARD_TYPES.MINION || board.length < MAX_BOARD_SIZE);
 
           return (
             <div key={card.instanceId} className="hand__card-wrapper">

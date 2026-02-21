@@ -1,15 +1,59 @@
 /* =============================================================
-   VFX LAYER — Declarative CSS Animations
+   VFX LAYER — 3-Phase Declarative CSS Animations
    
    Architecture:
+     - 3-phase animation: windup → impact → resolve
      - All animations use CSS @keyframes (declarative, GPU-composited)
      - No JavaScript-driven layout → no forced reflows
      - position: fixed on portal → no board layout interference
-     - Each component self-destructs via animationend callback
-   
-   Performance targets: 60fps on all effects.
-   Only transform + opacity are animated (GPU layer promotion).
+     - Each component self-destructs via timeout callback
+     - Camera shake via CSS transform on dedicated element
+     - Adaptive: prefers-reduced-motion, mobile/tablet/desktop
+
+   Performance targets: 60fps. Only transform + opacity animated.
+   Hard caps: 600ms total, 200ms screen darken.
    ============================================================= */
+
+
+/* ─── CAMERA SHAKE ────────────────────────────────────────── */
+.vfx-camera-shake {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  will-change: transform;
+  animation: vfx-shake ease-out forwards;
+}
+
+@keyframes vfx-shake {
+  0%   { transform: translate(0, 0); }
+  10%  { transform: translate(
+           calc(var(--shake-intensity, 3px) * -0.8),
+           calc(var(--shake-intensity, 3px) * 0.6)); }
+  20%  { transform: translate(
+           calc(var(--shake-intensity, 3px) * 0.9),
+           calc(var(--shake-intensity, 3px) * -0.7)); }
+  30%  { transform: translate(
+           calc(var(--shake-intensity, 3px) * -0.6),
+           calc(var(--shake-intensity, 3px) * 0.9)); }
+  40%  { transform: translate(
+           calc(var(--shake-intensity, 3px) * 0.7),
+           calc(var(--shake-intensity, 3px) * -0.5)); }
+  50%  { transform: translate(
+           calc(var(--shake-intensity, 3px) * -0.4),
+           calc(var(--shake-intensity, 3px) * 0.3)); }
+  60%  { transform: translate(
+           calc(var(--shake-intensity, 3px) * 0.3),
+           calc(var(--shake-intensity, 3px) * -0.2)); }
+  70%  { transform: translate(
+           calc(var(--shake-intensity, 3px) * -0.15),
+           calc(var(--shake-intensity, 3px) * 0.1)); }
+  80%  { transform: translate(
+           calc(var(--shake-intensity, 3px) * 0.05),
+           calc(var(--shake-intensity, 3px) * -0.05)); }
+  100% { transform: translate(0, 0); }
+}
+
 
 /* ─── BASE: Particles ─────────────────────────────────────── */
 .vfx-particles {
@@ -30,6 +74,11 @@
   will-change: transform, opacity;
   animation: vfx-particle-burst 0.8s ease-out forwards;
   animation-delay: var(--delay, 0s);
+}
+
+/* No-glow modifier — strips box-shadow for low-end devices */
+.vfx-particle--no-glow {
+  box-shadow: none !important;
 }
 
 .vfx-particle--gold {
@@ -62,8 +111,12 @@
 }
 
 @keyframes vfx-particle-burst {
-  0%   { opacity: 1; transform: rotate(var(--angle)) translateX(0) scale(1); }
+  /* Windup: gather */
+  0%   { opacity: 1; transform: rotate(var(--angle)) translateX(0) scale(0.6); }
+  /* Impact: burst outward */
+  25%  { opacity: 1; transform: rotate(var(--angle)) translateX(calc(var(--distance) * 0.3)) scale(1.2); }
   60%  { opacity: 0.9; transform: rotate(var(--angle)) translateX(var(--distance)) scale(1.1); }
+  /* Resolve: fade */
   100% { opacity: 0; transform: rotate(var(--angle)) translateX(calc(var(--distance) + 20px)) scale(0); }
 }
 
@@ -83,8 +136,11 @@
 }
 
 @keyframes vfx-float-up {
+  /* Windup: appear small */
   0%   { opacity: 0; transform: translateX(-50%) translateY(0) scale(0.6); }
+  /* Impact: pop */
   15%  { opacity: 1; transform: translateX(-50%) translateY(-10px) scale(1.2); }
+  /* Resolve: float away */
   40%  { transform: translateX(-50%) translateY(-24px) scale(1); }
   100% { opacity: 0; transform: translateX(-50%) translateY(-60px) scale(0.8); }
 }
@@ -99,7 +155,7 @@
   z-index: 10;
 }
 
-/* Flash variants */
+/* Flash variants — 3-phase: fast ramp → hold → fade */
 .vfx-screen--flash {
   animation: vfx-screen-flash ease-out forwards;
 }
@@ -115,14 +171,14 @@
   100% { background: transparent; }
 }
 
-/* Darken variant */
+/* Darken variant — windup: darken, impact: hold, resolve: lighten (max 200ms) */
 .vfx-screen--darken {
   animation: vfx-screen-darken ease-in-out forwards;
 }
 @keyframes vfx-screen-darken {
   0%   { background: transparent; }
-  20%  { background: rgba(0, 0, 0, var(--darken-intensity, 0.5)); }
-  80%  { background: rgba(0, 0, 0, var(--darken-intensity, 0.5)); }
+  25%  { background: rgba(0, 0, 0, var(--darken-intensity, 0.5)); }
+  75%  { background: rgba(0, 0, 0, var(--darken-intensity, 0.5)); }
   100% { background: transparent; }
 }
 
@@ -140,18 +196,23 @@
 
 
 /* ═══════════════════════════════════════════════════════════
-   LEGENDARY ENTRANCE
+   LEGENDARY ENTRANCE — 3-Phase
+   Windup: darken + charge glow
+   Impact: burst + icon reveal
+   Resolve: fade out
    ═══════════════════════════════════════════════════════════ */
 .vfx-le__darkener {
   position: absolute;
   inset: 0;
   background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.8) 100%);
-  animation: vfx-le-darken 1.8s ease-in-out forwards;
+  animation: vfx-le-darken ease-in-out forwards;
 }
 @keyframes vfx-le-darken {
+  /* Windup */
   0%   { opacity: 0; }
-  15%  { opacity: 1; }
-  80%  { opacity: 1; }
+  25%  { opacity: 1; }
+  /* Impact + Resolve */
+  75%  { opacity: 1; }
   100% { opacity: 0; }
 }
 
@@ -165,8 +226,12 @@
   animation: vfx-le-burst ease-out forwards;
 }
 @keyframes vfx-le-burst {
-  0%   { transform: scale(0); opacity: 1; }
-  40%  { transform: scale(1.5); opacity: 0.8; }
+  /* Windup: charge */
+  0%   { transform: scale(0); opacity: 0.4; }
+  25%  { transform: scale(0.3); opacity: 0.8; }
+  /* Impact: explode */
+  50%  { transform: scale(2); opacity: 1; }
+  /* Resolve: dissipate */
   100% { transform: scale(3.5); opacity: 0; }
 }
 
@@ -181,9 +246,12 @@
   animation: vfx-le-entrance ease-out forwards;
 }
 @keyframes vfx-le-entrance {
+  /* Windup: hidden, building energy */
   0%   { opacity: 0; transform: scale(0.3) translateY(20px); filter: brightness(3); }
-  20%  { opacity: 1; transform: scale(1.3) translateY(-5px); filter: brightness(2); }
+  /* Impact: slam in */
+  25%  { opacity: 1; transform: scale(1.3) translateY(-5px); filter: brightness(2); }
   40%  { transform: scale(1) translateY(0); filter: brightness(1.2); }
+  /* Resolve: hold then fade */
   70%  { opacity: 1; filter: brightness(1); }
   100% { opacity: 0; transform: scale(0.85) translateY(-10px); }
 }
@@ -212,7 +280,7 @@
 
 
 /* ═══════════════════════════════════════════════════════════
-   AOE RING
+   AOE RING — 3-Phase
    ═══════════════════════════════════════════════════════════ */
 .vfx-aoe-ring {
   position: absolute;
@@ -225,12 +293,16 @@
   animation: vfx-ring-expand ease-out forwards;
 }
 .vfx-aoe-ring--delayed {
-  animation-delay: 0.12s;
+  animation-delay: 0.08s;
   border-color: rgba(255, 100, 50, 0.6);
 }
 @keyframes vfx-ring-expand {
-  0%   { transform: scale(0); opacity: 1; }
-  70%  { opacity: 0.5; }
+  /* Windup: appear */
+  0%   { transform: scale(0); opacity: 0.5; }
+  15%  { transform: scale(0.5); opacity: 1; }
+  /* Impact: rapid expand */
+  50%  { transform: scale(5); opacity: 0.6; }
+  /* Resolve: fade */
   100% { transform: scale(10); opacity: 0; }
 }
 
@@ -248,7 +320,7 @@
 
 
 /* ═══════════════════════════════════════════════════════════
-   HEAL GLOW
+   HEAL GLOW — 3-Phase
    ═══════════════════════════════════════════════════════════ */
 .vfx-heal-orb {
   width: 180px;
@@ -264,8 +336,11 @@
 .vfx-heal-orb__icon { font-size: 42px; z-index: 5; }
 
 @keyframes vfx-orb-pulse {
+  /* Windup: grow from nothing */
   0%   { transform: scale(0); opacity: 0; }
+  /* Impact: overshoot */
   30%  { transform: scale(1.2); opacity: 1; }
+  /* Resolve: expand + fade */
   70%  { opacity: 0.6; }
   100% { transform: scale(2.2); opacity: 0; }
 }
@@ -290,7 +365,7 @@
 
 
 /* ═══════════════════════════════════════════════════════════
-   SHIELD BARRIER
+   SHIELD BARRIER — 3-Phase
    ═══════════════════════════════════════════════════════════ */
 .vfx-shield-dome {
   width: 160px;
@@ -308,15 +383,18 @@
 .vfx-shield-dome__icon { font-size: 48px; z-index: 5; }
 
 @keyframes vfx-shield-expand {
+  /* Windup: grow */
   0%   { transform: scale(0); opacity: 0; }
+  /* Impact: snap + bounce */
   25%  { transform: scale(1.15); opacity: 1; }
   55%  { transform: scale(0.95); }
+  /* Resolve: dissolve */
   100% { transform: scale(1.5); opacity: 0; }
 }
 
 
 /* ═══════════════════════════════════════════════════════════
-   PORTAL SUMMON
+   PORTAL SUMMON — 3-Phase
    ═══════════════════════════════════════════════════════════ */
 .vfx-portal {
   width: 140px;
@@ -334,15 +412,18 @@
 .vfx-portal__icon { font-size: 42px; z-index: 5; }
 
 @keyframes vfx-portal-spin {
+  /* Windup: appear + start spin */
   0%   { transform: scale(0) rotate(0); opacity: 0; }
-  35%  { transform: scale(1.2) rotate(180deg); opacity: 1; }
-  65%  { transform: scale(1) rotate(270deg); }
+  25%  { transform: scale(0.8) rotate(90deg); opacity: 0.8; }
+  /* Impact: full size + fast spin */
+  50%  { transform: scale(1.2) rotate(200deg); opacity: 1; }
+  /* Resolve: shrink + complete spin */
   100% { transform: scale(0.4) rotate(360deg); opacity: 0; }
 }
 
 
 /* ═══════════════════════════════════════════════════════════
-   VOID IMPLODE (destroy / death)
+   VOID IMPLODE — 3-Phase
    ═══════════════════════════════════════════════════════════ */
 .vfx-void {
   width: 180px;
@@ -359,9 +440,12 @@
 .vfx-void__icon { font-size: 48px; z-index: 5; }
 
 @keyframes vfx-implode {
+  /* Windup: expand outward (ominous) */
   0%   { transform: scale(2); opacity: 0; }
+  /* Impact: snap to smaller */
   25%  { transform: scale(1.2); opacity: 1; }
   50%  { transform: scale(0.8); }
+  /* Resolve: implode */
   75%  { transform: scale(1.05); opacity: 0.7; }
   100% { transform: scale(0); opacity: 0; }
 }
@@ -385,7 +469,7 @@
 
 
 /* ═══════════════════════════════════════════════════════════
-   DRAIN SPIRAL (steal)
+   DRAIN SPIRAL — 3-Phase
    ═══════════════════════════════════════════════════════════ */
 .vfx-drain {
   width: 160px;
@@ -402,14 +486,17 @@
 .vfx-drain__icon { font-size: 42px; z-index: 5; }
 
 @keyframes vfx-drain-spin {
+  /* Windup: appear large */
   0%   { transform: scale(1.5) rotate(0); opacity: 0; }
+  /* Impact: spin in */
   30%  { transform: scale(1) rotate(90deg); opacity: 1; }
+  /* Resolve: collapse + complete spin */
   100% { transform: scale(0.2) rotate(360deg); opacity: 0; }
 }
 
 
 /* ═══════════════════════════════════════════════════════════
-   SPELL CAST (generic)
+   SPELL CAST
    ═══════════════════════════════════════════════════════════ */
 .vfx-spell-orb {
   width: 160px;
@@ -427,7 +514,7 @@
 
 
 /* ═══════════════════════════════════════════════════════════
-   POISON AURA
+   POISON AURA — 3-Phase
    ═══════════════════════════════════════════════════════════ */
 .vfx-poison-aura {
   width: 160px;
@@ -443,9 +530,12 @@
 .vfx-poison-aura__icon { font-size: 42px; z-index: 5; }
 
 @keyframes vfx-poison-pulse {
+  /* Windup: subtle swell */
   0%   { transform: scale(0.8); opacity: 0; }
   20%  { transform: scale(1.1); opacity: 1; }
+  /* Impact: throb */
   50%  { transform: scale(0.95); opacity: 0.8; }
+  /* Resolve: dissipate */
   80%  { transform: scale(1.05); opacity: 0.6; }
   100% { transform: scale(1.4); opacity: 0; }
 }
@@ -453,14 +543,10 @@
 
 /* ═══════════════════════════════════════════════════════════
    CARD ENTRANCE ANIMATION
-   Scale 0.8 → 1, fade-in, 150–250ms, ease-out
-   Applied via .card--entering class on board cards
    ═══════════════════════════════════════════════════════════ */
 .card--entering {
   animation: vfx-card-entrance 200ms ease-out forwards;
 }
-
-/* Rarity-specific entrance modifiers */
 .card--entering.card--common    { animation-duration: 180ms; }
 .card--entering.card--rare      { animation-duration: 200ms; filter: drop-shadow(0 0 6px var(--glow-rare, #3b82f6)); }
 .card--entering.card--epic      { animation-duration: 220ms; filter: drop-shadow(0 0 10px var(--glow-epic, #a855f7)); }
@@ -479,4 +565,94 @@
   0%   { opacity: 0; transform: scale(0.8); filter: brightness(2); }
   50%  { opacity: 1; transform: scale(1.06); filter: brightness(1.4); }
   100% { opacity: 1; transform: scale(1); filter: brightness(1); }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   ADAPTIVE: Reduced Motion
+   Respect OS/browser accessibility setting.
+   Collapses all animation to instant opacity fades.
+   ═══════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .vfx-particle,
+  .vfx-floating-text,
+  .vfx-screen,
+  .vfx-overlay-effect,
+  .vfx-le__darkener,
+  .vfx-le__burst,
+  .vfx-le__content,
+  .vfx-aoe-ring,
+  .vfx-aoe-flash,
+  .vfx-heal-orb,
+  .vfx-buff-orb,
+  .vfx-shield-dome,
+  .vfx-portal,
+  .vfx-void,
+  .vfx-draw-orb,
+  .vfx-drain,
+  .vfx-spell-orb,
+  .vfx-poison-aura,
+  .card--entering {
+    animation-duration: 150ms !important;
+    animation-timing-function: ease-out !important;
+  }
+
+  /* Disable camera shake entirely */
+  .vfx-camera-shake {
+    animation: none !important;
+  }
+
+  /* Remove box-shadow particle glow */
+  .vfx-particle {
+    box-shadow: none !important;
+  }
+
+  /* Remove heavy drop shadows */
+  .vfx-le__icon {
+    filter: none !important;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   ADAPTIVE: Mobile (≤640px viewport)
+   Reduce overlay sizes, particle sizes, font sizes
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .vfx-particle {
+    width: 6px;
+    height: 6px;
+  }
+  .vfx-floating-text {
+    font-size: 24px;
+  }
+  .vfx-le__icon     { font-size: 52px; }
+  .vfx-le__name     { font-size: 20px; }
+  .vfx-le__burst    { width: 200px; height: 200px; }
+  .vfx-heal-orb     { width: 120px; height: 120px; }
+  .vfx-buff-orb     { width: 110px; height: 110px; }
+  .vfx-shield-dome  { width: 110px; height: 110px; }
+  .vfx-portal       { width: 100px; height: 100px; }
+  .vfx-void         { width: 120px; height: 120px; }
+  .vfx-draw-orb     { width: 90px;  height: 90px; }
+  .vfx-drain        { width: 110px; height: 110px; }
+  .vfx-spell-orb    { width: 110px; height: 110px; }
+  .vfx-poison-aura  { width: 110px; height: 110px; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   ADAPTIVE: Tablet (641px–1024px)
+   Minor size reductions
+   ═══════════════════════════════════════════════════════════ */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .vfx-particle {
+    width: 7px;
+    height: 7px;
+  }
+  .vfx-floating-text {
+    font-size: 28px;
+  }
+  .vfx-le__icon     { font-size: 60px; }
+  .vfx-le__burst    { width: 250px; height: 250px; }
 }
