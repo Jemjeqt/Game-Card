@@ -8,6 +8,7 @@ export default function Card({
   isExhausted = false,
   canAttack = false,
   isTargetable = false,
+  isEntering = false,
   onClick,
   onRightClick,
   onMouseEnter,
@@ -30,6 +31,7 @@ export default function Card({
     isExhausted && 'card--exhausted',
     canAttack && !isExhausted && 'card--can-attack',
     isTargetable && 'card--targeting',
+    isEntering && 'card--entering',
   ]
     .filter(Boolean)
     .join(' ');

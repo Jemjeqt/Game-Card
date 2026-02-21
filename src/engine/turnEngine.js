@@ -13,7 +13,7 @@ import { runAITurn } from '../ai/aiController';
 import { createLogEntry } from '../utils/logger';
 import { delay } from '../utils/delay';
 import { LOG_TYPES } from '../data/constants';
-import { triggerEffectVFX } from '../utils/vfxHelper';
+import { emitAbilityTriggered } from '../vfx/vfxEvents';
 import { buildDraftDeck } from '../utils/deckBuilder';
 
 // Multiplayer sync callback - set by multiplayerEngine
@@ -117,9 +117,9 @@ export async function executeStartTurn() {
     addLog,
   });
 
-  // Trigger VFX for start-of-turn effects
+  // Emit VFX for start-of-turn effects
   for (const r of startResults) {
-    if (r) { triggerEffectVFX(r, null); break; }
+    if (r) { emitAbilityTriggered(r, null, isPlayer ? 'player' : 'opponent'); break; }
   }
 
   // Check game over after start-of-turn effects
@@ -207,9 +207,9 @@ export async function endTurn() {
     addLog: addLogEnd,
   });
 
-  // Trigger VFX for end-of-turn effects
+  // Emit VFX for end-of-turn effects
   for (const r of endResults) {
-    if (r) { triggerEffectVFX(r, null); break; }
+    if (r) { emitAbilityTriggered(r, null, isPlayer ? 'player' : 'opponent'); break; }
   }
 
   if (checkGameOver()) return;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Card from '../Card/Card';
 import useOpponentStore from '../../stores/useOpponentStore';
 import useUIStore from '../../stores/useUIStore';
@@ -9,6 +9,25 @@ export default function OpponentField() {
   const handleRightClick = (card) => {
     useUIStore.getState().setShowCardPreview(card);
   };
+
+  // Track entering cards for entrance animation
+  const prevIdsRef = useRef(new Set());
+  const [enteringIds, setEnteringIds] = useState(new Set());
+
+  useEffect(() => {
+    const currentIds = new Set(board.map((m) => m.instanceId));
+    const newIds = new Set();
+    for (const id of currentIds) {
+      if (!prevIdsRef.current.has(id)) newIds.add(id);
+    }
+    prevIdsRef.current = currentIds;
+
+    if (newIds.size > 0) {
+      setEnteringIds(newIds);
+      const timer = setTimeout(() => setEnteringIds(new Set()), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [board]);
 
   return (
     <div className="field field--opponent">
@@ -21,6 +40,7 @@ export default function OpponentField() {
             card={minion}
             size="board"
             isExhausted={minion.exhausted}
+            isEntering={enteringIds.has(minion.instanceId)}
             onRightClick={handleRightClick}
           />
         ))

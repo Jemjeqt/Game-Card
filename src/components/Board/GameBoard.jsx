@@ -18,7 +18,7 @@ import PlayerField from '../Board/PlayerField';
 import BattleLog from '../BattleLog/BattleLog';
 import TurnBanner from '../Effects/TurnBanner';
 import QuestNotification from '../Effects/QuestNotification';
-import AbilityVFX from '../Effects/AbilityVFX';
+import VFXLayer from '../Effects/VFXLayer';
 import CardPreview from '../Card/CardPreview';
 import GameOverScreen from '../Screens/GameOverScreen';
 import { GAME_STATUS } from '../../data/constants';
@@ -111,8 +111,8 @@ export default function GameBoard() {
       {/* Turn Banner Overlay */}
       <TurnBanner />
 
-      {/* Ability VFX Overlay */}
-      <AbilityVFX />
+      {/* VFX Layer (event-bus driven, portal overlay) */}
+      <VFXLayer />
 
       {/* Quest Notification */}
       <QuestNotification />

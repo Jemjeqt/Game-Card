@@ -10,7 +10,7 @@ import { checkGameOver } from '../engine/gameRules';
 import { selectCardsToPlay } from './aiStrategy';
 import { createLogEntry } from '../utils/logger';
 import { delay } from '../utils/delay';
-import { triggerPlayVFX, triggerEffectVFX } from '../utils/vfxHelper';
+import { emitCardPlayed, emitAbilityTriggered } from '../vfx/vfxEvents';
 
 /**
  * Run the AI's entire turn (MAIN + ATTACK phases)
@@ -90,8 +90,8 @@ async function aiMainPhase() {
       )
     );
 
-    // Trigger play VFX (legendary entrance / spell cast)
-    triggerPlayVFX(card);
+    // Emit VFX event (event bus → VFXLayer)
+    emitCardPlayed(card, 'opponent');
 
     if (card.type === CARD_TYPES.MINION) {
       // Place on board
@@ -106,10 +106,10 @@ async function aiMainPhase() {
         addLog,
       });
 
-      // Trigger effect VFX for minion abilities
+      // Emit VFX for minion abilities
       if (!card.rarity || card.rarity !== 'legendary') {
         for (const r of minionResults) {
-          if (r && r.type !== 'needsTarget') { triggerEffectVFX(r, card); break; }
+          if (r && r.type !== 'needsTarget') { emitAbilityTriggered(r, card, 'opponent'); break; }
         }
       }
     } else {
@@ -141,9 +141,9 @@ async function aiMainPhase() {
         }
       }
 
-      // Trigger effect VFX for spell results
+      // Emit VFX for spell results
       for (const r of results) {
-        if (r && r.type !== 'needsTarget') { triggerEffectVFX(r, card); break; }
+        if (r && r.type !== 'needsTarget') { emitAbilityTriggered(r, card, 'opponent'); break; }
       }
 
       // Move spell to graveyard

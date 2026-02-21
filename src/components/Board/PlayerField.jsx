@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Card from '../Card/Card';
 import usePlayerStore from '../../stores/usePlayerStore';
 import useOpponentStore from '../../stores/useOpponentStore';
@@ -91,6 +91,26 @@ export default function PlayerField() {
     useUIStore.getState().setShowCardPreview(card);
   };
 
+  // Track entering cards for entrance animation
+  const prevIdsRef = useRef(new Set());
+  const [enteringIds, setEnteringIds] = useState(new Set());
+
+  useEffect(() => {
+    const currentIds = new Set(board.map((m) => m.instanceId));
+    const newIds = new Set();
+    for (const id of currentIds) {
+      if (!prevIdsRef.current.has(id)) newIds.add(id);
+    }
+    prevIdsRef.current = currentIds;
+
+    if (newIds.size > 0) {
+      setEnteringIds(newIds);
+      // Clear entrance class after animation completes (250ms max)
+      const timer = setTimeout(() => setEnteringIds(new Set()), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [board]);
+
   return (
     <div className="field field--player">
       {board.length === 0 ? (
@@ -104,6 +124,7 @@ export default function PlayerField() {
             isExhausted={minion.exhausted || !minion.canAttack}
             canAttack={isAttackPhase && minion.canAttack && !minion.exhausted}
             isTargetable={targetingMode}
+            isEntering={enteringIds.has(minion.instanceId)}
             onClick={handleMinionClick}
             onRightClick={handleRightClick}
           />

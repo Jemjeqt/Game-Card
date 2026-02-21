@@ -12,7 +12,7 @@ import { checkGameOver } from '../../engine/gameRules';
 import { createLogEntry } from '../../utils/logger';
 import useMultiplayerStore from '../../stores/useMultiplayerStore';
 import { syncMultiplayerState } from '../../firebase/gameSync';
-import { triggerPlayVFX, triggerEffectVFX } from '../../utils/vfxHelper';
+import { emitCardPlayed, emitAbilityTriggered } from '../../vfx/vfxEvents';
 
 export default function PlayerHand() {
   const hand = usePlayerStore((s) => s.hand);
@@ -77,8 +77,8 @@ export default function PlayerHand() {
       )
     );
 
-    // Trigger VFX for card play
-    triggerPlayVFX(card);
+    // Emit VFX event (event bus → VFXLayer, no state mutation)
+    emitCardPlayed(card, 'player');
 
     if (card.type === CARD_TYPES.MINION) {
       // Place on board
@@ -93,12 +93,11 @@ export default function PlayerHand() {
         addLog,
       });
 
-      // Trigger VFX for the first meaningful effect result
+      // Emit VFX for the first meaningful effect result
       for (const r of results) {
         if (r && r.type !== 'needsTarget') {
-          // Only trigger effect VFX if not already legendary (which has its own VFX)
           if (card.rarity !== 'legendary') {
-            triggerEffectVFX(r, card);
+            emitAbilityTriggered(r, card, 'player');
           }
           break;
         }
@@ -137,10 +136,10 @@ export default function PlayerHand() {
         addLog,
       });
 
-      // Trigger VFX for spell effects (if not legendary — that has its own VFX)
+      // Emit VFX for spell effects (if not legendary)
       if (card.rarity !== 'legendary') {
         for (const r of results) {
-          if (r) { triggerEffectVFX(r, card); break; }
+          if (r) { emitAbilityTriggered(r, card, 'player'); break; }
         }
       }
 
