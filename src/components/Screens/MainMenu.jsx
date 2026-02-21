@@ -190,7 +190,7 @@ export default function MainMenu() {
                   <li><strong>🔄 REWORK Blood Pact</strong> — 3 mana→2 mana, 3 self DMG→2, Draw 3→2</li>
                   <li><strong>✦ NEW Mana Aegis</strong> — 3 mana spell: +2 DEF semua minion + Heal 3</li>
                   <li><strong>✦ NEW Abyss Monarch</strong> — 8 mana 7/7: AoE 4 + Self DMG 5</li>
-                  <li><strong>42 kartu</strong> — Total kartu bertambah dari 40 ke 42</li>
+                  <li><strong>+2 kartu baru</strong> — Mana Aegis & Abyss Monarch (total 42)</li>
                 </ul>
               </section>
 
@@ -278,7 +278,7 @@ export default function MainMenu() {
                       <div className="guide__stat-item">🃏 Kartu Awal: <strong>4 / 5</strong></div>
                       <div className="guide__stat-item">✋ Maks Tangan: <strong>9</strong></div>
                       <div className="guide__stat-item">🏟️ Maks Arena: <strong>10</strong></div>
-                      <div className="guide__stat-item">📦 Total Kartu: <strong>40</strong></div>
+                      <div className="guide__stat-item">📦 Total Kartu: <strong>42</strong></div>
                     </div>
                   </section>
 
