@@ -1,0 +1,517 @@
+/* ===== ABILITY VISUAL EFFECTS (VFX) ===== */
+
+/* --- Base Overlay --- */
+.vfx-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Particles --- */
+.vfx-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: vfx-particle-burst 0.8s ease-out forwards;
+  animation-delay: var(--delay, 0s);
+  opacity: 0;
+}
+
+.vfx-particle--gold {
+  background: radial-gradient(circle, #ffd700, #ff8c00);
+  box-shadow: 0 0 8px #ffd700, 0 0 16px #ff8c0088;
+}
+
+.vfx-particle--fire {
+  background: radial-gradient(circle, #ff4444, #ff0000);
+  box-shadow: 0 0 8px #ff4444, 0 0 16px #ff000088;
+}
+
+.vfx-particle--heal {
+  background: radial-gradient(circle, #44ff88, #00cc44);
+  box-shadow: 0 0 8px #44ff88, 0 0 16px #00cc4488;
+}
+
+.vfx-particle--purple {
+  background: radial-gradient(circle, #bf7fff, #8b00ff);
+  box-shadow: 0 0 8px #bf7fff, 0 0 16px #8b00ff88;
+}
+
+@keyframes vfx-particle-burst {
+  0% {
+    opacity: 1;
+    transform: rotate(var(--angle)) translateX(0) scale(1);
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(var(--angle)) translateX(var(--distance)) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateX(calc(var(--distance) + 30px)) scale(0);
+  }
+}
+
+/* ============================================================
+   LEGENDARY PLAY — Dark overlay + golden burst
+   ============================================================ */
+.vfx-legendary {
+  background: rgba(0, 0, 0, 0);
+  transition: background 0.3s ease;
+}
+.vfx-legendary--active,
+.vfx-legendary--exit {
+  background: rgba(0, 0, 0, 0.75);
+}
+.vfx-legendary--exit {
+  background: rgba(0, 0, 0, 0);
+  transition: background 0.4s ease;
+}
+
+.vfx-legendary__darkener {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.8) 100%);
+  animation: vfx-darkener-pulse 2s ease-in-out;
+}
+
+@keyframes vfx-darkener-pulse {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.vfx-legendary__burst {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.6) 0%, rgba(255, 140, 0, 0.3) 40%, transparent 70%);
+  animation: vfx-burst-expand 1.5s ease-out forwards;
+}
+
+@keyframes vfx-burst-expand {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+.vfx-legendary__content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: vfx-legendary-entrance 1.8s ease-out forwards;
+}
+
+@keyframes vfx-legendary-entrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(20px);
+    filter: brightness(3);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.3) translateY(-5px);
+    filter: brightness(2);
+  }
+  40% {
+    transform: scale(1) translateY(0);
+    filter: brightness(1.2);
+  }
+  70% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-10px);
+  }
+}
+
+.vfx-legendary__icon {
+  font-size: 72px;
+  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 40px rgba(255, 140, 0, 0.5));
+  animation: vfx-icon-glow 1.5s ease-in-out;
+}
+
+@keyframes vfx-icon-glow {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3)); }
+  50% { filter: drop-shadow(0 0 30px rgba(255, 215, 0, 1)) drop-shadow(0 0 60px rgba(255, 140, 0, 0.8)); }
+}
+
+.vfx-legendary__name {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 900;
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.8);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.vfx-legendary__label {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  color: #ffaa00;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(255, 170, 0, 0.6);
+}
+
+.vfx-legendary__particles {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* ============================================================
+   AOE DAMAGE — Red shockwave
+   ============================================================ */
+.vfx-aoe {
+  overflow: hidden;
+}
+
+.vfx-aoe__ring {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border: 3px solid rgba(255, 50, 50, 0.8);
+  border-radius: 50%;
+  animation: vfx-ring-expand 0.8s ease-out forwards;
+  box-shadow: 0 0 20px rgba(255, 50, 50, 0.5), inset 0 0 20px rgba(255, 50, 50, 0.3);
+}
+
+.vfx-aoe__ring--2 {
+  animation-delay: 0.15s;
+  border-color: rgba(255, 100, 50, 0.6);
+}
+
+@keyframes vfx-ring-expand {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(8);
+    opacity: 0;
+  }
+}
+
+.vfx-aoe__flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255, 50, 50, 0.4) 0%, transparent 60%);
+  animation: vfx-flash-red 0.5s ease-out forwards;
+}
+
+@keyframes vfx-flash-red {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.vfx-aoe__icon {
+  position: relative;
+  z-index: 5;
+  font-size: 48px;
+  animation: vfx-icon-pop 0.6s ease-out;
+}
+
+@keyframes vfx-icon-pop {
+  0% { transform: scale(0); opacity: 0; }
+  40% { transform: scale(1.5); opacity: 1; }
+  70% { transform: scale(1); }
+  100% { transform: scale(0.8); opacity: 0; }
+}
+
+/* ============================================================
+   DAMAGE HERO — Red flash + screen crack
+   ============================================================ */
+.vfx-damage-hero__flash {
+  position: absolute;
+  inset: 0;
+  animation: vfx-damage-flash 0.6s ease-out forwards;
+}
+
+@keyframes vfx-damage-flash {
+  0% {
+    background: transparent;
+  }
+  15% {
+    background: rgba(255, 0, 0, 0.35);
+  }
+  30% {
+    background: rgba(255, 0, 0, 0.15);
+  }
+  50% {
+    background: rgba(255, 0, 0, 0.25);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+.vfx-damage-hero__cracks {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(255, 0, 0, 0.1) 42%, transparent 44%);
+  animation: vfx-cracks 0.5s ease-out forwards;
+}
+
+@keyframes vfx-cracks {
+  0% { opacity: 0; transform: scale(0.5); }
+  30% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.2); }
+}
+
+/* ============================================================
+   HEAL — Green glow
+   ============================================================ */
+.vfx-heal__glow {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(68, 255, 136, 0.5) 0%, rgba(0, 200, 80, 0.2) 50%, transparent 70%);
+  animation: vfx-heal-glow 0.8s ease-out forwards;
+}
+
+@keyframes vfx-heal-glow {
+  0% { transform: scale(0); opacity: 0; }
+  30% { transform: scale(1.2); opacity: 1; }
+  70% { opacity: 0.6; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.vfx-heal__icon {
+  position: relative;
+  z-index: 5;
+  font-size: 48px;
+  animation: vfx-icon-pop 0.7s ease-out;
+}
+
+/* ============================================================
+   BUFF — Golden shimmer
+   ============================================================ */
+.vfx-buff__glow {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, rgba(255, 165, 0, 0.2) 50%, transparent 70%);
+  animation: vfx-buff-glow 0.7s ease-out forwards;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+}
+
+@keyframes vfx-buff-glow {
+  0% { transform: scale(0); opacity: 0; }
+  40% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+.vfx-buff__icon {
+  position: relative;
+  z-index: 5;
+  font-size: 42px;
+  animation: vfx-icon-pop 0.6s ease-out;
+}
+
+/* ============================================================
+   SHIELD — Blue dome pulse
+   ============================================================ */
+.vfx-shield__dome {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 3px solid rgba(100, 180, 255, 0.8);
+  background: radial-gradient(circle, rgba(100, 180, 255, 0.15) 0%, rgba(50, 120, 220, 0.1) 60%, transparent 70%);
+  animation: vfx-shield-pulse 0.7s ease-out forwards;
+  box-shadow: 0 0 30px rgba(100, 180, 255, 0.4), inset 0 0 30px rgba(100, 180, 255, 0.1);
+}
+
+@keyframes vfx-shield-pulse {
+  0% { transform: scale(0); opacity: 0; }
+  30% { transform: scale(1.2); opacity: 1; }
+  60% { transform: scale(0.95); }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+.vfx-shield__icon {
+  position: relative;
+  z-index: 5;
+  font-size: 48px;
+  animation: vfx-icon-pop 0.6s ease-out;
+}
+
+/* ============================================================
+   SUMMON — Purple portal
+   ============================================================ */
+.vfx-summon__portal {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 3px solid rgba(160, 80, 255, 0.7);
+  background: radial-gradient(circle, rgba(100, 0, 200, 0.4) 0%, rgba(60, 0, 120, 0.2) 50%, transparent 70%);
+  animation: vfx-portal-spin 0.8s ease-out forwards;
+  box-shadow: 0 0 30px rgba(160, 80, 255, 0.5);
+}
+
+@keyframes vfx-portal-spin {
+  0% { transform: scale(0) rotate(0deg); opacity: 0; }
+  40% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+  70% { transform: scale(1) rotate(270deg); }
+  100% { transform: scale(0.5) rotate(360deg); opacity: 0; }
+}
+
+.vfx-summon__icon {
+  position: relative;
+  z-index: 5;
+  font-size: 42px;
+  animation: vfx-icon-pop 0.7s ease-out;
+}
+
+/* ============================================================
+   DESTROY — Dark void
+   ============================================================ */
+.vfx-destroy__void {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.9) 0%, rgba(50, 0, 50, 0.5) 40%, transparent 70%);
+  animation: vfx-void-implode 0.8s ease-in-out forwards;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
+}
+
+@keyframes vfx-void-implode {
+  0% { transform: scale(2); opacity: 0; }
+  30% { transform: scale(1.2); opacity: 1; }
+  50% { transform: scale(0.8); }
+  70% { transform: scale(1.1); opacity: 0.7; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+.vfx-destroy__icon {
+  position: relative;
+  z-index: 5;
+  font-size: 48px;
+  animation: vfx-icon-pop 0.6s ease-out;
+}
+
+/* ============================================================
+   SELF DAMAGE — Blood red pulse
+   ============================================================ */
+.vfx-self-damage__flash {
+  position: absolute;
+  inset: 0;
+  animation: vfx-self-damage 0.6s ease-out forwards;
+}
+
+@keyframes vfx-self-damage {
+  0% { background: transparent; }
+  20% { background: rgba(180, 0, 0, 0.3); }
+  40% { background: rgba(120, 0, 0, 0.15); }
+  60% { background: rgba(180, 0, 0, 0.2); }
+  100% { background: transparent; }
+}
+
+/* ============================================================
+   DRAW — Cyan card glow
+   ============================================================ */
+.vfx-draw__glow {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 200, 255, 0.4) 0%, rgba(0, 150, 200, 0.2) 50%, transparent 70%);
+  animation: vfx-draw-glow 0.5s ease-out forwards;
+}
+
+@keyframes vfx-draw-glow {
+  0% { transform: scale(0); opacity: 0; }
+  40% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.vfx-draw__icon {
+  position: relative;
+  z-index: 5;
+  font-size: 42px;
+  animation: vfx-icon-pop 0.5s ease-out;
+}
+
+/* ============================================================
+   STEAL — Purple drain effect
+   ============================================================ */
+.vfx-steal__drain {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 2px solid rgba(200, 50, 255, 0.6);
+  background: radial-gradient(circle, rgba(150, 0, 200, 0.3) 0%, transparent 60%);
+  animation: vfx-drain-spin 0.7s ease-out forwards;
+}
+
+@keyframes vfx-drain-spin {
+  0% { transform: scale(1.5) rotate(0deg); opacity: 0; }
+  30% { transform: scale(1) rotate(90deg); opacity: 1; }
+  100% { transform: scale(0.3) rotate(360deg); opacity: 0; }
+}
+
+.vfx-steal__icon {
+  position: relative;
+  z-index: 5;
+  font-size: 42px;
+  animation: vfx-icon-pop 0.6s ease-out;
+}
+
+/* ============================================================
+   SPELL CAST — Arcane burst (generic)
+   ============================================================ */
+.vfx-spell__burst {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(120, 80, 255, 0.5) 0%, rgba(80, 40, 200, 0.2) 50%, transparent 70%);
+  animation: vfx-spell-burst 0.7s ease-out forwards;
+  box-shadow: 0 0 30px rgba(120, 80, 255, 0.4);
+}
+
+@keyframes vfx-spell-burst {
+  0% { transform: scale(0); opacity: 0; }
+  30% { transform: scale(1.3); opacity: 1; }
+  60% { transform: scale(1); }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.vfx-spell__icon {
+  position: relative;
+  z-index: 5;
+  font-size: 48px;
+  animation: vfx-icon-pop 0.6s ease-out;
+}

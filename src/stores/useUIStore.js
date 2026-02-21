@@ -13,6 +13,9 @@ const useUIStore = create((set, get) => ({
   targetingMode: false, // for targeted spells like Mystic Shield
   targetingCardId: null,
 
+  // VFX state
+  activeVFX: null, // { type, cardName, cardIcon, isLegendary, ... }
+
   // Actions
   selectCard: (instanceId) =>
     set({ selectedCardId: instanceId }),
@@ -62,6 +65,10 @@ const useUIStore = create((set, get) => ({
   cancelTargeting: () =>
     set({ targetingMode: false, targetingCardId: null }),
 
+  // VFX actions
+  triggerVFX: (vfx) => set({ activeVFX: vfx }),
+  clearVFX: () => set({ activeVFX: null }),
+
   // Reset
   resetUI: () =>
     set({
@@ -74,6 +81,7 @@ const useUIStore = create((set, get) => ({
       damageNumbers: [],
       targetingMode: false,
       targetingCardId: null,
+      activeVFX: null,
     }),
 }));
 

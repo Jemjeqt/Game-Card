@@ -10,6 +10,7 @@ import { checkGameOver } from '../engine/gameRules';
 import { selectCardsToPlay } from './aiStrategy';
 import { createLogEntry } from '../utils/logger';
 import { delay } from '../utils/delay';
+import { triggerPlayVFX, triggerEffectVFX } from '../utils/vfxHelper';
 
 /**
  * Run the AI's entire turn (MAIN + ATTACK phases)
@@ -89,18 +90,28 @@ async function aiMainPhase() {
       )
     );
 
+    // Trigger play VFX (legendary entrance / spell cast)
+    triggerPlayVFX(card);
+
     if (card.type === CARD_TYPES.MINION) {
       // Place on board
       useOpponentStore.getState().addToBoard(card);
 
       // Resolve on-play effects
-      resolveEffects({
+      const minionResults = resolveEffects({
         card,
         trigger: TRIGGERS.ON_PLAY,
         ownerStore: useOpponentStore,
         enemyStore: usePlayerStore,
         addLog,
       });
+
+      // Trigger effect VFX for minion abilities
+      if (!card.rarity || card.rarity !== 'legendary') {
+        for (const r of minionResults) {
+          if (r && r.type !== 'needsTarget') { triggerEffectVFX(r, card); break; }
+        }
+      }
     } else {
       // Spell — resolve effects directly
       const results = resolveEffects({
@@ -128,6 +139,11 @@ async function aiMainPhase() {
             );
           }
         }
+      }
+
+      // Trigger effect VFX for spell results
+      for (const r of results) {
+        if (r && r.type !== 'needsTarget') { triggerEffectVFX(r, card); break; }
       }
 
       // Move spell to graveyard

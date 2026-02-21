@@ -12,6 +12,7 @@ import { checkGameOver } from '../../engine/gameRules';
 import { createLogEntry } from '../../utils/logger';
 import useMultiplayerStore from '../../stores/useMultiplayerStore';
 import { syncMultiplayerState } from '../../firebase/gameSync';
+import { triggerPlayVFX, triggerEffectVFX } from '../../utils/vfxHelper';
 
 export default function PlayerHand() {
   const hand = usePlayerStore((s) => s.hand);
@@ -76,6 +77,9 @@ export default function PlayerHand() {
       )
     );
 
+    // Trigger VFX for card play
+    triggerPlayVFX(card);
+
     if (card.type === CARD_TYPES.MINION) {
       // Place on board
       usePlayerStore.getState().addToBoard(card);
@@ -88,6 +92,17 @@ export default function PlayerHand() {
         enemyStore: useOpponentStore,
         addLog,
       });
+
+      // Trigger VFX for the first meaningful effect result
+      for (const r of results) {
+        if (r && r.type !== 'needsTarget') {
+          // Only trigger effect VFX if not already legendary (which has its own VFX)
+          if (card.rarity !== 'legendary') {
+            triggerEffectVFX(r, card);
+          }
+          break;
+        }
+      }
 
       // Handle targeted effects — for now, auto-select best target for simplicity
       // (can be enhanced later with targeting UI)
@@ -121,6 +136,13 @@ export default function PlayerHand() {
         enemyStore: useOpponentStore,
         addLog,
       });
+
+      // Trigger VFX for spell effects (if not legendary — that has its own VFX)
+      if (card.rarity !== 'legendary') {
+        for (const r of results) {
+          if (r) { triggerEffectVFX(r, card); break; }
+        }
+      }
 
       // Move to graveyard
       usePlayerStore.getState().addToGraveyard(card);

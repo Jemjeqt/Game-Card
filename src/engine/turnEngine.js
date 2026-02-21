@@ -13,6 +13,7 @@ import { runAITurn } from '../ai/aiController';
 import { createLogEntry } from '../utils/logger';
 import { delay } from '../utils/delay';
 import { LOG_TYPES } from '../data/constants';
+import { triggerEffectVFX } from '../utils/vfxHelper';
 import { buildDraftDeck } from '../utils/deckBuilder';
 
 // Multiplayer sync callback - set by multiplayerEngine
@@ -110,11 +111,16 @@ export async function executeStartTurn() {
   const addLog = (text) =>
     useUIStore.getState().addLogEntry(createLogEntry(text, LOG_TYPES.EFFECT));
 
-  resolveStartOfTurnEffects({
+  const startResults = resolveStartOfTurnEffects({
     ownerStore: isPlayer ? usePlayerStore : useOpponentStore,
     enemyStore: isPlayer ? useOpponentStore : usePlayerStore,
     addLog,
   });
+
+  // Trigger VFX for start-of-turn effects
+  for (const r of startResults) {
+    if (r) { triggerEffectVFX(r, null); break; }
+  }
 
   // Check game over after start-of-turn effects
   if (checkGameOver()) return;
@@ -195,11 +201,17 @@ export async function endTurn() {
   const isPlayer = useGameStore.getState().activePlayer === PLAYERS.PLAYER;
   const addLogEnd = (text) =>
     useUIStore.getState().addLogEntry(createLogEntry(text, LOG_TYPES.EFFECT));
-  resolveEndOfTurnEffects({
+  const endResults = resolveEndOfTurnEffects({
     ownerStore: isPlayer ? usePlayerStore : useOpponentStore,
     enemyStore: isPlayer ? useOpponentStore : usePlayerStore,
     addLog: addLogEnd,
   });
+
+  // Trigger VFX for end-of-turn effects
+  for (const r of endResults) {
+    if (r) { triggerEffectVFX(r, null); break; }
+  }
+
   if (checkGameOver()) return;
 
   await delay(DELAYS.PHASE_TRANSITION);
