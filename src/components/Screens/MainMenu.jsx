@@ -78,6 +78,11 @@ export default function MainMenu() {
   };
 
   const handleRankedStart = () => {
+    setShowRanked(true);
+  };
+
+  const handleRankedConfirm = () => {
+    setShowRanked(false);
     useRankedStore.getState().setRankedMode(true);
     initializeGame();
   };
@@ -118,11 +123,8 @@ export default function MainMenu() {
         </button>
       </div>
 
-      {/* Ranked Badge + Quest Button Row */}
+      {/* Quest Button */}
       <div className="main-menu__meta-row">
-        <div className="main-menu__ranked-section" onClick={() => setShowRanked(!showRanked)}>
-          <RankedBadge compact />
-        </div>
         <button className="main-menu__quest-btn" onClick={() => setShowQuests(!showQuests)}>
           📋 Quests {unclaimedQuests > 0 && <span className="main-menu__quest-badge">{unclaimedQuests}</span>}
         </button>
@@ -136,6 +138,13 @@ export default function MainMenu() {
             <h2 className="guide__title">🏆 Ranked Profile</h2>
             <div className="guide__content">
               <RankedBadge />
+              <button
+                className="main-menu__button main-menu__button--ranked"
+                style={{ marginTop: '16px', width: '100%' }}
+                onClick={handleRankedConfirm}
+              >
+                ⚔️ Mulai Ranked Match
+              </button>
             </div>
           </div>
         </div>
@@ -151,7 +160,7 @@ export default function MainMenu() {
       )}
 
       <div className="main-menu__info">
-        <p>40 kartu unik • 7 Legendary • Draft Mode • Ranked</p>
+        <p>42 kartu unik • 9 Legendary • Draft Mode • Ranked</p>
         <p>Daily Quests • Arena 10 slot • Combo & Deathrattle</p>
       </div>
 
@@ -193,8 +202,8 @@ export default function MainMenu() {
                   <li><strong>📜 Draft Mode</strong> — Pilih 1 dari 3 kartu, 15 kali, lalu battle!</li>
                   <li><strong>⭐ 5 Legendary Baru</strong> — Celestial Arbiter, Void Empress, Infernal Titan, Chrono Weaver, Shadow Sovereign</li>
                   <li><strong>📋 Daily Quest</strong> — 3 quest harian dengan reward Ranked Points</li>
-                  <li><strong>40 kartu</strong> — Total kartu bertambah dari 35 ke 40</li>
-                  <li><strong>7 Legendary</strong> — Kartu legendary limit 1 per deck</li>
+                  <li><strong>42 kartu</strong> — Total kartu bertambah dari 35 ke 42</li>
+                  <li><strong>9 Legendary</strong> — Kartu legendary limit 1 per deck</li>
                   <li><strong>Win Streak</strong> — Tracking streak dan best streak</li>
                   <li><strong>Ranked Profile</strong> — Lihat rank, tier ladder, dan statistik</li>
                 </ul>
@@ -262,7 +271,7 @@ export default function MainMenu() {
                 <>
                   <section className="guide__section">
                     <h3>🎯 Tujuan Permainan</h3>
-                    <p>Kurangi HP hero musuh dari <strong>60 menjadi 0</strong> sebelum HP kamu habis duluan. Gunakan 40 kartu unik dengan strategi yang tepat!</p>
+                    <p>Kurangi HP hero musuh dari <strong>60 menjadi 0</strong> sebelum HP kamu habis duluan. Gunakan 42 kartu unik dengan strategi yang tepat!</p>
                     <div className="guide__stats">
                       <div className="guide__stat-item">❤️ HP Awal: <strong>60</strong></div>
                       <div className="guide__stat-item">💎 Mana Maks: <strong>10</strong></div>
