@@ -363,3 +363,9 @@ npm run preview  # Preview build result
 ## 📄 Lisensi
 
 MIT License
+
+---
+
+<p align="center">
+  Made with ❤️ by <strong>Haezlv</strong>
+</p>

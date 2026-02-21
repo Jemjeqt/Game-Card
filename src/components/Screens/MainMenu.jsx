@@ -169,6 +169,8 @@ export default function MainMenu() {
         <span className="version__text">{GAME_VERSION}</span>
       </div>
 
+      <p className="main-menu__credit">Created by <strong>Haezlv</strong></p>
+
       {showPatchNotes && (
         <div className="guide-overlay" onClick={() => setShowPatchNotes(false)}>
           <div className="guide" onClick={(e) => e.stopPropagation()} style={{maxWidth: '520px'}}>
