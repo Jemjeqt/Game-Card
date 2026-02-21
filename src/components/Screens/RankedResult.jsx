@@ -1,11 +1,13 @@
-import React from 'react';
-import useRankedStore from '../../stores/useRankedStore';
+import React, { useMemo } from 'react';
+import useRankedStore, { calculateTierInfo } from '../../stores/useRankedStore';
 import useDraftStore from '../../stores/useDraftStore';
 
 export default function RankedResult({ onContinue }) {
   const lastMatch = useRankedStore((s) => s.lastMatchResult);
-  const tierInfo = useRankedStore((s) => s.getTierInfo());
+  const points = useRankedStore((s) => s.points);
   const isDraftMode = useDraftStore((s) => s.isDraftMode);
+
+  const tierInfo = useMemo(() => calculateTierInfo(points), [points]);
 
   if (!lastMatch) return null;
 

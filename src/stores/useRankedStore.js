@@ -175,5 +175,5 @@ const useRankedStore = create((set, get) => ({
   },
 }));
 
-export { TIERS, DIVISIONS, WIN_POINTS, LOSS_POINTS };
+export { TIERS, DIVISIONS, WIN_POINTS, LOSS_POINTS, calculateTierInfo };
 export default useRankedStore;

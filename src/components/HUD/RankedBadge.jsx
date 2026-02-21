@@ -1,13 +1,13 @@
-import React from 'react';
-import useRankedStore, { TIERS } from '../../stores/useRankedStore';
+import React, { useMemo } from 'react';
+import useRankedStore, { TIERS, calculateTierInfo } from '../../stores/useRankedStore';
 
 export default function RankedBadge({ compact = false }) {
-  const tierInfo = useRankedStore((s) => s.getTierInfo());
   const points = useRankedStore((s) => s.points);
   const wins = useRankedStore((s) => s.wins);
   const losses = useRankedStore((s) => s.losses);
   const winStreak = useRankedStore((s) => s.winStreak);
 
+  const tierInfo = useMemo(() => calculateTierInfo(points), [points]);
   const { tier, division, progress, pointsToNext } = tierInfo;
 
   if (compact) {
