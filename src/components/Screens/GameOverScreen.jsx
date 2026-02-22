@@ -12,7 +12,7 @@ import RankedResult from './RankedResult';
 import { PLAYERS } from '../../data/constants';
 import { initializeGame } from '../../engine/turnEngine';
 import { cleanupMultiplayer } from '../../engine/multiplayerEngine';
-import { recordGameResult } from '../../firebase/userService';
+import { recordGameResult, updateUserProfile } from '../../firebase/userService';
 
 export default function GameOverScreen() {
   const winner = useGameStore((s) => s.winner);
@@ -44,6 +44,16 @@ export default function GameOverScreen() {
       // Record ranked match
       if (isRankedMode) {
         useRankedStore.getState().recordMatch(playerWon);
+        // Persist rankedPoints to Firestore so it syncs across devices
+        // Only save ranked-specific fields here; win/loss/streak are handled by recordGameResult
+        const rankedUser = useAuthStore.getState().user;
+        if (rankedUser) {
+          const st = useRankedStore.getState();
+          updateUserProfile(rankedUser.uid, {
+            rankedPoints: st.points,
+            highestRankedPoints: st.highestPoints,
+          }).catch((err) => console.warn('Failed to sync ranked to Firestore:', err));
+        }
       }
 
       // Record to Firestore (coins, EXP, win/loss)

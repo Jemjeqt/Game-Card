@@ -16,7 +16,7 @@ export default function RankedBadge({ compact = false }) {
         <span className="ranked-badge__icon">{tier.icon}</span>
         <span className="ranked-badge__tier">{tier.name}</span>
         {division && <span className="ranked-badge__division">{division}</span>}
-        <span className="ranked-badge__points">{points} RP</span>
+        <span className="ranked-badge__points">{points}</span>
       </div>
     );
   }
@@ -29,7 +29,7 @@ export default function RankedBadge({ compact = false }) {
           <span className="ranked-badge__tier ranked-badge__tier--large">
             {tier.name} {division || ''}
           </span>
-          <span className="ranked-badge__points">{points} RP</span>
+          <span className="ranked-badge__points">{points}</span>
         </div>
       </div>
 
@@ -43,7 +43,7 @@ export default function RankedBadge({ compact = false }) {
             />
           </div>
           <span className="ranked-badge__progress-text">
-            {pointsToNext} RP to next
+            {pointsToNext} to next
           </span>
         </div>
       )}

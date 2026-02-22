@@ -78,11 +78,18 @@ export function buildDeck(tierId = null) {
       }
     }
 
-    // Fill remaining deck slots randomly
+    // Fill remaining deck slots randomly, respecting legendaryLimit
     const shuffledPool = shuffle([...remainingPool]);
-    const remainingSlots = deckSize - deck.length;
-    for (let i = 0; i < remainingSlots && i < shuffledPool.length; i++) {
-      deck.push(createCardInstance(shuffledPool[i]));
+    let legendaryCount = deck.filter((c) => isSingleCopyRarity(c.rarity)).length;
+    const { legendaryLimit } = config;
+
+    for (let i = 0; i < shuffledPool.length && deck.length < deckSize; i++) {
+      const cardDef = shuffledPool[i];
+      if (legendaryLimit !== undefined && isSingleCopyRarity(cardDef.rarity)) {
+        if (legendaryCount >= legendaryLimit) continue;
+        legendaryCount++;
+      }
+      deck.push(createCardInstance(cardDef));
     }
 
     return shuffle(deck);

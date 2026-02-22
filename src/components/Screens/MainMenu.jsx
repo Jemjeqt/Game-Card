@@ -14,6 +14,17 @@ import { GAME_STATUS, GAME_VERSION, TIER_DIFFICULTY, DIFFICULTY_CONFIG, TIER_RP,
 
 const GUIDE_TABS = ['Mekanik', 'Minion', 'Spell', 'Strategi'];
 
+// Tier glow palette for premium profile header
+const TIER_GLOW = {
+  bronze:   { c: '#b87333', glow: 'rgba(184,115,51,0.65)',  soft: 'rgba(184,115,51,0.18)' },
+  silver:   { c: '#94a3b8', glow: 'rgba(148,163,184,0.6)', soft: 'rgba(148,163,184,0.15)' },
+  gold:     { c: '#f59e0b', glow: 'rgba(245,158,11,0.7)',   soft: 'rgba(245,158,11,0.2)'  },
+  platinum: { c: '#22d3ee', glow: 'rgba(6,182,212,0.65)',   soft: 'rgba(6,182,212,0.18)'  },
+  diamond:  { c: '#67e8f9', glow: 'rgba(110,231,247,0.7)',  soft: 'rgba(110,231,247,0.2)' },
+  mythic:   { c: '#f97316', glow: 'rgba(249,115,22,0.68)',  soft: 'rgba(249,115,22,0.18)' },
+  immortal: { c: '#06b6d4', glow: 'rgba(6,182,212,0.85)',   soft: 'rgba(6,182,212,0.28)'  },
+};
+
 const MINION_CARDS = [
   // === COMMON ===
   { name: 'Healing Wisp', mana: 1, atk: 0, def: 3, desc: 'Makhluk penyembuh. Battlecry: Heal hero 2 HP. Berguna di early game untuk bertahan.' },
@@ -116,6 +127,7 @@ export default function MainMenu() {
   // Ranked info
   const rankedPoints = useRankedStore((s) => s.points);
   const rankedInfo = React.useMemo(() => calculateTierInfo(rankedPoints), [rankedPoints]);
+  const tierData = TIER_GLOW[rankedInfo.tier.id] || TIER_GLOW.bronze;
 
   // Check daily quest reset on menu load
   React.useEffect(() => {
@@ -160,39 +172,38 @@ export default function MainMenu() {
 
   return (
     <div className="main-menu">
-      {/* User Profile Bar */}
+      {/* Premium Profile Header Bar */}
       {user && (
-        <div className="user-profile-bar">
-          <div className="user-profile-bar__left">
-            <span className="user-profile-bar__avatar" onClick={() => setShowProfile(true)} style={{ cursor: 'pointer' }} title="Pengaturan Profil">{displayAvatar}</span>
-            <div className="user-profile-bar__info">
-              <span className="user-profile-bar__name">
-                {displayName}
+        <div
+          className="upb"
+          style={{
+            '--tier-c': tierData.c,
+            '--tier-glow': tierData.glow,
+            '--tier-glow-soft': tierData.soft,
+          }}
+        >
+          {/* Main row: avatar · identity · exit */}
+          <div className="upb__header">
+            <button className="upb__avatar-btn" onClick={() => setShowProfile(true)} title="Pengaturan Profil">
+              {displayAvatar}
+            </button>
+
+            <div className="upb__identity">
+              <div className="upb__name-row">
+                <span className="upb__name">{displayName}</span>
+                <button className="upb__rank-chip" onClick={() => setShowRankedProfile(true)} title={`${rankedInfo.tier.name}${rankedInfo.division ? ` ${rankedInfo.division}` : ''} — ${rankedPoints}`}>
+                  <span className="upb__rank-icon">{rankedInfo.tier.icon}</span>
+                </button>
                 {isDev && (
-                  <button className="user-profile-bar__dev" onClick={() => setShowDevTools(true)} title="Dev Tools">
+                  <button className="upb__dev-btn" onClick={() => setShowDevTools(true)} title="Dev Tools">
                     🔧
                   </button>
                 )}
-              </span>
-              <span className="user-profile-bar__level">
-                Lv.{displayLevel} • {displayTitle}
-              </span>
-            </div>
-            <div className="user-profile-bar__rank" onClick={() => setShowRankedProfile(true)} title="Ranked Profile">
-              <span className="user-profile-bar__rank-icon">{rankedInfo.tier.icon}</span>
-              <div className="user-profile-bar__rank-info">
-                <span className="user-profile-bar__rank-tier">{rankedInfo.tier.name}{rankedInfo.division ? ` ${rankedInfo.division}` : ''}</span>
-                <span className="user-profile-bar__rank-points">{rankedPoints} pts</span>
               </div>
+              <span className="upb__sub">Lv.{displayLevel}</span>
             </div>
-          </div>
-          <div className="user-profile-bar__right">
-            <span className="user-profile-bar__stat">🪙 {displayCoins}</span>
-            <span className="user-profile-bar__stat">⭐ {displayExp} EXP</span>
-            <span className="user-profile-bar__stat">🏆 {displayWins}W / {displayLosses}L</span>
-            <button className="user-profile-bar__logout" onClick={logout} title="Logout">
-              🚪
-            </button>
+
+            <button className="upb__exit-btn" onClick={logout} title="Logout">🚪</button>
           </div>
         </div>
       )}
@@ -259,11 +270,11 @@ export default function MainMenu() {
                 </div>
                 <div className="ranked-match-info__row">
                   <span className="ranked-match-info__label">📈 Win</span>
-                  <span className="ranked-match-info__value" style={{ color: '#22c55e' }}>+{rankedRP.win} RP</span>
+                  <span className="ranked-match-info__value" style={{ color: '#22c55e' }}>+{rankedRP.win}</span>
                 </div>
                 <div className="ranked-match-info__row">
                   <span className="ranked-match-info__label">📉 Lose</span>
-                  <span className="ranked-match-info__value" style={{ color: '#ef4444' }}>-{rankedRP.loss} RP</span>
+                  <span className="ranked-match-info__value" style={{ color: '#ef4444' }}>-{rankedRP.loss}</span>
                 </div>
               </div>
 
@@ -306,7 +317,7 @@ export default function MainMenu() {
       {/* Ranked Profile */}
       {showRankedProfile && (
         <div className="guide-overlay" onClick={() => setShowRankedProfile(false)}>
-          <div className="guide" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+          <div className="guide" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px', background: '#0B0F1A', border: '1px solid rgba(255,255,255,0.07)', boxShadow: '0 28px 70px rgba(0,0,0,0.75)', overflow: 'hidden' }}>
             <RankedProfile onClose={() => setShowRankedProfile(false)} />
           </div>
         </div>
@@ -334,6 +345,19 @@ export default function MainMenu() {
             <button className="guide__close" onClick={() => setShowPatchNotes(false)}>✕</button>
             <h2 className="guide__title">📋 Patch Notes</h2>
             <div className="guide__content">
+
+              <section className="guide__section">
+                <h3 className="patch__version-header">✨ v0.4.1-beta <span className="patch__date">22 Feb 2026</span></h3>
+                <p style={{color:'var(--accent-cyan)', fontSize:'12px', marginBottom:'10px'}}>Rank Rebalance, Profile & UX Improvements</p>
+                <ul className="guide__tips">
+                  <li><strong>⚖️ Tier Rebalance Total</strong> — HP, Deck, dan Mana Range direconfigurasi ulang. Bronze mulai HP 60, Immortal HP 90, deck 30–40 kartu.</li>
+                  <li><strong>🃏 Mana Range Mulai dari 1</strong> — Semua tier kini mulai mana dari 1. Semua rarity bisa muncul sejak Bronze — tier tinggi lebih chaotic karena ceiling mana lebih besar.</li>
+                  <li><strong>🔒 Legendary Limit per Tier</strong> — Bronze/Silver maks 1 kartu Legendary class, Gold/Platinum/Diamond maks 2, Mythic/Immortal maks 3 per deck.</li>
+                  <li><strong>📊 Derived Stats Profile</strong> — Statistik profil kini menampilkan Wins, Losses, Winrate % (dihitung otomatis), dan Best Streak.</li>
+                  <li><strong>🔱 Immortal Prestige UI</strong> — Visual eksklusif di ProfileSettings & RankedProfile: emblem glow animasi, watermark crest, tint ungu pada judul rank.</li>
+                  <li><strong>🏷️ Label Poin Dibersihkan</strong> — Tampilan poin rank tidak lagi memakai sufiks "RP".</li>
+                </ul>
+              </section>
 
               <section className="guide__section">
                 <h3 className="patch__version-header">⚔️ v0.4.0-beta <span className="patch__date">21 Feb 2026</span></h3>
@@ -504,31 +528,31 @@ export default function MainMenu() {
                     <div className="guide__effects-list">
                       <div className="guide__effect-row">
                         <span className="guide__effect-name">🥉 Bronze</span>
-                        <span className="guide__effect-desc">HP 20, Mana 5, Deck 20, Mana 1-3 | AI Easy | +30/-10 RP</span>
+                        <span className="guide__effect-desc">HP 60, Mana 7, Deck 30, Mana 1–7 | Leg. Limit 1 | AI Easy | +30/-10</span>
                       </div>
                       <div className="guide__effect-row">
                         <span className="guide__effect-name">🥈 Silver</span>
-                        <span className="guide__effect-desc">HP 25, Mana 6, Deck 20, Mana 1-4 | AI Normal | +25/-15 RP</span>
+                        <span className="guide__effect-desc">HP 65, Mana 8, Deck 32, Mana 1–8 | Leg. Limit 1 | AI Normal | +25/-15</span>
                       </div>
                       <div className="guide__effect-row">
                         <span className="guide__effect-name">🥇 Gold</span>
-                        <span className="guide__effect-desc">HP 30, Mana 8, Deck 25, Mana 1-5 | AI Hard | Draft Pick | +22/-18 RP</span>
+                        <span className="guide__effect-desc">HP 70, Mana 10, Deck 33, Mana 1–10 | Leg. Limit 2 | AI Hard | Draft | +22/-18</span>
                       </div>
                       <div className="guide__effect-row">
                         <span className="guide__effect-name">💠 Platinum</span>
-                        <span className="guide__effect-desc">HP 35, Mana 10, Deck 25, Mana 2-6 | AI Expert | Draft Pick | +20/-20 RP</span>
+                        <span className="guide__effect-desc">HP 75, Mana 10, Deck 35, Mana 1–10 | Leg. Limit 2 | AI Expert | Draft | +20/-20</span>
                       </div>
                       <div className="guide__effect-row">
                         <span className="guide__effect-name">💎 Diamond</span>
-                        <span className="guide__effect-desc">HP 40, Mana 12, Deck 30, Mana 2-7 | AI Master | Draft + Mythic | +18/-22 RP</span>
+                        <span className="guide__effect-desc">HP 80, Mana 12, Deck 36, Mana 1–12 | Leg. Limit 2 | AI Master | Draft | +18/-22</span>
                       </div>
                       <div className="guide__effect-row">
                         <span className="guide__effect-name">👑 Mythic</span>
-                        <span className="guide__effect-desc">HP 45, Mana 15, Deck 30, Mana 3-10 | AI Mythic | All rarity | +15/-25 RP</span>
+                        <span className="guide__effect-desc">HP 85, Mana 15, Deck 38, Mana 1–15 | Leg. Limit 3 | AI Mythic | Draft | +15/-25</span>
                       </div>
                       <div className="guide__effect-row">
                         <span className="guide__effect-name">🔱 Immortal</span>
-                        <span className="guide__effect-desc">HP 45, Mana 15, Deck 30, Mana 3-10 | AI Immortal | All rarity | +12/-28 RP</span>
+                        <span className="guide__effect-desc">HP 90, Mana 15, Deck 40, Mana 1–15 | Leg. Limit 3 | AI Immortal | Draft | +12/-28</span>
                       </div>
                     </div>
                   </section>

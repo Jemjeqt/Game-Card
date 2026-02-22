@@ -1,6 +1,6 @@
 ﻿# ⚔️ Card Battle — Dark Fantasy Duel
 
-![Version](https://img.shields.io/badge/Version-v0.4.0--beta-blueviolet)
+![Version](https://img.shields.io/badge/Version-v0.4.1--beta-blueviolet)
 ![React](https://img.shields.io/badge/React-19-blue?logo=react)
 ![Vite](https://img.shields.io/badge/Vite-6-purple?logo=vite)
 ![Firebase](https://img.shields.io/badge/Firebase-Realtime%20DB-orange?logo=firebase)
@@ -202,15 +202,15 @@ Kurangi HP hero musuh menjadi **0** sebelum HP hero kamu habis duluan! Gunakan k
 
 ### 🏆 Sistem Ranked (7 Tier)
 
-| Tier        | HP  | Max Mana | Deck | Mana Range | AI       | Mode     | RP Win/Loss |
-| ----------- | :-: | :------: | :--: | :--------: | -------- | -------- | :---------: |
-| 🥉 Bronze   | 20  |    5     |  20  |    1-3     | Easy     | Standard |  +30 / -10  |
-| 🥈 Silver   | 25  |    6     |  20  |    1-4     | Normal   | Standard |  +25 / -15  |
-| 🥇 Gold     | 30  |    8     |  25  |    1-5     | Hard     | Draft    |  +22 / -18  |
-| 💠 Platinum | 35  |    10    |  25  |    2-6     | Expert   | Draft    |  +20 / -20  |
-| 💎 Diamond  | 40  |    12    |  30  |    2-7     | Master   | Draft    |  +18 / -22  |
-| 👑 Mythic   | 45  |    15    |  30  |    3-10    | Mythic   | Draft    |  +15 / -25  |
-| 🔱 Immortal | 45  |    15    |  30  |    3-10    | Immortal | Draft    |  +12 / -28  |
+| Tier        | HP  | Max Mana | Deck | Mana Range | Leg. Limit | AI       | Mode     | Win/Loss  |
+| ----------- | :-: | :------: | :--: | :--------: | :--------: | -------- | -------- | :-------: |
+| 🥉 Bronze   | 60  |    7     |  30  |    1–7     |     1      | Easy     | Standard | +30 / -10 |
+| 🥈 Silver   | 65  |    8     |  32  |    1–8     |     1      | Normal   | Standard | +25 / -15 |
+| 🥇 Gold     | 70  |    10    |  33  |    1–10    |     2      | Hard     | Draft    | +22 / -18 |
+| 💠 Platinum | 75  |    10    |  35  |    1–10    |     2      | Expert   | Draft    | +20 / -20 |
+| 💎 Diamond  | 80  |    12    |  36  |    1–12    |     2      | Master   | Draft    | +18 / -22 |
+| 👑 Mythic   | 85  |    15    |  38  |    1–15    |     3      | Mythic   | Draft    | +15 / -25 |
+| 🔱 Immortal | 90  |    15    |  40  |    1–15    |     3      | Immortal | Draft    | +12 / -28 |
 
 ### 📊 Statistik Dasar (Classic)
 
@@ -328,6 +328,17 @@ src/
 ---
 
 ## 📋 Patch Notes
+
+### v0.4.1-beta — 22 Februari 2026
+
+**Rank Rebalance, Profile & UX Improvements**
+
+- ⚖️ **Tier Rebalance Total** — Seluruh HP, Deck Size, dan Mana Range direconfigurasi: Bronze (HP 60, Deck 30, Mana 1–7) → Immortal (HP 90, Deck 40, Mana 1–15)
+- 🃏 **Mana Range Mulai 1 di Semua Tier** — Tier rendah bisa dapat kartu kuat; tier tinggi lebih chaotic karena mana ceiling lebih besar
+- 🔒 **Legendary Limit per Tier** — Bronze/Silver maks 1 legendary-class card per deck; Gold/Platinum/Diamond maks 2; Mythic/Immortal maks 3
+- 📊 **Derived Stats di Profil** — Grid statistik kini menampilkan Wins, Losses, Winrate % (kalkulasi otomatis), dan Best Streak — menggantikan Total Match
+- 🔱 **Immortal Prestige UI** — Visual eksklusif untuk Immortal di ProfileSettings & RankedProfile: emblem glow animasi, watermark crest 🔱, gradient text ungu pada nama rank
+- 🏷️ **Label RP Dihapus** — Poin rank ditampilkan sebagai angka bersih tanpa sufiks "RP"
 
 ### v0.4.0-beta — 21 Februari 2026
 

@@ -14,7 +14,7 @@ export default function QuestNotification() {
           <span className="quest-notification__label">Quest Selesai!</span>
           <span className="quest-notification__title">{notification.title}</span>
         </div>
-        <span className="quest-notification__reward">+{notification.reward} RP</span>
+        <span className="quest-notification__reward">+{notification.reward}</span>
       </div>
     </div>
   );

@@ -26,7 +26,7 @@ export default function RankedResult({ onContinue }) {
 
         <div className="ranked-result__points">
           <span className={`ranked-result__change ${won ? 'ranked-result__change--positive' : 'ranked-result__change--negative'}`}>
-            {pointsChange > 0 ? '+' : ''}{pointsChange} RP
+            {pointsChange > 0 ? '+' : ''}{pointsChange}
           </span>
         </div>
 

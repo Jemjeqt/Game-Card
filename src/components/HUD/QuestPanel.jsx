@@ -34,7 +34,7 @@ export default function QuestPanel({ onClose }) {
 
       <div className="quest-panel__stats">
         <span>✅ Total selesai: {totalQuestsCompleted}</span>
-        <span>💰 Total reward: {totalRewardsEarned} RP</span>
+        <span>💰 Total reward: {totalRewardsEarned}</span>
       </div>
 
       <div className="quest-panel__list">
@@ -62,7 +62,7 @@ export default function QuestPanel({ onClose }) {
                 <span className="quest-item__claimed-label">✅</span>
               ) : quest.completed ? (
                 <button className="quest-item__claim-btn" onClick={() => handleClaim(quest.id)}>
-                  +{quest.reward} RP
+                  +{quest.reward}
                 </button>
               ) : (
                 <span className="quest-item__reward-label">🏅 {quest.reward}</span>

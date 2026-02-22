@@ -8,6 +8,26 @@ import {
 } from '../firebase/authService';
 import { getUserProfile, updateUserProfile } from '../firebase/userService';
 
+// Lazy import to avoid circular deps — resolved at call time
+function syncRankedFromProfile(profile) {
+  if (!profile) return;
+  // Dynamically import to avoid circular import issues at module load time
+  import('./useRankedStore').then(({ default: useRankedStore }) => {
+    const rankedSync = {
+      points: profile.rankedPoints ?? 0,
+      wins: profile.totalWins ?? 0,
+      losses: profile.totalLosses ?? 0,
+      totalGames: profile.totalGames ?? 0,
+      winStreak: profile.winStreak ?? 0,
+      bestWinStreak: profile.bestWinStreak ?? 0,
+      highestPoints: profile.highestRankedPoints ?? profile.rankedPoints ?? 0,
+      seasonGames: profile.totalGames ?? 0,
+    };
+    useRankedStore.setState(rankedSync);
+    try { localStorage.setItem('cardBattle_ranked', JSON.stringify(rankedSync)); } catch (_) {}
+  }).catch(() => {});
+}
+
 // ===== AUTH STORE =====
 // Manages authentication state across the app
 
@@ -36,6 +56,7 @@ const useAuthStore = create((set, get) => ({
         } catch (err) {
           console.warn('Profile load failed (Firestore mungkin belum dibuat):', err.message);
         }
+        syncRankedFromProfile(profile);
         set({ user: firebaseUser, profile, isLoading: false, error: null });
       } else {
         set({ user: null, profile: null, isLoading: false });
@@ -73,6 +94,7 @@ const useAuthStore = create((set, get) => ({
       const user = await loginUser(identifier, password);
       console.log('Login success:', user.uid);
       const profile = await getUserProfile(user.uid);
+      syncRankedFromProfile(profile);
       set({ user, profile, isAuthenticating: false, error: null });
       return true;
     } catch (err) {

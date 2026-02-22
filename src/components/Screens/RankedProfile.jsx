@@ -54,6 +54,7 @@ export default function RankedProfile({ onClose }) {
   const { tier, division, progress, pointsToNext } = tierInfo;
   const tierColor = TIER_COLORS[tier.id] || '#888';
 
+  const isImmortal = tier.id === 'immortal';
   const winRate = totalGames > 0 ? ((wins / totalGames) * 100).toFixed(1) : '0.0';
   const playstyle = getPlaystyle(parseFloat(winRate), totalGames);
 
@@ -70,113 +71,110 @@ export default function RankedProfile({ onClose }) {
   const highestTierInfo = useMemo(() => calculateTierInfo(highestPoints), [highestPoints]);
 
   return (
-    <div className="ranked-profile">
+    <div className={`rp${isImmortal ? ' rp--immortal' : ''}`} style={{ '--tc': tierColor }}>
       <button className="profile-settings__close" onClick={onClose}>✕</button>
 
-      {/* Header — Rank Display */}
-      <div className="ranked-profile__header" style={{ '--tier-color': tierColor }}>
-        <div className="ranked-profile__tier-icon">{tier.icon}</div>
-        <div className="ranked-profile__tier-info">
-          <span className="ranked-profile__tier-name">
-            {tier.name} {division || ''}
-          </span>
-          <span className="ranked-profile__points">{points} RP</span>
+      {isImmortal && <div className="rp__immortal-crest" aria-hidden="true">🔱</div>}
+
+      {/* 1. Hero Rank Banner */}
+      <div className="rp__hero">
+        {isImmortal && <div className="rp__icon-glow" />}
+        <div className="rp__hero-icon">{tier.icon}</div>
+        <div className="rp__hero-body">
+          <div className="rp__hero-rank">{tier.name}{division ? ` ${division}` : ''}</div>
+          <div className="rp__hero-rp">{points}</div>
+          {tier.id === 'immortal' && highestTierInfo.tier.id === 'immortal' && (
+            <div className="rp__hero-badge">🔱 Rank Tertinggi Tercapai</div>
+          )}
         </div>
       </div>
 
-      {/* Progress Bar */}
+      {/* Progress to next tier */}
       {pointsToNext !== null && nextTier && (
-        <div className="ranked-profile__progress-section">
-          <div className="ranked-profile__progress-bar">
-            <div
-              className="ranked-profile__progress-fill"
-              style={{ width: `${Math.min(progress * 100, 100)}%`, background: tierColor }}
-            />
+        <div className="rp__progress">
+          <div className="rp__progress-bar">
+            <div className="rp__progress-fill" style={{ width: `${Math.min(progress * 100, 100)}%` }} />
           </div>
-          <div className="ranked-profile__progress-labels">
+          <div className="rp__progress-labels">
             <span>{tier.icon} {tier.name}</span>
-            <span>{pointsToNext} RP lagi</span>
-            <span>{nextTier.icon} {nextTier.name}</span>
+            <span>{pointsToNext} to {nextTier.name}</span>
+            <span>{nextTier.icon}</span>
           </div>
         </div>
       )}
-      {tier.id === 'immortal' && (
-        <div className="ranked-profile__mythic-badge">
-          🔱 Rank Tertinggi Tercapai — Immortal
-        </div>
-      )}
 
-      {/* Stats Grid */}
-      <div className="ranked-profile__stats">
-        <div className="ranked-profile__stat">
-          <span className="ranked-profile__stat-value" style={{ color: '#22c55e' }}>{wins}</span>
-          <span className="ranked-profile__stat-label">Menang</span>
+      {/* 2. Stats Section */}
+      <div className="rp__stats">
+
+        {/* 4-card derived stat grid */}
+        <div className="rp__grid">
+          <div className="rp__grid-card">
+            <span className="rp__grid-val rp__grid-val--w">{wins}</span>
+            <span className="rp__grid-lbl">WINS</span>
+          </div>
+          <div className="rp__grid-card">
+            <span className="rp__grid-val rp__grid-val--l">{losses}</span>
+            <span className="rp__grid-lbl">LOSSES</span>
+          </div>
+          <div className="rp__grid-card">
+            <span className="rp__grid-val rp__grid-val--wr">{winRate}%</span>
+            <span className="rp__grid-lbl">WINRATE</span>
+          </div>
+          <div className="rp__grid-card">
+            <span className="rp__grid-val rp__grid-val--str">{bestWinStreak}</span>
+            <span className="rp__grid-lbl">BEST STK</span>
+          </div>
         </div>
-        <div className="ranked-profile__stat">
-          <span className="ranked-profile__stat-value" style={{ color: '#ef4444' }}>{losses}</span>
-          <span className="ranked-profile__stat-label">Kalah</span>
+
+        {/* Streak + Best Rank row */}
+        <div className="rp__streaks">
+          <div className="rp__streak">
+            <span className="rp__streak-icon">🔥</span>
+            <div>
+              <span className="rp__streak-val">{winStreak}</span>
+              <span className="rp__streak-lbl">Win Streak</span>
+            </div>
+          </div>
+          <div className="rp__streak-div" />
+          <div className="rp__streak">
+            <span className="rp__streak-icon">{highestTierInfo.tier.icon}</span>
+            <div>
+              <span className="rp__streak-val rp__streak-val--sm">{highestTierInfo.tier.name}</span>
+              <span className="rp__streak-lbl">Best Rank</span>
+            </div>
+          </div>
         </div>
-        <div className="ranked-profile__stat">
-          <span className="ranked-profile__stat-value" style={{ color: '#06b6d4' }}>{winRate}%</span>
-          <span className="ranked-profile__stat-label">Win Rate</span>
-        </div>
-        <div className="ranked-profile__stat">
-          <span className="ranked-profile__stat-value" style={{ color: '#f59e0b' }}>{totalGames}</span>
-          <span className="ranked-profile__stat-label">Total</span>
-        </div>
+
       </div>
 
-      {/* Streak & Records */}
-      <div className="ranked-profile__records">
-        <div className="ranked-profile__record">
-          <span className="ranked-profile__record-icon">🔥</span>
-          <div className="ranked-profile__record-info">
-            <span className="ranked-profile__record-value">{winStreak}</span>
-            <span className="ranked-profile__record-label">Win Streak</span>
+      {/* 3 & 4. Signature Card + Playstyle */}
+      <div className="rp__accents">
+        <div className="rp__accent rp__accent--sig">
+          <span className="rp__accent-icon">{signatureCard.icon}</span>
+          <div className="rp__accent-body">
+            <span className="rp__accent-lbl">Signature Card</span>
+            <span className="rp__accent-name">{signatureCard.name}</span>
+            <span className="rp__accent-sub">{signatureCard.subtitle}</span>
           </div>
         </div>
-        <div className="ranked-profile__record">
-          <span className="ranked-profile__record-icon">💥</span>
-          <div className="ranked-profile__record-info">
-            <span className="ranked-profile__record-value">{bestWinStreak}</span>
-            <span className="ranked-profile__record-label">Best Streak</span>
-          </div>
-        </div>
-        <div className="ranked-profile__record">
-          <span className="ranked-profile__record-icon">{highestTierInfo.tier.icon}</span>
-          <div className="ranked-profile__record-info">
-            <span className="ranked-profile__record-value">{highestTierInfo.tier.name}</span>
-            <span className="ranked-profile__record-label">Rank Tertinggi</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Signature Card & Playstyle */}
-      <div className="ranked-profile__highlights">
-        <div className="ranked-profile__highlight">
-          <div className="ranked-profile__highlight-icon">{signatureCard.icon}</div>
-          <div className="ranked-profile__highlight-info">
-            <span className="ranked-profile__highlight-title">Signature Card</span>
-            <span className="ranked-profile__highlight-name">{signatureCard.name}</span>
-            <span className="ranked-profile__highlight-sub">{signatureCard.subtitle}</span>
-          </div>
-        </div>
-        <div className="ranked-profile__highlight">
-          <div className="ranked-profile__highlight-icon">{playstyle.icon}</div>
-          <div className="ranked-profile__highlight-info">
-            <span className="ranked-profile__highlight-title">Playstyle</span>
-            <span className="ranked-profile__highlight-name">{playstyle.label}</span>
-            <span className="ranked-profile__highlight-sub">{playstyle.desc}</span>
+        <div className="rp__accent rp__accent--play">
+          <span className="rp__accent-icon">{playstyle.icon}</span>
+          <div className="rp__accent-body">
+            <span className="rp__accent-lbl">Playstyle</span>
+            <span className="rp__accent-name">{playstyle.label}</span>
+            <span className="rp__accent-sub">{playstyle.desc}</span>
           </div>
         </div>
       </div>
 
-      {/* Player Card */}
-      <div className="ranked-profile__player-card" style={{ '--tier-color': tierColor }}>
-        <span className="ranked-profile__player-avatar">{displayAvatar}</span>
-        <span className="ranked-profile__player-name">{displayName}</span>
-        <span className="ranked-profile__player-rank">{tier.icon} {tier.name} {division || ''}</span>
-        <span className="ranked-profile__player-season">Season 1</span>
+      {/* Footer */}
+      <div className="rp__footer">
+        <span className="rp__footer-avatar">{displayAvatar}</span>
+        <div className="rp__footer-info">
+          <span className="rp__footer-name">{displayName}</span>
+          <span className="rp__footer-rank">{tier.icon} {tier.name}{division ? ` ${division}` : ''}</span>
+        </div>
+        <span className="rp__footer-season">Season 1</span>
       </div>
     </div>
   );

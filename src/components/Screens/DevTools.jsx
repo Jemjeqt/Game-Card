@@ -9,15 +9,15 @@ import { updateUserProfile } from '../../firebase/userService';
 const PRESET_PROFILES = [
   {
     label: '🏆 Max Rank',
-    data: { level: 50, exp: 0, coins: 99999, gems: 999, rankedPoints: 5000, totalWins: 500, totalLosses: 50, totalGames: 550, winStreak: 25, bestWinStreak: 25, title: 'Immortal' },
+    data: { level: 50, rankedPoints: 5000, totalWins: 500, totalLosses: 50, totalGames: 550, winStreak: 25, bestWinStreak: 25, title: 'Immortal' },
   },
   {
     label: '⚔️ Mid Player',
-    data: { level: 10, exp: 500, coins: 3000, gems: 50, rankedPoints: 1200, totalWins: 80, totalLosses: 40, totalGames: 120, winStreak: 5, bestWinStreak: 8, title: 'Legenda' },
+    data: { level: 10, rankedPoints: 1200, totalWins: 80, totalLosses: 40, totalGames: 120, winStreak: 5, bestWinStreak: 8, title: 'Legenda' },
   },
   {
     label: '🌱 Fresh Start',
-    data: { level: 1, exp: 0, coins: 500, gems: 0, rankedPoints: 0, totalWins: 0, totalLosses: 0, totalGames: 0, winStreak: 0, bestWinStreak: 0, title: 'Pemula' },
+    data: { level: 1, rankedPoints: 0, totalWins: 0, totalLosses: 0, totalGames: 0, winStreak: 0, bestWinStreak: 0, title: 'Pemula' },
   },
 ];
 
@@ -33,9 +33,6 @@ const RANK_PRESETS = [
 
 const EDITABLE_FIELDS = [
   { key: 'level', label: 'Level', type: 'number', min: 1, max: 99, icon: '📊' },
-  { key: 'exp', label: 'EXP', type: 'number', min: 0, max: 999999, icon: '⭐' },
-  { key: 'coins', label: 'Coins', type: 'number', min: 0, max: 999999, icon: '🪙' },
-  { key: 'gems', label: 'Gems', type: 'number', min: 0, max: 99999, icon: '💎' },
   { key: 'rankedPoints', label: 'Ranked Points', type: 'number', min: 0, max: 99999, icon: '🏆' },
   { key: 'totalWins', label: 'Total Wins', type: 'number', min: 0, max: 99999, icon: '✅' },
   { key: 'totalLosses', label: 'Total Losses', type: 'number', min: 0, max: 99999, icon: '❌' },
@@ -94,10 +91,13 @@ export default function DevTools({ onClose }) {
         updates[f.key] = val;
       });
 
+      // Ensure Firestore rankedPoints matches the _rankedPoints field (ranked tier selector)
+      const rp = values._rankedPoints === '' ? 0 : Number(values._rankedPoints);
+      updates.rankedPoints = Math.max(0, rp);
+
       await updateUserProfile(user.uid, updates);
 
       // Sync all ranked data to local ranked store + localStorage
-      const rp = values._rankedPoints === '' ? 0 : Number(values._rankedPoints);
       const rankedSync = {
         points: Math.max(0, rp),
         wins: updates.totalWins ?? 0,

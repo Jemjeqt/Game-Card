@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import useAuthStore from '../../stores/useAuthStore';
+import useRankedStore, { calculateTierInfo } from '../../stores/useRankedStore';
 import { updateUserProfile } from '../../firebase/userService';
 import { updateProfile } from 'firebase/auth';
 
-// ===== PROFILE SETTINGS =====
-// Avatar selection, nickname change, account info
+// ===== PROFILE SETTINGS — PRESTIGE MODE =====
 
 const AVATAR_OPTIONS = [
   { id: 'wizard', emoji: '🧙', label: 'Wizard' },
@@ -15,37 +15,54 @@ const AVATAR_OPTIONS = [
 ];
 
 const TITLE_OPTIONS = [
-  { minLevel: 1, title: 'Pemula' },
-  { minLevel: 3, title: 'Petarung' },
-  { minLevel: 5, title: 'Penakluk' },
-  { minLevel: 8, title: 'Sang Juara' },
-  { minLevel: 10, title: 'Legenda' },
-  { minLevel: 15, title: 'Immortal' },
+  { minLevel: 1,  title: 'Pemula'     },
+  { minLevel: 3,  title: 'Petarung'   },
+  { minLevel: 5,  title: 'Penakluk'   },
+  { minLevel: 8,  title: 'Sang Juara' },
+  { minLevel: 10, title: 'Legenda'    },
+  { minLevel: 15, title: 'Immortal'   },
 ];
 
+const TIER_COLORS = {
+  bronze: '#cd7f32', silver: '#94a3b8', gold: '#f59e0b',
+  platinum: '#67e8f9', diamond: '#818cf8', mythic: '#f97316', immortal: '#e040fb',
+};
+
 export default function ProfileSettings({ onClose }) {
-  const user = useAuthStore((s) => s.user);
-  const profile = useAuthStore((s) => s.profile);
+  const user          = useAuthStore((s) => s.user);
+  const profile       = useAuthStore((s) => s.profile);
   const refreshProfile = useAuthStore((s) => s.refreshProfile);
+  const rankedPoints  = useRankedStore((s) => s.points);
+  const wins          = profile?.totalWins   ?? 0;
+  const losses        = profile?.totalLosses ?? 0;
+  const totalGames    = profile?.totalGames  ?? 0;
+  const bestStreak    = profile?.bestWinStreak ?? 0;
+  const winRate       = totalGames > 0 ? ((wins / totalGames) * 100).toFixed(1) : '0.0';
 
   const currentAvatar = profile?.selectedAvatar || '🧙';
-  const currentName = profile?.username || user?.displayName || '';
-  const currentTitle = profile?.title || 'Pemula';
-  const level = profile?.level || 1;
+  const currentName   = profile?.username || user?.displayName || '';
+  const currentTitle  = profile?.title || 'Pemula';
+  const level         = profile?.level || 1;
 
-  const [selectedAvatar, setSelectedAvatar] = useState(currentAvatar);
-  const [nickname, setNickname] = useState(currentName);
-  const [selectedTitle, setSelectedTitle] = useState(currentTitle);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [error, setError] = useState(null);
+  const [selectedAvatar,    setSelectedAvatar]    = useState(currentAvatar);
+  const [nickname,           setNickname]          = useState(currentName);
+  const [selectedTitle,      setSelectedTitle]     = useState(currentTitle);
+  const [saving,             setSaving]            = useState(false);
+  const [saved,              setSaved]             = useState(false);
+  const [error,              setError]             = useState(null);
+  const [editingName,        setEditingName]       = useState(false);
+  const [showAvatarModal,    setShowAvatarModal]   = useState(false);
+  const [titleDropdownOpen,  setTitleDropdownOpen] = useState(false);
 
   const availableTitles = TITLE_OPTIONS.filter((t) => t.minLevel <= level);
-
   const hasChanges =
     selectedAvatar !== currentAvatar ||
     nickname !== currentName ||
     selectedTitle !== currentTitle;
+
+  const { tier, division } = calculateTierInfo(rankedPoints);
+  const tierColor  = TIER_COLORS[tier.id] || '#94a3b8';
+  const isImmortal = tier.id === 'immortal';
 
   const handleSave = async () => {
     if (!user || saving) return;
@@ -83,112 +100,133 @@ export default function ProfileSettings({ onClose }) {
   };
 
   return (
-    <div className="profile-settings">
+    <div className={`ps${isImmortal ? ' ps--immortal' : ''}`}>
       <button className="profile-settings__close" onClick={onClose}>✕</button>
-      <h2 className="profile-settings__title">⚙️ Pengaturan Profil</h2>
 
-      {/* Current Profile Preview */}
-      <div className="profile-settings__preview">
-        <span className="profile-settings__preview-avatar">{selectedAvatar}</span>
-        <div className="profile-settings__preview-info">
-          <span className="profile-settings__preview-name">{nickname || '???'}</span>
-          <span className="profile-settings__preview-level">Lv.{level} • {selectedTitle}</span>
-        </div>
-      </div>
+      {isImmortal && <div className="ps__immortal-crest" aria-hidden="true">🔱</div>}
 
-      {/* Avatar Selection */}
-      <div className="profile-settings__section">
-        <label className="profile-settings__label">Pilih Avatar</label>
-        <div className="profile-settings__avatars">
-          {AVATAR_OPTIONS.map((av) => (
-            <button
-              key={av.id}
-              className={`profile-settings__avatar-btn ${
-                selectedAvatar === av.emoji ? 'profile-settings__avatar-btn--selected' : ''
-              }`}
-              onClick={() => setSelectedAvatar(av.emoji)}
-              title={av.label}
-            >
-              <span className="profile-settings__avatar-emoji">{av.emoji}</span>
-              <span className="profile-settings__avatar-label">{av.label}</span>
+      {/* ── TOP: Hero Identity ─────────────────────────────── */}
+      <div className="ps__hero">
+        <button className="ps__avatar" onClick={() => setShowAvatarModal(true)} title="Ganti Avatar">
+          <span className="ps__avatar-emoji">{selectedAvatar}</span>
+          <span className="ps__avatar-hint">✎</span>
+        </button>
+
+        <div className="ps__identity">
+          {editingName ? (
+            <input
+              className="ps__name-input"
+              autoFocus
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              onBlur={() => setEditingName(false)}
+              onKeyDown={(e) => e.key === 'Enter' && setEditingName(false)}
+              maxLength={20}
+            />
+          ) : (
+            <button className="ps__name" onClick={() => setEditingName(true)}>
+              <span>{nickname || '???'}</span>
+              <span className="ps__pencil">✎</span>
             </button>
-          ))}
+          )}
+
+          <div className="ps__sub-row">
+            <span className="ps__level">Lv.{level}</span>
+            <span className="ps__sub-sep">·</span>
+            <div className="ps__gelar-wrap">
+              <button className="ps__gelar-btn" onClick={() => setTitleDropdownOpen((v) => !v)}>
+                <span className="ps__gelar-val">{selectedTitle}</span>
+                <span className="ps__gelar-caret">{titleDropdownOpen ? '▲' : '▼'}</span>
+              </button>
+              {titleDropdownOpen && (
+                <div className="ps__gelar-dropdown">
+                  {availableTitles.map((t) => (
+                    <button
+                      key={t.title}
+                      className={`ps__gelar-opt ${selectedTitle === t.title ? 'ps__gelar-opt--on' : ''}`}
+                      onClick={() => { setSelectedTitle(t.title); setTitleDropdownOpen(false); }}
+                    >
+                      {t.title}
+                    </button>
+                  ))}
+                  {TITLE_OPTIONS.length > availableTitles.length && (
+                    <div className="ps__gelar-locked">🔒 Level lebih tinggi</div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Nickname */}
-      <div className="profile-settings__section">
-        <label className="profile-settings__label">Username</label>
-        <input
-          className="profile-settings__input"
-          type="text"
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-          maxLength={20}
-          placeholder="Masukkan username"
-        />
-      </div>
-
-      {/* Title Selection */}
-      <div className="profile-settings__section">
-        <label className="profile-settings__label">Gelar</label>
-        <div className="profile-settings__titles">
-          {availableTitles.map((t) => (
-            <button
-              key={t.title}
-              className={`profile-settings__title-btn ${
-                selectedTitle === t.title ? 'profile-settings__title-btn--selected' : ''
-              }`}
-              onClick={() => setSelectedTitle(t.title)}
-            >
-              {t.title}
-            </button>
-          ))}
-        </div>
-        {TITLE_OPTIONS.length > availableTitles.length && (
-          <p className="profile-settings__hint">
-            🔒 Gelar lain terbuka di level yang lebih tinggi
-          </p>
+      {/* ── RANK SHOWCASE ──────────────────────────────────── */}
+      <div className="ps__rank" style={{ '--tc': tierColor }}>
+        <div className="ps__rank-glow" />
+        {isImmortal && <div className="ps__emblem-glow" />}
+        <div className="ps__rank-divider ps__rank-divider--top" />
+        <div className="ps__rank-emblem">{tier.icon}</div>
+        <div className="ps__rank-name">{tier.name}{division ? ` ${division}` : ''}</div>
+        {tier.id === 'immortal' && (
+          <div className="ps__rank-badge">Rank Tertinggi Tercapai</div>
         )}
+        <div className="ps__rank-rp">{rankedPoints.toLocaleString()}</div>
+        <div className="ps__rank-divider ps__rank-divider--bot" />
       </div>
 
-      {/* Stats (read-only) */}
-      <div className="profile-settings__section">
-        <label className="profile-settings__label">Statistik</label>
-        <div className="profile-settings__stats">
-          <div className="profile-settings__stat">
-            <span className="profile-settings__stat-icon">🏆</span>
-            <span className="profile-settings__stat-value">{profile?.totalWins ?? 0}</span>
-            <span className="profile-settings__stat-label">Menang</span>
-          </div>
-          <div className="profile-settings__stat">
-            <span className="profile-settings__stat-icon">💀</span>
-            <span className="profile-settings__stat-value">{profile?.totalLosses ?? 0}</span>
-            <span className="profile-settings__stat-label">Kalah</span>
-          </div>
-          <div className="profile-settings__stat">
-            <span className="profile-settings__stat-icon">🎮</span>
-            <span className="profile-settings__stat-value">{profile?.totalGames ?? 0}</span>
-            <span className="profile-settings__stat-label">Total</span>
-          </div>
-          <div className="profile-settings__stat">
-            <span className="profile-settings__stat-icon">🔥</span>
-            <span className="profile-settings__stat-value">{profile?.bestWinStreak ?? 0}</span>
-            <span className="profile-settings__stat-label">Best Streak</span>
-          </div>
+      {/* ── STATS ──────────────────────────────────────────── */}
+      <div className="ps__stats">
+        <div className="ps__stat">
+          <span className="ps__stat-val ps__stat-val--w">{wins}</span>
+          <span className="ps__stat-lbl">WINS</span>
+        </div>
+        <div className="ps__stat">
+          <span className="ps__stat-val ps__stat-val--l">{losses}</span>
+          <span className="ps__stat-lbl">LOSSES</span>
+        </div>
+        <div className="ps__stat">
+          <span className="ps__stat-val ps__stat-val--wr">{winRate}%</span>
+          <span className="ps__stat-lbl">WINRATE</span>
+        </div>
+        <div className="ps__stat">
+          <span className="ps__stat-val ps__stat-val--str">{bestStreak}</span>
+          <span className="ps__stat-lbl">BEST STK</span>
         </div>
       </div>
+
+      {/* ── AVATAR PICKER OVERLAY ──────────────────────────── */}
+      {showAvatarModal && (
+        <div className="ps__av-overlay" onClick={() => setShowAvatarModal(false)}>
+          <div className="ps__av-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="ps__av-header">
+              <p className="ps__av-title">Pilih Avatar</p>
+              <button className="ps__av-cancel" onClick={() => setShowAvatarModal(false)}>Batal</button>
+            </div>
+            <div className="ps__av-grid">
+              {AVATAR_OPTIONS.map((av) => (
+                <button
+                  key={av.id}
+                  className={`ps__av-btn ${selectedAvatar === av.emoji ? 'ps__av-btn--sel' : ''}`}
+                  onClick={() => { setSelectedAvatar(av.emoji); setShowAvatarModal(false); }}
+                >
+                  <span className="ps__av-emoji">{av.emoji}</span>
+                  <span className="ps__av-lbl">{av.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Error */}
       {error && <div className="profile-settings__error">⚠️ {error}</div>}
 
-      {/* Save Button */}
+      {/* Save */}
       <button
         className={`profile-settings__save ${saved ? 'profile-settings__save--saved' : ''}`}
         onClick={handleSave}
         disabled={saving || !hasChanges}
       >
-        {saving ? '⏳ Menyimpan...' : saved ? '✅ Tersimpan!' : '💾 Simpan Perubahan'}
+        {saving ? '⏳ Menyimpan...' : saved ? '✅ Tersimpan!' : 'Simpan Perubahan'}
       </button>
     </div>
   );
