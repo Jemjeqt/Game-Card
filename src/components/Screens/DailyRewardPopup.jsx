@@ -60,10 +60,6 @@ export default function DailyRewardPopup({ onClose }) {
           <h2 className="daily-reward-title">Reward Harian!</h2>
           <div className="daily-reward-items">
             <div className="daily-reward-item">
-              <span className="daily-reward-item-icon">🪙</span>
-              <span className="daily-reward-item-value">+{reward.coins} Coins</span>
-            </div>
-            <div className="daily-reward-item">
               <span className="daily-reward-item-icon">⭐</span>
               <span className="daily-reward-item-value">+{reward.exp} EXP</span>
             </div>

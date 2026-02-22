@@ -129,9 +129,11 @@ export const TIER_CONFIG = {
     maxMana: 7,
     manaRange: [1, 7],
     rarities: [RARITY.COMMON, RARITY.RARE, RARITY.EPIC, RARITY.LEGENDARY, RARITY.MYTHIC, RARITY.IMMORTAL],
-    deckSize: 30,
+    deckSize: 20,
     guaranteed: { legendary: 1 },
     legendaryLimit: 1,
+    // Draft: 1 guaranteed legendary
+    draftGuaranteed: { legendary: 1 },
   },
   silver: {
     hp: 65,
@@ -139,9 +141,11 @@ export const TIER_CONFIG = {
     maxMana: 8,
     manaRange: [1, 8],
     rarities: [RARITY.COMMON, RARITY.RARE, RARITY.EPIC, RARITY.LEGENDARY, RARITY.MYTHIC, RARITY.IMMORTAL],
-    deckSize: 32,
+    deckSize: 22,
     guaranteed: { legendary: 1 },
-    legendaryLimit: 1,
+    legendaryLimit: 2,
+    // Draft: 2 guaranteed legendary
+    draftGuaranteed: { legendary: 2 },
   },
   gold: {
     hp: 70,
@@ -149,9 +153,11 @@ export const TIER_CONFIG = {
     maxMana: 10,
     manaRange: [1, 10],
     rarities: [RARITY.COMMON, RARITY.RARE, RARITY.EPIC, RARITY.LEGENDARY, RARITY.MYTHIC, RARITY.IMMORTAL],
-    deckSize: 33,
+    deckSize: 25,
     guaranteed: { legendary: 2 },
-    legendaryLimit: 2,
+    legendaryLimit: 4,
+    // Draft: 3 guaranteed legendary + 1 guaranteed mythic
+    draftGuaranteed: { legendary: 3, mythic: 1 },
   },
   platinum: {
     hp: 75,
@@ -159,9 +165,11 @@ export const TIER_CONFIG = {
     maxMana: 10,
     manaRange: [1, 10],
     rarities: [RARITY.COMMON, RARITY.RARE, RARITY.EPIC, RARITY.LEGENDARY, RARITY.MYTHIC, RARITY.IMMORTAL],
-    deckSize: 35,
+    deckSize: 27,
     guaranteed: { legendary: 2 },
-    legendaryLimit: 2,
+    legendaryLimit: 4,
+    // Draft: 3 guaranteed legendary + 1 guaranteed mythic
+    draftGuaranteed: { legendary: 3, mythic: 1 },
   },
   diamond: {
     hp: 80,
@@ -169,9 +177,11 @@ export const TIER_CONFIG = {
     maxMana: 12,
     manaRange: [1, 12],
     rarities: [RARITY.COMMON, RARITY.RARE, RARITY.EPIC, RARITY.LEGENDARY, RARITY.MYTHIC, RARITY.IMMORTAL],
-    deckSize: 36,
+    deckSize: 30,
     guaranteed: { legendary: 1, mythic: 1 },
-    legendaryLimit: 2,
+    legendaryLimit: 6,
+    // Draft: 4 guaranteed legendary + 2 guaranteed mythic
+    draftGuaranteed: { legendary: 4, mythic: 2 },
   },
   mythic: {
     hp: 85,
@@ -179,9 +189,11 @@ export const TIER_CONFIG = {
     maxMana: 15,
     manaRange: [1, 15],
     rarities: [RARITY.COMMON, RARITY.RARE, RARITY.EPIC, RARITY.LEGENDARY, RARITY.MYTHIC, RARITY.IMMORTAL],
-    deckSize: 38,
+    deckSize: 30,
     guaranteed: { legendary: 1, mythic: 1, immortal: 1 },
-    legendaryLimit: 3,
+    legendaryLimit: 7,
+    // Draft: 5 guaranteed legendary + 2 guaranteed mythic
+    draftGuaranteed: { legendary: 5, mythic: 2 },
   },
   immortal: {
     hp: 90,
@@ -189,9 +201,11 @@ export const TIER_CONFIG = {
     maxMana: 15,
     manaRange: [1, 15],
     rarities: [RARITY.COMMON, RARITY.RARE, RARITY.EPIC, RARITY.LEGENDARY, RARITY.MYTHIC, RARITY.IMMORTAL],
-    deckSize: 40,
+    deckSize: 30,
     guaranteed: { legendary: 2, mythic: 1, immortal: 1 },
-    legendaryLimit: 3,
+    legendaryLimit: 9,
+    // Draft: 6 guaranteed legendary + 3 guaranteed mythic
+    draftGuaranteed: { legendary: 6, mythic: 3 },
   },
 };
 

@@ -27,7 +27,6 @@ function withTimeout(promise, ms = 8000) {
   ]);
 }
 
-const DAILY_REWARD_COINS = 100;
 const DAILY_REWARD_EXP = 50;
 
 /**
@@ -76,11 +75,16 @@ export async function createUserProfile(uid, { username, email }) {
     avatar: DEFAULT_AVATAR,
     level: 1,
     exp: 0,
-    coins: 500, // starting coins
-    gems: 0,
     totalWins: 0,
     totalLosses: 0,
     totalGames: 0,
+    // Per-mode stats
+    classicWins: 0,
+    classicLosses: 0,
+    classicGames: 0,
+    rankedWins: 0,
+    rankedLosses: 0,
+    rankedGames: 0,
     winStreak: 0,
     bestWinStreak: 0,
     rankedPoints: 0,
@@ -124,15 +128,6 @@ export async function updateUserProfile(uid, updates) {
 }
 
 /**
- * Add coins to user
- */
-export async function addCoins(uid, amount) {
-  const profile = await getUserProfile(uid);
-  if (!profile) return;
-  await updateUserProfile(uid, { coins: (profile.coins || 0) + amount });
-}
-
-/**
  * Add EXP and handle level-up
  * Every 100 EXP = 1 level
  */
@@ -154,8 +149,10 @@ export async function addExp(uid, amount) {
 
 /**
  * Record game result
+ * mode: 'classic' | 'ranked' | 'draft' (draft counts as classic for stats)
+ * meta: { pointDelta?, playerHp?, playerMaxHp?, turnCount?, duration?, outcome? }
  */
-export async function recordGameResult(uid, won) {
+export async function recordGameResult(uid, won, mode = 'classic', meta = {}) {
   const profile = await getUserProfile(uid);
   if (!profile) return;
 
@@ -172,18 +169,41 @@ export async function recordGameResult(uid, won) {
     updates.winStreak = 0;
   }
 
+  // Per-mode stats (draft counts as classic)
+  const isRanked = mode === 'ranked';
+  const modePrefix = isRanked ? 'ranked' : 'classic';
+  updates[`${modePrefix}Games`] = (profile[`${modePrefix}Games`] || 0) + 1;
+  if (won) {
+    updates[`${modePrefix}Wins`] = (profile[`${modePrefix}Wins`] || 0) + 1;
+  } else {
+    updates[`${modePrefix}Losses`] = (profile[`${modePrefix}Losses`] || 0) + 1;
+  }
+
   await updateUserProfile(uid, updates);
 
   // Award EXP for playing
   const expGain = won ? 30 : 10;
   const expResult = await addExp(uid, expGain);
 
-  // Award coins for winning
-  if (won) {
-    await addCoins(uid, 25);
-  }
+  // Append to match history (last 10, newest first)
+  const historyEntry = {
+    result: won ? 'win' : 'lose',
+    mode,
+    pointDelta:    meta.pointDelta    ?? null,
+    pointsBefore:  meta.pointsBefore  ?? null,
+    pointsAfter:   meta.pointsAfter   ?? null,
+    playerHp:      meta.playerHp      ?? null,
+    playerMaxHp:   meta.playerMaxHp   ?? null,
+    turnCount:     meta.turnCount     ?? null,
+    duration:      meta.duration      ?? null,
+    outcome:       meta.outcome       ?? null,
+    ts: Date.now(),
+  };
+  const prevHistory = Array.isArray(profile.matchHistory) ? profile.matchHistory : [];
+  const newHistory = [historyEntry, ...prevHistory].slice(0, 10);
+  await updateUserProfile(uid, { matchHistory: newHistory });
 
-  return { ...updates, expResult, coinsGained: won ? 25 : 0 };
+  return { ...updates, expResult };
 }
 
 /**
@@ -222,7 +242,6 @@ export async function claimDailyReward(uid) {
 
   // Streak bonus: +10% per day, max 7x
   const streakMultiplier = 1 + Math.min(newStreak - 1, 6) * 0.1;
-  const coinsReward = Math.floor(DAILY_REWARD_COINS * streakMultiplier);
   const expReward = Math.floor(DAILY_REWARD_EXP * streakMultiplier);
 
   await updateUserProfile(uid, {
@@ -230,11 +249,9 @@ export async function claimDailyReward(uid) {
     dailyRewardStreak: newStreak,
   });
 
-  await addCoins(uid, coinsReward);
   const expResult = await addExp(uid, expReward);
 
   return {
-    coins: coinsReward,
     exp: expReward,
     streak: newStreak,
     leveledUp: expResult?.leveledUp || false,

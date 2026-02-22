@@ -339,6 +339,17 @@ src/
 - 📊 **Derived Stats di Profil** — Grid statistik kini menampilkan Wins, Losses, Winrate % (kalkulasi otomatis), dan Best Streak — menggantikan Total Match
 - 🔱 **Immortal Prestige UI** — Visual eksklusif untuk Immortal di ProfileSettings & RankedProfile: emblem glow animasi, watermark crest 🔱, gradient text ungu pada nama rank
 - 🏷️ **Label RP Dihapus** — Poin rank ditampilkan sebagai angka bersih tanpa sufiks "RP"
+- 📜 **Expandable Battle Log di Profil** — Riwayat pertandingan bisa di-expand per entry: tampil Sisa HP, Turn, Durasi, Point sebelum → sesudah, dan badge outcome (FLAWLESS / DOMINANT / COMEBACK)
+- 📈 **Point Tracker History** — Setiap match ranked menyimpan point sebelum dan sesudah (contoh: `1000 → 1200 (+200 PT)`)
+- 🗑️ **DevTools: Per-Entry Delete** — Hapus satu entri history langsung dari Developer Tools tanpa clear semua
+- 🛠️ **DevTools: Inject History Lengkap** — Field inject sekarang mencakup HP, Max HP (sesuai tier aktif), Turns, Durasi, Outcome, Point Sebelum, dan Point Delta
+- 🐛 **FIX: Surrender Ranked Tercatat Classic** — Surrender dari ranked match sekarang tersimpan benar sebagai mode `ranked` lengkap dengan semua stats
+- 🐛 **FIX: maxHp Fallback Salah (30→60)** — Sisa HP di history sekarang menampilkan maxHp yang benar sesuai tier (Bronze 60, Immortal 90, dll)
+- 📱 **iOS Notch Fix** — Tambah `viewport-fit=cover` dan `env(safe-area-inset-bottom)` agar konten tidak terpotong di iPhone
+- 📱 **Mobile Hand Scrollable** — Tangan kartu di mobile kini horizontal scroll dengan gap antar kartu — tidak ada overlap, semua kartu bisa ditekan
+- 📱 **Mobile Ranked Profile** — Grid stat 4 kolom → 2 kolom di layar kecil
+- 📱 **Mobile DevTools** — Inject controls stack vertikal di mobile
+- 📱 **100dvh Everywhere** — Semua full-page screen pakai `dvh` untuk menghindari address bar clipping di browser mobile
 
 ### v0.4.0-beta — 21 Februari 2026
 

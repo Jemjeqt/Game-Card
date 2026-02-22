@@ -53,14 +53,37 @@ export default function GameBoard() {
   const handleLeaveGame = useCallback(() => {
     // If ranked, record as a loss
     if (isRankedMode) {
+      const pointsBefore = useRankedStore.getState().points;
       useRankedStore.getState().recordMatch(false);
-      
+      const st = useRankedStore.getState();
+      const pointDelta = st.lastMatchResult?.pointsChange ?? null;
+
       // Record loss to Firestore
       const user = useAuthStore.getState().user;
       if (user) {
-        recordGameResult(user.uid, false)
+        const pHp    = usePlayerStore.getState().hp;
+        const pMaxHp = usePlayerStore.getState().maxHp || 60;
+        const turns  = useGameStore.getState().turn;
+        const started = useGameStore.getState().gameStartedAt;
+        const durSec  = started ? Math.round((Date.now() - started) / 1000) : null;
+        recordGameResult(user.uid, false, 'ranked', {
+          pointDelta,
+          pointsBefore,
+          pointsAfter: pointsBefore != null && pointDelta != null ? pointsBefore + pointDelta : null,
+          playerHp:    pHp,
+          playerMaxHp: pMaxHp,
+          turnCount:   turns,
+          duration:    durSec,
+          outcome:     null,
+        })
           .then(() => useAuthStore.getState().refreshProfile())
           .catch((err) => console.warn('Failed to record forfeit:', err));
+
+        // Sync ranked points to Firestore
+        updateUserProfile(user.uid, {
+          rankedPoints:        st.points,
+          highestRankedPoints: st.highestPoints,
+        }).catch(() => {});
       }
     }
 

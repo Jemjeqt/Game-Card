@@ -10,6 +10,7 @@ const useGameStore = create((set, get) => ({
   isProcessing: false,
   winner: null,
   aiDifficulty: AI_DIFFICULTY.NORMAL, // Current AI difficulty
+  gameStartedAt: null, // timestamp when current match started
 
   // Actions
   startGame: () => {
@@ -20,6 +21,7 @@ const useGameStore = create((set, get) => ({
       gameStatus: GAME_STATUS.PLAYING,
       isProcessing: false,
       winner: null,
+      gameStartedAt: Date.now(),
     });
   },
 
@@ -90,6 +92,7 @@ const useGameStore = create((set, get) => ({
       isProcessing: false,
       winner: null,
       aiDifficulty: AI_DIFFICULTY.NORMAL,
+      gameStartedAt: null,
     });
   },
 
@@ -104,6 +107,7 @@ const useGameStore = create((set, get) => ({
       isProcessing: false,
       winner: null,
       aiDifficulty: AI_DIFFICULTY.NORMAL,
+      gameStartedAt: null,
     });
   },
 }));

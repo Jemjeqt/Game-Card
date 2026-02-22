@@ -56,6 +56,12 @@ export default function RankedProfile({ onClose }) {
 
   const isImmortal = tier.id === 'immortal';
   const winRate = totalGames > 0 ? ((wins / totalGames) * 100).toFixed(1) : '0.0';
+
+  // Prestige crest icon per tier
+  const TIER_CREST = {
+    bronze: '🥉', silver: '🥈', gold: '🥇',
+    platinum: '💎', diamond: '💠', mythic: '🏆', immortal: '🔱',
+  };
   const playstyle = getPlaystyle(parseFloat(winRate), totalGames);
 
   // Pick signature card based on wins
@@ -71,14 +77,16 @@ export default function RankedProfile({ onClose }) {
   const highestTierInfo = useMemo(() => calculateTierInfo(highestPoints), [highestPoints]);
 
   return (
-    <div className={`rp${isImmortal ? ' rp--immortal' : ''}`} style={{ '--tc': tierColor }}>
+    <div className={`rp rp--${tier.id}`} style={{ '--tc': tierColor }}>
       <button className="profile-settings__close" onClick={onClose}>✕</button>
 
       {isImmortal && <div className="rp__immortal-crest" aria-hidden="true">🔱</div>}
+      <div className="rp__tier-crest" aria-hidden="true">{TIER_CREST[tier.id]}</div>
 
       {/* 1. Hero Rank Banner */}
       <div className="rp__hero">
         {isImmortal && <div className="rp__icon-glow" />}
+        <div className="rp__icon-glow" />
         <div className="rp__hero-icon">{tier.icon}</div>
         <div className="rp__hero-body">
           <div className="rp__hero-rank">{tier.name}{division ? ` ${division}` : ''}</div>
@@ -105,6 +113,7 @@ export default function RankedProfile({ onClose }) {
 
       {/* 2. Stats Section */}
       <div className="rp__stats">
+        <div className="rp__stats-label">Ranked Stats</div>
 
         {/* 4-card derived stat grid */}
         <div className="rp__grid">

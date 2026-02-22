@@ -42,6 +42,7 @@ export default function GameOverScreen() {
       }
 
       // Record ranked match
+      const pointsBefore = isRankedMode ? useRankedStore.getState().points : null;
       if (isRankedMode) {
         useRankedStore.getState().recordMatch(playerWon);
         // Persist rankedPoints to Firestore so it syncs across devices
@@ -56,10 +57,38 @@ export default function GameOverScreen() {
         }
       }
 
-      // Record to Firestore (coins, EXP, win/loss)
+      // Record to Firestore (EXP, win/loss) — pass mode for per-mode stats
       const user = useAuthStore.getState().user;
       if (user) {
-        recordGameResult(user.uid, playerWon)
+        const gameMode = isRankedMode ? 'ranked' : 'classic';
+        const pointDelta = isRankedMode
+          ? (useRankedStore.getState().lastMatchResult?.pointsChange ?? null)
+          : null;
+
+        // Capture match stats for battle log
+        const pHp     = usePlayerStore.getState().hp;
+        const pMaxHp  = usePlayerStore.getState().maxHp || 60;
+        const turns   = useGameStore.getState().turn;
+        const started = useGameStore.getState().gameStartedAt;
+        const durSec  = started ? Math.round((Date.now() - started) / 1000) : null;
+        const hpPct   = pHp / pMaxHp;
+        const outcome = playerWon
+          ? hpPct > 0.80 ? 'flawless'
+          : hpPct > 0.50 ? 'dominant'
+          : hpPct <= 0.20 ? 'comeback'
+          : null
+          : null;
+
+        recordGameResult(user.uid, playerWon, gameMode, {
+          pointDelta,
+          pointsBefore: pointsBefore,
+          pointsAfter:  pointsBefore != null && pointDelta != null ? pointsBefore + pointDelta : null,
+          playerHp: pHp,
+          playerMaxHp: pMaxHp,
+          turnCount: turns,
+          duration: durSec,
+          outcome,
+        })
           .then(() => useAuthStore.getState().refreshProfile())
           .catch((err) => console.warn('Failed to record game result:', err));
       }
