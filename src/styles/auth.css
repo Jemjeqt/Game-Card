@@ -390,6 +390,7 @@
   align-items: center;
   gap: 7px;
   flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .upb__name {
@@ -401,6 +402,9 @@
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
   line-height: 1;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 /* Rank emblem — pure icon, no capsule, no background rect */
@@ -2062,8 +2066,19 @@
     padding: 24px 16px;
   }
 
+  /* shrink name instead of hiding rank chip */
+  .upb__name {
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+
   .upb__rank-chip {
-    display: none; /* hide rank chip on very small screens */
+    width: 22px;
+    height: 22px;
+  }
+
+  .upb__rank-icon {
+    font-size: 14px;
   }
 }
 
