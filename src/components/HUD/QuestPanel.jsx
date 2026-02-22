@@ -11,17 +11,8 @@ export default function QuestPanel({ onClose }) {
   const handleClaim = (questId) => {
     const reward = claimReward(questId);
     if (reward > 0) {
-      // Add reward to ranked points through the store
-      const rankedStore = useRankedStore.getState();
-      const currentPoints = rankedStore.points;
-      const newPoints = currentPoints + reward;
-      const newHighest = Math.max(rankedStore.highestPoints, newPoints);
-      useRankedStore.setState({
-        points: newPoints,
-        highestPoints: newHighest,
-      });
-      // Persist via store's own save method
-      rankedStore.saveRankedData();
+      // Add reward to ranked points and persist to localStorage
+      useRankedStore.getState().addPoints(reward);
     }
   };
 

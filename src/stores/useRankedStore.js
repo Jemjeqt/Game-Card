@@ -156,6 +156,16 @@ const useRankedStore = create((set, get) => ({
     saveRankedData({ ...state, ...newState });
   },
 
+  // Add points directly (e.g., from quest reward claims)
+  addPoints: (amount) => {
+    if (amount <= 0) return;
+    const state = get();
+    const newPoints = state.points + amount;
+    const newHighest = Math.max(state.highestPoints, newPoints);
+    set({ points: newPoints, highestPoints: newHighest });
+    saveRankedData({ ...state, points: newPoints, highestPoints: newHighest });
+  },
+
   // Clear last match result
   clearLastMatch: () => set({ lastMatchResult: null }),
 

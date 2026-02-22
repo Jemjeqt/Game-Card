@@ -107,6 +107,9 @@ function resolveSingleEffect({ effect, card, ownerStore, enemyStore, addLog }) {
     case EFFECT_TYPES.BUFF_ALL_ATTACK:
       return resolveBuffAllAttack(effect, card, ownerStore, addLog);
 
+    case EFFECT_TYPES.BUFF_ALL_DEFENSE:
+      return resolveBuffAllDefense(effect, card, ownerStore, addLog);
+
     case EFFECT_TYPES.MANA_GAIN:
       return resolveManaGain(effect, card, ownerStore, addLog);
 
@@ -399,6 +402,13 @@ function resolveBuffAllAttack(effect, card, ownerStore, addLog) {
   ownerStore.getState().buffAllMinionsAttack(effect.value);
   addLog(`${card.name} gives all friendly minions +${effect.value} Attack!`);
   return { type: 'buffAllAttack', value: effect.value };
+}
+
+// === BUFF ALL DEFENSE (Arcane Overlord) ===
+function resolveBuffAllDefense(effect, card, ownerStore, addLog) {
+  ownerStore.getState().buffAllMinionsDefense(effect.value);
+  addLog(`${card.name} gives all friendly minions +${effect.value} Defense!`);
+  return { type: 'buffAllDefense', value: effect.value };
 }
 
 // === MANA GAIN ===

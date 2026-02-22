@@ -214,7 +214,7 @@ export async function endTurn() {
 
   // Emit VFX for end-of-turn effects
   for (const r of endResults) {
-    if (r) { emitAbilityTriggered(r, null, isPlayer ? 'player' : 'opponent'); break; }
+    if (r) { emitAbilityTriggered(r, null, isPlayer ? 'player' : 'opponent'); }
   }
 
   if (checkGameOver()) return;
