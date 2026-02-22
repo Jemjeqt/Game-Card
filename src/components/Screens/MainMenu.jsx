@@ -356,6 +356,14 @@ export default function MainMenu() {
                   <li><strong>📊 Derived Stats Profile</strong> — Statistik profil kini menampilkan Wins, Losses, Winrate % (dihitung otomatis), dan Best Streak.</li>
                   <li><strong>🔱 Immortal Prestige UI</strong> — Visual eksklusif di ProfileSettings & RankedProfile: emblem glow animasi, watermark crest, tint ungu pada judul rank.</li>
                   <li><strong>🏷️ Label Poin Dibersihkan</strong> — Tampilan poin rank tidak lagi memakai sufiks "RP".</li>
+                  <li><strong>📜 Expandable Battle Log</strong> — Riwayat pertandingan di profil bisa di-expand: tampil Sisa HP, Turn, Durasi, dan badge outcome (FLAWLESS / DOMINANT / COMEBACK).</li>
+                  <li><strong>📈 Point Tracker History</strong> — Setiap match ranked menyimpan point sebelum & sesudah — contoh: <em>1000 → 1200 (+200 PT)</em>.</li>
+                  <li><strong>🛠️ DevTools Upgrade</strong> — Inject history sekarang support HP, Turns, Durasi, Outcome, Point Sebelum/Delta. Plus hapus entri satuan tanpa clear semua.</li>
+                  <li><strong>🐛 FIX: Surrender Ranked</strong> — Surrender dari ranked match kini tercatat benar sebagai mode ranked (sebelumnya tersimpan sebagai classic).</li>
+                  <li><strong>🐛 FIX: Sisa HP di History</strong> — maxHp sekarang sesuai tier (Bronze 60, Immortal 90) — tidak lagi tampil salah.</li>
+                  <li><strong>📱 Mobile Hand Scrollable</strong> — Kartu di tangan tidak lagi overlap di mobile — bisa scroll horizontal, semua kartu bisa ditekan.</li>
+                  <li><strong>📱 iOS Notch & Safe Area</strong> — Konten tidak terpotong notch iPhone, home bar tidak overlap game.</li>
+                  <li><strong>📱 Mobile UI Fixes</strong> — Ranked profile grid 2 kolom, DevTools inject stack vertikal, semua screen pakai 100dvh.</li>
                 </ul>
               </section>
 
