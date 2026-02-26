@@ -8,6 +8,7 @@ const useUIStore = create((set, get) => ({
   selectedCardId: null,
   hoveredCardId: null,
   battleLog: [],
+  battleLogMinimized: true,
   isAnimating: false,
   showCardPreview: null,
   turnBanner: null, // 'Your Turn' / 'Enemy Turn'
@@ -62,6 +63,8 @@ const useUIStore = create((set, get) => ({
   setTargetingMode: (cardId) =>
     set({ targetingMode: true, targetingCardId: cardId }),
 
+  setBattleLogMinimized: (val) => set({ battleLogMinimized: val }),
+
   cancelTargeting: () =>
     set({ targetingMode: false, targetingCardId: null, pendingSpell: null }),
 
@@ -77,6 +80,7 @@ const useUIStore = create((set, get) => ({
       selectedCardId: null,
       hoveredCardId: null,
       battleLog: [],
+      battleLogMinimized: true,
       isAnimating: false,
       showCardPreview: null,
       turnBanner: null,

@@ -99,12 +99,14 @@ export default function GameBoard() {
     setShowLeaveConfirm(false);
   }, [isRankedMode, isDraftMode]);
 
+  const battleLogMinimized = useUIStore((s) => s.battleLogMinimized);
+
   const isGameOver =
     gameStatus === GAME_STATUS.PLAYER_WIN ||
     gameStatus === GAME_STATUS.OPPONENT_WIN;
 
   return (
-    <div className="game-board">
+    <div className={`game-board${!battleLogMinimized ? ' game-board--log-open' : ''}`}>
       {/* Leave Confirmation Modal */}
       {showLeaveConfirm && (
         <div className="leave-confirm-overlay" onClick={() => setShowLeaveConfirm(false)}>
@@ -135,24 +137,21 @@ export default function GameBoard() {
         </div>
       )}
 
-      {/* Opponent HUD */}
-      <div className="hud hud--opponent">
-        <div className="hud__left">
+      {/* Opponent Hero Zone */}
+      <div className="hero-zone hero-zone--opponent">
+        <div className="hero-zone__left">
           <button
             className="leave-game-btn"
             onClick={() => setShowLeaveConfirm(true)}
             title="Leave Game"
-          >
-            ✕
-          </button>
-          <HPBar hp={opponentHp} maxHp={opponentMaxHp} />
+          >✕</button>
+          <div className="hero-avatar">{isMultiplayer ? '👤' : '🤖'}</div>
+          <div className="hero-zone__info">
+            <span className="hero-zone__name">{isMultiplayer ? 'Opponent' : 'AI Opponent'}</span>
+            <HPBar hp={opponentHp} maxHp={opponentMaxHp} />
+          </div>
         </div>
-        <div className="hud__center">
-          <span style={{ color: 'var(--text-dim)', fontSize: '12px', fontFamily: 'var(--font-heading)' }}>
-            {isMultiplayer ? '👤 Opponent' : '🤖 AI Opponent'}
-          </span>
-        </div>
-        <div className="hud__right">
+        <div className="hero-zone__right">
           <ManaBar mana={opponentMana} maxMana={opponentMaxMana} />
           <DeckCounter count={opponentDeckCount} />
         </div>
@@ -164,34 +163,40 @@ export default function GameBoard() {
       {/* Opponent Field */}
       <OpponentField />
 
-      {/* Center Divider */}
-      <div className="center-divider">
-        <span style={{ color: 'var(--text-dim)', fontSize: '11px', fontFamily: 'var(--font-heading)' }}>
-          Turn {turn}
-        </span>
-        <PhaseIndicator phase={phase} />
-        <TurnButton />
+      {/* Battle Line — turn/phase info only */}
+      <div className="battle-line">
+        <div className="battle-line__state">
+          <span className="battle-line__turn">Turn {turn}</span>
+          <span className="battle-line__sep">—</span>
+          <PhaseIndicator phase={phase} />
+        </div>
       </div>
 
       {/* Player Field */}
       <PlayerField />
 
-      {/* Player Hand */}
-      <PlayerHand />
+      {/* Hand Area */}
+      <div className="hand-area">
+        <div className="turn-action">
+          <TurnButton />
+        </div>
+        <div className="hand-area__sep" />
+        <PlayerHand />
+      </div>
 
-      {/* Player HUD */}
-      <div className="hud hud--player">
-        <div className="hud__left">
-          <HPBar hp={playerHp} maxHp={playerMaxHp} />
+      {/* Player Hero Zone */}
+      <div className="hero-zone hero-zone--player">
+        <div className="hero-zone__left">
+          <div className="hero-avatar hero-avatar--player">⚔️</div>
+          <div className="hero-zone__info">
+            <span className="hero-zone__name">
+              {isMultiplayer ? `You (${role === 'host' ? 'Host' : 'Guest'})` : 'You'}
+              {isRankedMode ? ' 🏆' : ''}{isDraftMode ? ' 📜' : ''}
+            </span>
+            <HPBar hp={playerHp} maxHp={playerMaxHp} />
+          </div>
         </div>
-        <div className="hud__center">
-          <span style={{ color: 'var(--text-dim)', fontSize: '12px', fontFamily: 'var(--font-heading)' }}>
-            ⚔️ You{isMultiplayer ? ` (${role === 'host' ? 'Host' : 'Guest'})` : ''}
-            {isRankedMode ? ' 🏆' : ''}
-            {isDraftMode ? ' 📜' : ''}
-          </span>
-        </div>
-        <div className="hud__right">
+        <div className="hero-zone__right">
           <ManaBar mana={playerMana} maxMana={playerMaxMana} />
           <DeckCounter count={playerDeckCount} />
         </div>

@@ -175,28 +175,42 @@ export default function PlayerHand() {
     useUIStore.getState().setShowCardPreview(card);
   };
 
+  // === 2-row hand layout: first row = 5 cards, second row = the rest ===
+  const TWO_ROW_THRESHOLD = 5;
+  const useTwoRows = hand.length > TWO_ROW_THRESHOLD;
+  const row1 = useTwoRows ? hand.slice(0, 5) : hand;
+  const row2 = useTwoRows ? hand.slice(5) : [];
+
+  const renderCard = (card) => {
+    const isPlayable =
+      isPlayerMainPhase &&
+      card.manaCost <= mana &&
+      (card.type !== CARD_TYPES.MINION || board.length < MAX_BOARD_SIZE);
+    return (
+      <div key={card.instanceId} className="hand__card-wrapper">
+        <Card
+          card={card}
+          size="hand"
+          isPlayable={isPlayable}
+          isSelected={selectedCardId === card.instanceId}
+          onClick={handleCardClick}
+          onRightClick={handleRightClick}
+        />
+      </div>
+    );
+  };
+
   return (
     <div className="hand">
-      <div className="hand__cards">
-        {hand.map((card) => {
-          const isPlayable =
-            isPlayerMainPhase &&
-            card.manaCost <= mana &&
-            (card.type !== CARD_TYPES.MINION || board.length < MAX_BOARD_SIZE);
-
-          return (
-            <div key={card.instanceId} className="hand__card-wrapper">
-              <Card
-                card={card}
-                size="hand"
-                isPlayable={isPlayable}
-                isSelected={selectedCardId === card.instanceId}
-                onClick={handleCardClick}
-                onRightClick={handleRightClick}
-              />
-            </div>
-          );
-        })}
+      <div className="hand__rows">
+        {useTwoRows && (
+          <div className="hand__row hand__row--top">
+            {row1.map(renderCard)}
+          </div>
+        )}
+        <div className="hand__row hand__row--bottom">
+          {row2.length > 0 ? row2.map(renderCard) : row1.map(renderCard)}
+        </div>
       </div>
     </div>
   );

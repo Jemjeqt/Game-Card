@@ -34,16 +34,44 @@ export default function OpponentField() {
       {board.length === 0 ? (
         <span className="field__empty">No enemy minions</span>
       ) : (
-        board.map((minion) => (
-          <Card
-            key={minion.instanceId}
-            card={minion}
-            size="board"
-            isExhausted={minion.exhausted}
-            isEntering={enteringIds.has(minion.instanceId)}
-            onRightClick={handleRightClick}
-          />
-        ))
+        <>
+          {/* Primary row: always 5 slots */}
+          <div className="field__row">
+            {Array.from({ length: 5 }, (_, i) => {
+              const minion = board[i];
+              if (!minion) {
+                return <div key={`gs-${i}`} className="field__slot" />;
+              }
+              return (
+                <div key={minion.instanceId} className="field__slot field__slot--filled">
+                  <Card
+                    card={minion}
+                    size="board"
+                    isExhausted={minion.exhausted}
+                    isEntering={enteringIds.has(minion.instanceId)}
+                    onRightClick={handleRightClick}
+                  />
+                </div>
+              );
+            })}
+          </div>
+          {/* Overflow row: cards 6–10 */}
+          {board.length > 5 && (
+            <div className="field__row field__row--overflow">
+              {board.slice(5).map((minion) => (
+                <div key={minion.instanceId} className="field__slot field__slot--filled">
+                  <Card
+                    card={minion}
+                    size="board"
+                    isExhausted={minion.exhausted}
+                    isEntering={enteringIds.has(minion.instanceId)}
+                    onRightClick={handleRightClick}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

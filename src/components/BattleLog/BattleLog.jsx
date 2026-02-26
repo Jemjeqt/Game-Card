@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import useUIStore from '../../stores/useUIStore';
 
 export default function BattleLog() {
   const battleLog = useUIStore((s) => s.battleLog);
+  const minimized = useUIStore((s) => s.battleLogMinimized);
+  const setMinimized = useUIStore((s) => s.setBattleLogMinimized);
   const scrollRef = useRef(null);
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 640;
-  const [minimized, setMinimized] = useState(isMobile);
 
   // Auto-scroll to bottom
   useEffect(() => {
